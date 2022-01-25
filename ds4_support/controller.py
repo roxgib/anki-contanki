@@ -15,25 +15,43 @@ class ds4(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
 
+        self.config = mw.addonManager.getConfig(__name__)
+
+        self.states = {
+            "startup": None,
+            "deckBrowser": self.config['decks'],
+            "overview": self.config['overview'],
+            "profileManager": None,
+            'question': self.config['reviewer_question'],
+            'answer': self.config['reviewer_answer'],
+        }
+
         with open(os.path.join(addon_path, "controller.js"), 'r') as f:
             html = f"""DS4 Support\n<p id="ds4"></p>\n<script type="text/javascript">\n{f.read()}\n</script>\n<!DOCTYPE html><body></body></html>"""
         self.stdHtml(html)
 
-        self.axes = {}
-        # self.button_pressed.connect(self.on_button_pressed)
-        # self.bindings = config['bindings']
+        self.axes = dict()
 
         self.funcs = {
             'on_connect': self.on_connect,
             'on_button_press': self.on_button_press,
             'on_update_axis': self.on_update_axis,
         }
+
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
 
     def on_button_press(self, button):
-        tooltip('button_pressed: ' + self.active_axis() + ' | ' + button)
-        func_map[config_map[(self.active_axis(), button)]]()
+        tooltip('button_pressed: ' + str(self.axes) + ' | ' + button)
+        axes_button = list()
 
+        if self.axes['L2'] > 0.4:
+            axes_button.append('L2')
+        if self.axes['R2'] > 0.4:
+            axes_button.append('R2')
+        
+        axes_button.append(BUTTONS[button])
+
+        func_map[self.states[mw.state if mw.state != 'reviewer' else mw.reviewer.state][' + '.join(axes_button)]]
 
     def on_update_axis(self, axis, value):
         self.axes[AXES[axis]] = float(value)
@@ -43,31 +61,21 @@ class ds4(AnkiWebView):
             tooltip('No controller connected')
         else:
             tooltip('Controller Connected | ' + str(con))
-
-    def active_axis(self):
-        axes = list()
-        if self.axes['L2'] > 0.6:
-            axes.append('L2')
-        if self.axes['R2'] > 0.6:
-            axes.append('R2')
-        
-        return ' & '.join(axes)
         
     def on_receive_message(self, handled, message, context):
         mod, func, *values = message.split(':')
         if mod == 'ds4':
             if func == 'message':
                 tooltip(values)
-                return (True, None)
             else:
+                if type(values) != list(): values=list(values)
                 self.funcs[func](*values)
-                return (True, None)
+            return (True, None)
         else:
             return handled
 
 def initialise():
     mw.controller = ds4(mw)
     mw.controller.show()
-    mw.controller.setFixedSize(200, 500)
+    mw.controller.setFixedSize(200, 200)
     mw.controller.setFocus()
-
