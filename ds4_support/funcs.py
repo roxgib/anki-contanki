@@ -29,7 +29,7 @@ func_map = {
     "Overview": lambda: mw.onOverview,
     "Browser": mw.onBrowse,
     "Stats": mw.onStats,
-    "Study Deck": mw.onStudyDeck,
+    "Study Deck": mw.onOverview,
     "Main Screen": lambda: mw.moveToState("deckBrowser"),
     "Review": lambda: mw.moveToState("review"),
     "Undo": mw.undo,

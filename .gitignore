@@ -1,6 +1,7 @@
 # Project specific
 anki-addon-directory/
 ds4-env/
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
