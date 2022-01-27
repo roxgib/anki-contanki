@@ -51,7 +51,7 @@ class ds4(AnkiWebView):
         
         axes_button.append(BUTTONS[button])
 
-        func_map[self.states[mw.state if mw.state != 'reviewer' else mw.reviewer.state][' + '.join(axes_button)]]
+        func_map[self.states[mw.state if mw.state != 'reviewer' else mw.reviewer.state][' + '.join(axes_button)]]()
 
     def on_update_axis(self, axis, value):
         self.axes[AXES[axis]] = float(value)
@@ -63,8 +63,8 @@ class ds4(AnkiWebView):
             tooltip('Controller Connected | ' + str(con))
         
     def on_receive_message(self, handled, message, context):
-        mod, func, *values = message.split(':')
-        if mod == 'ds4':
+        if message[:3] == 'ds4':
+            _, func, *values = message.split(':')
             if func == 'message':
                 tooltip(values)
             else:
