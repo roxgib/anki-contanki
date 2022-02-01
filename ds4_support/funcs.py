@@ -24,18 +24,18 @@ cycle_flag = lambda: _cycle_flag(flags)
 ### Deck Browser
 
 def select_deck(direction: bool, due:bool = False) -> None:
-    decks = mw.col.decks.all_names_and_ids() # Inefficient to call each time?
+    decks = mw.col.decks.all_names_and_ids()
     decks = [deck for deck in decks if not any(d['collapsed'] for d in mw.col.decks.parents(deck.id))]
+    decks = [deck.id for deck in sorted(decks, key = lambda deck: deck.name)]
 
-    decks = sorted(decks, key = lambda deck: deck.name)
-    decks = [deck.id for deck in decks]
-
-    if due: decks = [deck for deck in decks if len(mw.col.find_cards(f'deck:{deck} is:due')) > 0]
-
-    if (c_deck := mw.col.decks.get_current_id()) not in decks:
-        c_deck_index = len(decks)
-    else:    
+    if due: decks = [deck for deck in decks if len(mw.col.find_cards(f'"deck:{deck}" is:due')) > 0]
+    
+    if len(decks) == 0: return 
+    
+    if (c_deck := mw.col.decks.get_current_id()) in decks:
         c_deck_index = decks.index(c_deck)
+    else:
+        c_deck_index = len(decks)
     
     if direction:
         if len(decks) == c_deck_index + 1:
@@ -81,8 +81,6 @@ def onOptions():
         pass
     elif mw.state == "overview":
         pass
-    
-
 
 def _pass():
     pass
@@ -103,19 +101,21 @@ func_map = {
     "Forward": forward,
     "Enter": on_enter,
 
-    "FullScreen": _pass,
+    "Fullscreen": mw.on_toggle_fullscreen,
     "Volume Up": _pass,
     "Volume Down": _pass,
 
     "Menubar": _pass,
+    "Add": _pass,
     "About Anki": mw.onAbout,
     "Preferences": mw.onPrefs,
     "Quit": mw.close,
     "Switch Profile": mw.unloadProfileAndShowProfileManager,
-    "Add": _pass,
+    "Hide Cursor": _pass,
     "Donate": _pass,
     "Anki Help": mw.onDocumentation,
     "Help": _pass,
+    
     
     # Deck Browser Functions
 

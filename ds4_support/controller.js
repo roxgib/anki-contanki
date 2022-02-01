@@ -42,8 +42,6 @@ function poll() {
 
     sBridgeCommand(`ds4:on_update_axis:${4}:${_controller.buttons[6].value}`);
     sBridgeCommand(`ds4:on_update_axis:${5}:${_controller.buttons[7].value}`);
-
-    stuff = '';
     
     for (let i = 0; i < _controller.buttons.length; i++) {
         if (i != 6 && i != 7){    
@@ -51,8 +49,5 @@ function poll() {
                 sBridgeCommand(`ds4:on_button_press:${i}`);
             }
         }
-        stuff = stuff + i + ': ' + _controller.buttons[i].pressed + ',' + _controller.buttons[i].touched + ',' + 
-        _controller.buttons[i].value + '\n<br> ';
     }
-    document.getElementById("ds4").innerHTML = `${stuff}`
 }

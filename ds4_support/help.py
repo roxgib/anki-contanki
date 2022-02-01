@@ -14,21 +14,20 @@ class ControlsOverlay(AnkiWebView):
         super().__init__(parent=parent)
         self.path = path
         self.svg = self.build_svg()
-        self.setFixedWidth(900)
-        self.setFixedHeight(400)
+        self.setFixedWidth(800)
+        self.setFixedHeight(300)
+        self.hide()
 
     def disappear(self):
         self.hide()
 
     def appear(self, mod):
         state = _get_state()
-        width = mw.width()
-        height = mw.height()
         geometry = mw.geometry()
-        geometry.setBottom(height-50)
-        geometry.setTop(height // 2)
-        geometry.setLeft((width - 900) // 2)
-        geometry.setRight(width - ((width - 900) // 2))
+        geometry.setBottom(mw.height()-70)
+        geometry.setTop(mw.height() - self.height() - 70)
+        geometry.setLeft((mw.width() - self.width()) // 2)
+        geometry.setRight(mw.width() - ((mw.width() - self.width()) // 2))
         self.setGeometry(geometry)
 
         if mod == 'L2 + R2': mod = ''
@@ -47,18 +46,14 @@ class ControlsOverlay(AnkiWebView):
 
         theme = 'FFFFFF' if theme else '000000'
 
-        html =  f"""<div class="controller">
-                    <div class="text-block" style="text-align:center"><h4>{state + ' | ' + mod}</h4></div>
-                    <div margin="auto">
-                    <svg width="auto" height="auto" viewBox="70 0 350 100" version="1.1">
-                    <g transform="translate(130)" fill="#{theme}" stroke="#{theme}" font-family="Noto Sans JP" font-size="5px" stroke-width="0.5">
+        html =  f"""<body height="100%"><div class="text-block" min-height="100%" style="text-align:center">
+                    <div position="fixed" bottom="0" width="100%">
+                    <svg viewBox="50 0 250 100" version="1.1">
+                    <g transform="translate(60)" fill="#{theme}" stroke="#{theme}" font-family="Noto Sans JP" font-size="5px" stroke-width="0.5">
                     {self.svg[state][mod]}
-                    </g>
-                    </svg>
-                    </div>"""
+                    </g></svg></div></body>"""
     
         self.stdHtml(html)
-
         self.show()
 
     def build_svg(self):
@@ -118,7 +113,7 @@ class ControlsOverlay(AnkiWebView):
             'R1':           '<text text-anchor="middle"   y="6.60"    x="169.93"    >',
             'SHARE':        '<text text-anchor="middle"   y="12.55"   x="88.11"     >',
             'OPTIONS':      '<text text-anchor="middle"   y="12.55"   x="135.66"    >',
-            'PAD':          '<text text-anchor="end"      y="6.67"    x="115.54"    >',
+            'PAD':          '<text text-anchor="middle"      y="6.67"    x="115.54"    >',
             
         }
 
@@ -148,7 +143,7 @@ class ControlsOverlay(AnkiWebView):
         right_stick = 'text-anchor="start"    y="165.21"  x="281.08109"'
         left_stick = 'text-anchor="start"     y="162.89"  x="74.903458"'
 
-        mods = {'', 'L2', 'R2'}
+        mods = ['', 'L2', 'R2']
 
         for state in states:
             for mod in mods:

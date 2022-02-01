@@ -91,7 +91,7 @@
     "deckBrowser": {
 
         "CROSS": "Enter",
-        "CIRCLE": "Collapse/Expand Deck",
+        "CIRCLE": "Collapse/Expand",
         "SQUARE": "Browser",
         "TRIANGLE": "Statistics",
         "L1": "Undo",

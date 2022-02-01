@@ -69,19 +69,33 @@ class DS4(AnkiWebView):
 
         tooltip(f"""Button: {button} | Action: {action}""")
 
-    def on_update_axis(self, axis, _value):
-        value = True if float(_value) > 0.4 else False
-        if self.axes[AXES[axis]] != value:
-            self.axes[AXES[axis]] = value
-            self.on_shoulder()
+    def on_update_axis(self, axis: str, _value: str) -> None:
+        value = float(_value)
+        if axis == '2':
+            if abs(value) > 0.05:
+                cursor = mw.cursor()
+                pos = cursor.pos()
+                pos.setX(pos.x() + value * 10)
+                cursor.setPos(pos)
+        elif axis == '3':
+            if abs(value) > 0.1:
+                cursor = mw.cursor()
+                pos = cursor.pos()
+                pos.setY(pos.y() + value * 10)
+                cursor.setPos(pos)
+        elif axis == '4' or axis == '5':
+            value = True if value > 0.4 else False
+            if self.axes[AXES[axis]] != value:
+                self.axes[AXES[axis]] = value
+                self.on_shoulder()
 
-    def on_shoulder(self):
+    def on_shoulder(self) -> None:
         if len((shoulders := self.get_shoulders())) > 0:
             self.controlsOverlay.appear(' + '.join(shoulders))
         else:
             self.controlsOverlay.disappear()
 
-    def get_shoulders(self):
+    def get_shoulders(self) -> list:
         axes = list()
         if self.axes['L2'] == True:
             axes.append('L2')
@@ -110,4 +124,4 @@ class DS4(AnkiWebView):
 def initialise():
     mw.controller = DS4(mw)
     mw.controller.show()
-    mw.controller.hide()
+    mw.controller.setFixedSize(0,0)
