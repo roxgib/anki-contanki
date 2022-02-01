@@ -1,36 +1,48 @@
 import os
+from time import time
 
 from aqt import mw
-
 from aqt.webview import AnkiWebView
-from aqt.utils import qconnect, QAction, tooltip
+from aqt.utils import tooltip
 from aqt import gui_hooks
 
-from .CONSTS import *
+from .funcs import _get_state
 from .funcs import *
+from .CONSTS import *
+from .help import *
 
-addon_path = os.path.dirname(os.path.abspath(__file__))
-
-class ds4(AnkiWebView):
+class DS4(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
 
         self.config = mw.addonManager.getConfig(__name__)
+        self.last = {'time':0, 'button':0}
 
         self.states = {
             "startup": None,
-            "deckBrowser": self.config['decks'],
+            "deckBrowser": self.config['deckBrowser'],
             "overview": self.config['overview'],
             "profileManager": None,
-            'question': self.config['reviewer_question'],
-            'answer': self.config['reviewer_answer'],
+            'question': self.config['question'],
+            'answer': self.config['answer'],
         }
-
+        
+        addon_path = os.path.dirname(os.path.abspath(__file__))
+        
         with open(os.path.join(addon_path, "controller.js"), 'r') as f:
             html = f"""DS4 Support\n<p id="ds4"></p>\n<script type="text/javascript">\n{f.read()}\n</script>\n<!DOCTYPE html><body></body></html>"""
-        self.stdHtml(html)
 
-        self.axes = dict()
+        self.stdHtml(html)
+        self.controlsOverlay = ControlsOverlay(mw, addon_path)
+
+        self.axes = {
+            'LEFT_H': False,
+            'LEFT_V': False,
+            'RIGHT_H': False,
+            'RIGHT_V': False,
+            'L2': False,
+            'R2': False,
+        }
 
         self.funcs = {
             'on_connect': self.on_connect,
@@ -41,23 +53,44 @@ class ds4(AnkiWebView):
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
 
     def on_button_press(self, button):
-        tooltip('button_pressed: ' + str(self.axes) + ' | ' + button)
-        axes_button = list()
+        if self.last['button'] == button:
+            if time() - self.last['time'] < 0.3:
+                return
 
-        if self.axes['L2'] > 0.4:
-            axes_button.append('L2')
-        if self.axes['R2'] > 0.4:
-            axes_button.append('R2')
+        self.last['time'] = time()
+        self.last['button'] = button
+
+        axes = self.get_shoulders()
+        axes.append(BUTTONS[button])
+        button = ' + '.join(axes)
         
-        axes_button.append(BUTTONS[button])
+        action = self.states[_get_state()][button]
+        func_map[action]()
 
-        func_map[self.states[mw.state if mw.state != 'reviewer' else mw.reviewer.state][' + '.join(axes_button)]]()
+        tooltip(f"""Button: {button} | Action: {action}""")
 
-    def on_update_axis(self, axis, value):
-        self.axes[AXES[axis]] = float(value)
+    def on_update_axis(self, axis, _value):
+        value = True if float(_value) > 0.4 else False
+        if self.axes[AXES[axis]] != value:
+            self.axes[AXES[axis]] = value
+            self.on_shoulder()
+
+    def on_shoulder(self):
+        if len((shoulders := self.get_shoulders())) > 0:
+            self.controlsOverlay.appear(' + '.join(shoulders))
+        else:
+            self.controlsOverlay.disappear()
+
+    def get_shoulders(self):
+        axes = list()
+        if self.axes['L2'] == True:
+            axes.append('L2')
+        if self.axes['R2'] == True:
+            axes.append('R2')
+        return axes
 
     def on_connect(self, *con):
-        if con == 'None':
+        if con == '(None,)':
             tooltip('No controller connected')
         else:
             tooltip('Controller Connected | ' + str(con))
@@ -75,7 +108,6 @@ class ds4(AnkiWebView):
             return handled
 
 def initialise():
-    mw.controller = ds4(mw)
+    mw.controller = DS4(mw)
     mw.controller.show()
-    mw.controller.setFixedSize(200, 200)
-    mw.controller.setFocus()
+    mw.controller.hide()
