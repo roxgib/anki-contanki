@@ -1,71 +1,111 @@
+import json
+
+import jsonschema
+import markdown
+from jsonschema.exceptions import ValidationError
+
 from aqt import mw
-from aqt import gui_hooks
+from aqt import QPushButton, QWebEngineView, dialogs
 from aqt.qt import QDialog
-from aqt.addons import ConfigEditor, AddonsDialog
+from aqt.addons import ConfigEditor
+from aqt.utils import showInfo, tr, saveSplitter
 
-from .control_map import ControlMap
-from .funcs import get_state
 from .funcs import get_dark_mode
+from .svg import *
 
-from aqt import dialogs
-
-
-class ControllerConfigEditor(ConfigEditor, ControlMap):
-    def __init__(self):
+class ControllerConfigEditor(ConfigEditor):
+    def __init__(self, parent, mappings):
         super().__init__(dialogs._dialogs['AddonsDialog'][1], 'ds4_support', mw.addonManager.getConfig(__name__))
-        
-        self.config = mw.addonManager.getConfig(__name__)
+        self.parent = parent
+        self.mappings = mappings
+        self.svg = build_svg_mappings(mappings)
+        self.build_html()
+        self.web = QWebEngineView(self)
+        self.web.setHtml(self.build_html())
+        with open('configHTML.html', 'w') as f:
+            f.write(self.build_html())
+        self.layout().addWidget(self.web)
+        self.updateButton = QPushButton(self)
+        self.updateButton.setText('Update')
+        self.updateButton.clicked.connect(self.updateContents)
+        self.layout().addWidget(self.updateButton)
 
-        self.states = {
-            "startup":          self.config['startup'],
-            "deckBrowser":      self.config['deckBrowser'],
-            "overview":         self.config['overview'],
-            "profileManager":   self.config['profileManager'],
-            'question':         self.config['question'],
-            'answer':           self.config['answer'],
-        }
-        
-        self.form.label.setText(self.build_html()) 
 
-    def save_config(self):
-        pass
+    def updateContents(self) -> None:
+        txt = self.form.editor.toPlainText()
+        try:
+            new_conf = json.loads(txt)
+            jsonschema.validate(new_conf, self.mgr._addon_schema(self.addon))
+        except ValidationError as e:
+            schema = e.schema
+            erroneous_conf = new_conf
+            for link in e.path:
+                erroneous_conf = erroneous_conf[link]
+            path = "/".join(str(path) for path in e.path)
+            if "error_msg" in schema:
+                msg = schema["error_msg"].format(
+                    problem=e.message,
+                    path=path,
+                    schema=str(schema),
+                    erroneous_conf=erroneous_conf,
+                )
+            else:
+                msg = tr.addons_config_validation_error(
+                    problem=e.message,
+                    path=path,
+                    schema=str(schema),
+                )
+            showInfo(msg)
+            return
+        except Exception as e:
+            showInfo(f"{tr.addons_invalid_configuration()} {repr(e)}")
+            return
 
-    def load_config(self):
-        pass
+        if not isinstance(new_conf, dict):
+            showInfo(tr.addons_invalid_configuration_top_level_object_must())
+            return
 
-    def update_contents(self):
-        self.form.label.setText(self.build_html()) 
+        if new_conf != self.conf:
+            self.mgr.writeConfig(self.addon, new_conf)
+            # does the add-on define an action to be fired?
+            act = self.mgr.configUpdatedAction(self.addon)
+            if act:
+                act(new_conf)
+
+        saveSplitter(self.form.splitter, "addonconf")
+        self.mappings = self.parent.update_config()
+        self.svg = build_svg_mappings(self.mappings)
+        self.web.setHtml(self.build_html())
+
 
     def build_html(self):
-        def build_tab(id, name, level):
-            return f"""<button class="{level}" onclick="openTab(event, '{id}')">{name}</button>"""
+        def build_tab(id: str, name: str, top: bool) -> str:
+            return f"""<button class="{'statelinks' if top else 'modlinks'}" onclick="{'openState' if top else 'openMap'}(event, '{id}')">{name}</button>"""
 
-        def build_tab_content(state, mod):
+        def build_tab_content(state: str, mod: str) -> str:
             return f"""
-<div id="{state} | {mod}" class="tabcontent">
-    {self.get_svg(state, mod)}
+<div id="{state}{mod}z" class="tabcontent" width = "80%">
+    {get_svg(self.svg[state][mod])}
 </div>
 """
         contents = '<div class="statetabs">'
-        for state in self.states:
+        for state in self.mappings:
             contents += '\n'
-            contents += build_tab(state, state, 'statetabs')
+            contents += build_tab(state, state, True)
         contents += '\n</div>'
 
-        for state in self.states:
+        for state in self.mappings:
             contents += '\n'
-            contents += f'<div id="{state}" class="tabcontent">'
-            contents += f'<div class="modtabs {state}">'
-            for mod in ['R2', 'L2', '']:
+            contents += f'<div id="{state}" class="modtabs {state}">'
+            for mod in ['','R2','L2']:
                 contents += '\n'
-                contents += build_tab(f'{state} | {mod}', mod, 'modtabs')
-            contents += '\n</div>'
+                contents += build_tab(f'{state}{mod}z', mod if mod else 'Base', False)
             contents += '\n'
             for mod in ['R2', 'L2', '']:
                 contents += '\n'
                 contents += build_tab_content(state, mod)
                 contents += '\n'
-            contents += '</div>'
+            contents += '\n</div>'
 
         javascript = self.get_javascript()
 
@@ -77,7 +117,8 @@ class ControllerConfigEditor(ConfigEditor, ControlMap):
     <style>
     {css}
     </style>
-    <body height="100%">
+    </head>
+    <body>
         <div position="fixed" bottom="0" width="100%">
             {contents}
         </div>
@@ -87,32 +128,57 @@ class ControllerConfigEditor(ConfigEditor, ControlMap):
 """
         return html
 
-    def get_javascript(self):
-        self.js = """ 
-<script>
-function openTab(evt, name) {
-    var i, tabcontents, tablinks;
 
-    tabcontents = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontents.length; i++) {
-        tabcontents[i].style.display = "none";
+    def get_javascript(self) -> str:
+        js = """ 
+    <script>
+    function openState(evt, name) {
+        var i, tabcontents, tablinks;
+
+        tabcontents = document.getElementsByClassName("modtabs");
+        for (i = 0; i < tabcontents.length; i++) {
+            tabcontents[i].style.display = "none";
+        }
+
+        tablinks = document.getElementsByClassName("statelinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        document.getElementById(name).style.display = "block";
+        evt.currentTarget.className += " active";
     }
 
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
+    function openMap(evt, name) {
+        var i, tabcontents, tablinks;
 
-    document.getElementById(cityName).style.display = "block";
-    evt.currentTarget.className += " active";
-}
-</script>
+        tabcontents = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontents.length; i++) {
+            tabcontents[i].style.display = "none";
+        }
+
+        tablinks = document.getElementsByClassName("modlinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        document.getElementById(name).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+    </script>
 """
+        return js
 
-    def get_css(self):
-        theme = "111111" if get_dark_mode() else "eeeeee"
+
+    def get_css(self) -> str:
+        theme = "333333" if get_dark_mode() else "bbbbbb"
 
         css = f"""
+            html {{
+            height:100%;
+            background-color: #{theme}
+            }}
+
             .tab {{
             overflow: hidden;
             border: 1px solid #ccc;

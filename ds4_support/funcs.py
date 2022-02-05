@@ -1,5 +1,5 @@
 from typing import Callable
-from aqt import mw
+from aqt import QWidget, mw
 from aqt.qt import QCoreApplication, QEvent, QMouseEvent, QPoint, QPointF, Qt
 from aqt.qt import QKeyEvent as QKE
 from aqt.utils import tooltip, current_window
@@ -92,8 +92,7 @@ def get_file(file: str) -> str:
     elif os.path.exists(join(addon_path, 'controllers', file)):
         with open(join(addon_path, 'controllers', file)) as f:
             return f.read()
-    
-    
+
 
 # Common
 
@@ -109,28 +108,47 @@ def select() -> None:
 def hideCursor() -> None:
     mw.cursor().setPos(QPoint(mw.app.primaryScreen().size().width(), mw.app.primaryScreen().size().height())),
 
-
 def click(
     button: Qt.MouseButton = Qt.MouseButton.LeftButton,
     mod: Qt.KeyboardModifier = Qt.KeyboardModifier.NoModifier,
 ) -> None:
+    """
+    Currently bugged in two distinct ways:
+      - clicks are propagating to slightly below the correct location, probably due to the wrong screen 
+        geometry being used to map from global
+      - clicks are only being propagated to the main webview, not to anything else
+
+    There's probably no way to propagate clicks outside of Anki, but it should be possible to send them to 
+    other windows.
+
+    Update: looks like the problem might not be the screen geometry, but possibly the window geometry 
+    ignoring the title bar. 
+
+    Update: That seems to have made things worse, despite the correct corrdinates now being reported.
+
+    Update: the coordinates need to be local to the widget! So the two problems are actually related
+
+    Update: It works!!! Clicking is functional for everything within the main window (nothing outside Anki,
+    but that'll have to suffice for now unless I find an OS level way to implement clicks.)
+
+    The following problems now remain:
+      - The interface is completely disabled when the options menu is clicked, and buttons that are pressed 
+      stack up and execute all at once when it's clicked out of. This is somewhat dangerous because users
+      might click a bunch of random buttons trying to get it to work
+      - Right clicking to open other context menus doesn't cause this issue, but the context menus stay
+      open indefinitely.
+      - Clicking in the title bar doesn't work
+    """
     pos = mw.cursor().pos()
-    pos_lf = QPointF(mw.mapFromGlobal(pos))
+    widget = mw.app.widgetAt(pos)
+    if not widget: return
+    widgetPostition = widget.mapToGlobal(QPoint(0,0))
+    localPos = QPointF(pos.x() - widgetPostition.x(), pos.y() - widgetPostition.y())
 
+    QCoreApplication.postEvent(widget, QMouseEvent(QEvent.Type.MouseButtonPress, localPos, button, button, mod))
     QCoreApplication.postEvent(
-        mw.app.widgetAt(pos),
-        QMouseEvent(QEvent.Type.MouseButtonPress, pos_lf, button, button, mod),
-    )
-
-    QCoreApplication.postEvent(
-        mw.app.widgetAt(pos),
-        QMouseEvent(
-            QEvent.Type.MouseButtonRelease, pos_lf, button, Qt.MouseButton.NoButton, mod
-        ),
-    )
-
-    tooltip(f"Mouse Click {pos.x()}, {pos.y()}")
-
+        widget,QMouseEvent(QEvent.Type.MouseButtonRelease, localPos, button, Qt.MouseButton.NoButton, mod)
+        )
 
 def on_enter() -> None:
     if mw.state == "review":
@@ -299,8 +317,8 @@ func_map = {
     
     
     # UI Functions
-    "Click":                click,                                              # Buggy
-    "Secondary Click":      lambda: click(button=Qt.MouseButton.RightButton),   # Buggy
+    "Click":                click,                                              # Mostly works
+    "Secondary Click":      lambda: click(button=Qt.MouseButton.RightButton),   # Mostly works
     "Select Next":          lambda: keyPress(Qt.Key.Key_Tab),                   # Works
     "Select Previous":      lambda: keyPress(                                   # Works
                                         Qt.Key.Key_Tab, 

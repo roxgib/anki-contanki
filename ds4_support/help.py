@@ -4,12 +4,10 @@ from typing import Any, Dict, Optional
 from aqt import mw
 from aqt.webview import AnkiWebView
 
-
 from .funcs import get_state
 from .funcs import get_dark_mode
 from .svg import *
 from .CONSTS import BUTTONS
-from.control_map import ControlMap
 
 class ControlsOverlay(AnkiWebView):
     def __init__(self, parent, path: str, bindings: dict, controller:str = 'DS4'):

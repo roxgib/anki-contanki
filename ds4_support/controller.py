@@ -12,7 +12,7 @@ from .CONSTS import *
 from .help import *
 from .config import *
 
-class DS4(AnkiWebView):
+class CSE(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
 
@@ -52,11 +52,12 @@ class DS4(AnkiWebView):
 
 
     def on_config(self) -> None:
-        ControllerConfigEditor()
+        ControllerConfigEditor(self, self.mappings)
 
 
-    def update_config(self) -> None:
-        pass
+    def update_config(self) -> dict:
+        self.mappings = build_mappings(mw.addonManager.getConfig(__name__)['mappings'])
+        return self.mappings
 
 
     def on_update_buttons(self, buttons: str) -> None:
@@ -103,15 +104,13 @@ class DS4(AnkiWebView):
         x = pos.x() + quadCurve(x, 8)
         y = pos.y() + quadCurve(y, 8)
 
-        geom = mw.screen().availableGeometry()
+        geom = mw.screen().geometry()
         x, y = max(x, geom.x()), max(y, geom.y())
         x, y = min(x, geom.width()), min(y, geom.height())
         
         pos.setX(x)
         pos.setY(y)
         cursor.setPos(pos)
-
-
 
 
     def on_update_triggers(self, *values: List[str]) -> None:
@@ -188,6 +187,6 @@ class DS4(AnkiWebView):
 
 
 def initialise() -> None:
-    mw.controller = DS4(mw)
+    mw.controller = CSE(mw)
     mw.controller.show()
     mw.controller.setFixedSize(0,0)
