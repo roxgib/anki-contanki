@@ -1,119 +1,184 @@
 import os
 from time import time
+from typing import List
 
 from aqt import mw
 from aqt.webview import AnkiWebView
-from aqt.utils import tooltip
+from aqt.utils import tooltip, showInfo
 from aqt import gui_hooks
 
-from .funcs import _get_state
 from .funcs import *
 from .CONSTS import *
 from .help import *
+from .config import *
 
 class DS4(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
 
-        self.config = mw.addonManager.getConfig(__name__)
-        self.last = {'time':0, 'button':0}
+        self.config = mw.addonManager.getConfig(__name__)['options']
 
-        self.states = {
-            "startup": None,
-            "deckBrowser": self.config['deckBrowser'],
-            "overview": self.config['overview'],
-            "profileManager": None,
-            'question': self.config['question'],
-            'answer': self.config['answer'],
-        }
-        
+        self.mappings = build_mappings(mw.addonManager.getConfig(__name__)['mappings'])
         addon_path = os.path.dirname(os.path.abspath(__file__))
-        
-        with open(os.path.join(addon_path, "controller.js"), 'r') as f:
-            html = f"""DS4 Support\n<p id="ds4"></p>\n<script type="text/javascript">\n{f.read()}\n</script>\n<!DOCTYPE html><body></body></html>"""
+        self.controlsOverlay = ControlsOverlay(mw, addon_path, self.mappings)
 
-        self.stdHtml(html)
-        self.controlsOverlay = ControlsOverlay(mw, addon_path)
+        self.stdHtml(f"""DS4 Support\n<p id="ds4"></p>\n<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
+        
+        self.last = {'time': 0, 'button': 0, 'Left Stick': 0, 'Right Stick': 0}
 
         self.axes = {
-            'LEFT_H': False,
-            'LEFT_V': False,
-            'RIGHT_H': False,
-            'RIGHT_V': False,
-            'L2': False,
-            'R2': False,
+            'Left Stick Horizontal':    False,
+            'Left Stick Vertical':      False,
+            'Right Stick Horizontal':   False,
+            'Right Stick Vertical':     False,
         }
 
+        self.triggers = [False, False]
+
         self.funcs = {
-            'on_connect': self.on_connect,
-            'on_button_press': self.on_button_press,
-            'on_update_axis': self.on_update_axis,
+            'on_connect':               self.on_connect,
+            'on_disconnect':            self.on_disconnect,
+            'on_button_press':          self.on_button_press,
+            'on_button_release':        self.on_button_release,
+            'update_triggers':          self.on_update_triggers,
+            'update_buttons':           self.on_update_buttons,
+            'update_right':             self.on_move_mouse,
+            'update_left':              self.on_left_stick,
         }
 
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
+        mw.addonManager.setConfigAction(__name__, lambda: dialogs.open('ControllerConfigEditor'))
+        dialogs.register_dialog('ControllerConfigEditor', self.on_config)
 
-    def on_button_press(self, button):
-        if self.last['button'] == button:
-            if time() - self.last['time'] < 0.3:
-                return
 
-        self.last['time'] = time()
-        self.last['button'] = button
+    def on_config(self) -> None:
+        ControllerConfigEditor()
 
-        axes = self.get_shoulders()
-        axes.append(BUTTONS[button])
-        button = ' + '.join(axes)
+
+    def update_config(self) -> None:
+        pass
+
+
+    def on_update_buttons(self, buttons: str) -> None:
+        buttons = [True if button == 'true' else False for button in buttons.split(',')]
+        for i, value in enumerate(buttons):
+            if value == self.buttons[i]: continue
+            self.buttons[i] = value
+            if value:
+                self.on_button_press(BUTTONS[i])
+            else:
+                self.on_button_release(BUTTONS[i])
+
+
+    def on_button_press(self, button: str) -> None:
+        if button == 'L2' or button == 'R2': return
+        mapping = self.mappings[get_state()]
+
+        button = ' + '.join(self.get_triggers() + [button])
+        if button not in mapping:
+            tooltip(f"{button} | '(not mapped)'")
+            return
         
-        action = self.states[_get_state()][button]
-        func_map[action]()
+        action = mapping[button]
+        if action not in func_map:
+            tooltip(f"'{action}' not found.")
+            return
 
-        tooltip(f"""Button: {button} | Action: {action}""")
+        tooltip(f"{button} | {action if action else '(not mapped)'}")
+        try:
+            func_map[action]()
+        except Exception as err: 
+            showInfo(f"Something went wrong!\n\nButton: {button}\nAction: {action}\n{str(err)}")
 
-    def on_update_axis(self, axis: str, _value: str) -> None:
-        value = float(_value)
-        if axis == '2':
-            if abs(value) > 0.05:
-                cursor = mw.cursor()
-                pos = cursor.pos()
-                pos.setX(pos.x() + value * 10)
-                cursor.setPos(pos)
-        elif axis == '3':
-            if abs(value) > 0.1:
-                cursor = mw.cursor()
-                pos = cursor.pos()
-                pos.setY(pos.y() + value * 10)
-                cursor.setPos(pos)
-        elif axis == '4' or axis == '5':
-            value = True if value > 0.4 else False
-            if self.axes[AXES[axis]] != value:
-                self.axes[AXES[axis]] = value
-                self.on_shoulder()
 
-    def on_shoulder(self) -> None:
-        if len((shoulders := self.get_shoulders())) > 0:
-            self.controlsOverlay.appear(' + '.join(shoulders))
-        else:
-            self.controlsOverlay.disappear()
+    def on_button_release(self, button: str) -> None:
+        pass
 
-    def get_shoulders(self) -> list:
-        axes = list()
-        if self.axes['L2'] == True:
-            axes.append('L2')
-        if self.axes['R2'] == True:
-            axes.append('R2')
-        return axes
 
-    def on_connect(self, *con):
-        if con == '(None,)':
-            tooltip('No controller connected')
-        else:
-            tooltip('Controller Connected | ' + str(con))
+    def on_move_mouse(self, x: str, y: str) -> None:
+        x, y = float(x), float(y)
+        if abs(x) + abs(y) < 0.05: return
+        cursor = mw.cursor()
+        pos = cursor.pos()
+        x = pos.x() + quadCurve(x, 8)
+        y = pos.y() + quadCurve(y, 8)
+
+        geom = mw.screen().availableGeometry()
+        x, y = max(x, geom.x()), max(y, geom.y())
+        x, y = min(x, geom.width()), min(y, geom.height())
         
-    def on_receive_message(self, handled, message, context):
-        if message[:3] == 'ds4':
+        pos.setX(x)
+        pos.setY(y)
+        cursor.setPos(pos)
+
+
+
+
+    def on_update_triggers(self, *values: List[str]) -> None:
+        T = [True if float(value) > 0.4 else False for value in values]
+        if self.triggers == T: return
+        self.triggers = T
+        if any(T):
+            self.controlsOverlay.appear(' + '.join(self.get_triggers()))
+        else:
+            self.controlsOverlay.disappear()        
+
+
+    def on_left_stick(self, x: str, y: str) -> None:
+        x, y = float(x), float(y)
+        abs_x, abs_y = abs(x), abs(y)
+        if max(abs_x, abs_y) < 0.08: return
+        
+        if self.get_triggers() == ['R2']:
+            mw.web.eval(f'window.scrollBy({quadCurve(x)}, {quadCurve(y)})')
+        
+        elif self.timeGuard("Left Stick", max(abs_x, abs_y)):
+            return
+        
+        elif abs_x > abs_y:
+            if abs_x < 0.4: return
+            if x < 0:
+                back()
+            else:
+                forward()
+        else:
+            if y < 0:
+                keyPress(Qt.Key.Key_Tab, Qt.KeyboardModifier.ShiftModifier)
+            else:
+                keyPress(Qt.Key.Key_Tab)
+
+
+    def timeGuard(self, axis: str, value: float) -> bool:
+        if (_time := time()) - self.last[axis] > 1 - abs(value): 
+            self.last[axis] = _time
+            return False
+        return True
+
+
+    def get_triggers(self) -> List[str]:
+        triggers = list()
+        if self.triggers[0]:
+            triggers.append('L2')
+        if self.triggers[1]:
+            triggers.append('R2')
+        return triggers
+
+
+    def on_connect(self, buttons, *con) -> None:
+        self.buttons = [False for i in range(int(buttons))]
+        tooltip('Controller Connected | ' + str(con))
+
+
+    def on_disconnect(self, *args) -> None:
+        self.controlsOverlay.disappear()
+        tooltip('Controller Disconnected')
+
+
+    def on_receive_message(self, handled: tuple, message: str, context: str) -> tuple:
+        if message[:3] == 'pcs':
             _, func, *values = message.split(':')
             if func == 'message':
-                tooltip(values)
+                tooltip(str(values))
             else:
                 if type(values) != list(): values=list(values)
                 self.funcs[func](*values)
@@ -121,7 +186,8 @@ class DS4(AnkiWebView):
         else:
             return handled
 
-def initialise():
+
+def initialise() -> None:
     mw.controller = DS4(mw)
     mw.controller.show()
     mw.controller.setFixedSize(0,0)
