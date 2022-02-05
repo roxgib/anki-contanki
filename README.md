@@ -1,4 +1,4 @@
-# Contanki: Gamepad support for Anki
+# Contanki: Gamepad Support for Anki
 
 ## Known issues:
  - Add-on doesn't function in the profile window
