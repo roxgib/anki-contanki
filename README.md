@@ -1,4 +1,4 @@
-# anki-ds4-support
+# Contanki: Gamepad support for Anki
 
 ## Known issues:
  - Add-on doesn't function in the profile window
