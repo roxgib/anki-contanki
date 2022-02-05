@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from ds4_support.funcs import get_dark_mode, get_file
+from funcs import get_dark_mode, get_file
 
 # Need to refactor to easily support other controllers
 

@@ -201,7 +201,7 @@ fullscreen = _fullscreen()
 def _cycle_flag() -> Callable:
     flags = mw.addonManager.getConfig(__name__)['options']["flags"]
 
-    def cycle_flag():
+    def cycle_flag(flags):
         flag = mw.reviewer.card.flags
         if flag == 0:
             mw.reviewer.setFlag(flags[0])
