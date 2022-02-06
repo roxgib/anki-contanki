@@ -1,7 +1,8 @@
 # Project specific
 anki-addon-directory/
 ds4-env/
-.vscode*
+.vscode*\
+notes
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,6 +1,9 @@
 {
-    "name": "DualShock4 Support",
-    "package": "anki-ds4-support",
+    "name": "Contanki",
+    "package": "contanki",
+    "ankiweb_id": "",
     "author": "Sam Bradshaw",
-    "homepage": "https://github.com/roxgib/anki-ds4-support"
+    "version": "v0.1a",
+    "homepage": "https://github.com/roxgib/anki-contanki",
+    "conflicts": []
 }
