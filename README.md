@@ -24,9 +24,10 @@ The right stick is used to move and click the mouse, and you can use L2 + right 
 I have been testing using a DualShock 4, which can be readily purchased secondhand at a reasonable price and otherwise makes a good choice, although cheaper options will probably work just as well.
 
 ## Issues
-Please report all issues on the GitHub issue tracker. Reports about bugs on Windows or when using and Xbox controller are particularly welcome as I have been testing almost exclusively on Mac using a DualShock 4 up to now. 
+Please report all issues on the GitHub issue tracker. Reports about bugs on Windows or when using an Xbox controller are particularly welcome as I have been testing almost exclusively on Mac using a DualShock 4 up to now. 
 
 ### Known issues
+ - Sometimes a manifest error is encountered while installing
  - Add-on doesn't function in the profile window
  - Clicking in the title bar or outside of Anki doesn't work 
  - Clicking the deck gear menu or the reviewer options menu prevents any actions from firing, until it's closed and they fire all at once
@@ -34,9 +35,5 @@ Please report all issues on the GitHub issue tracker. Reports about bugs on Wind
  - Overlay doesn't generate on the first attempt of each session
  - Interaction outside of the main window e.g. dialogs, browser is only partially implemented
  - Several options are not actually configurable despite appearing in the options
- - Some controllers won't be supported properly yet
+ - Many controllers won't be supported properly yet
  - Trackpad on DualShock 4 doesn't work, except as a button
-
- ### Version related
- - Dark mode isn't detect <2.1.50
- - Certain functions are unsupported on <2.1.49
