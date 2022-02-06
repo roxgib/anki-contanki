@@ -34,10 +34,13 @@ class ControlsOverlay(AnkiWebView):
         if mod == "L2 + R2":
             mod = ""
 
-        body = f"""<body height="100%"><div class="text-block" min-height="100%" style="text-align:center">
+        if state == 'question' or state == 'answer':
+            mw.reviewer.showContextMenu
+
+        body = f"""<html style="background-color: #{mw.app.palette().base().color().name()}"><body><div class="text-block" min-height="100%" style="text-align:center">
                     <div position="fixed" bottom="0" width="100%">
-                    {get_svg(self.svg[state][mod])}
-                    </div></body>"""
+                    {get_svg(self.svg[state][mod], mw.app.palette().text().color().name())}
+                    </div></body></html>"""
 
         self.stdHtml(body)
 

@@ -1,18 +1,19 @@
 from collections import defaultdict
 
+from aqt import mw
+
 from .funcs import get_dark_mode, get_file
 
 # Need to refactor to easily support other controllers
 
-def get_svg(svg_content):
-        theme = "FFFFFF" if get_dark_mode() else "000000"
+def get_svg(svg_content, color):
 
-        svg = f"""<svg viewBox="50 0 250 90" version="1.1">
-                    <g transform="translate(60)" fill="#{theme}" stroke="#{theme}" font-family="Noto Sans JP" font-size="5px" stroke-width="0.5">
-                    {svg_content}
-                    </g></svg>"""
+    svg = f"""<svg viewBox="50 0 250 90" version="1.1">
+                <g transform="translate(60)" fill="{color}" stroke="{color}" font-family="Noto Sans JP" font-size="5px" stroke-width="0.5">
+                {svg_content}
+                </g></svg>"""
 
-        return svg
+    return svg
 
 def build_svg_mappings(bindings: dict, controller: str = 'DS4') -> dict:
     states: dict = {"profileManager", "deckBrowser", "overview", "question", "answer"}

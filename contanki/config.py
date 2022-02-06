@@ -6,6 +6,7 @@ from jsonschema.exceptions import ValidationError
 
 from aqt import mw
 from aqt import QPushButton, QWebEngineView, dialogs
+from aqt.webview import AnkiWebView
 from aqt.qt import QDialog
 from aqt.addons import ConfigEditor
 from aqt.utils import showInfo, tr, saveSplitter
@@ -20,7 +21,7 @@ class ControllerConfigEditor(ConfigEditor):
         self.mappings = mappings
         self.svg = build_svg_mappings(mappings)
         self.build_html()
-        self.web = QWebEngineView(self)
+        self.web = AnkiWebView(self)
         self.web.setHtml(self.build_html())
         with open('configHTML.html', 'w') as f:
             f.write(self.build_html())
@@ -29,7 +30,6 @@ class ControllerConfigEditor(ConfigEditor):
         self.updateButton.setText('Update')
         self.updateButton.clicked.connect(self.updateContents)
         self.layout().addWidget(self.updateButton)
-
 
     def updateContents(self) -> None:
         txt = self.form.editor.toPlainText()
@@ -80,15 +80,15 @@ class ControllerConfigEditor(ConfigEditor):
 
     def build_html(self):
         def build_tab(id: str, name: str, top: bool) -> str:
-            return f"""<button class="{'statelinks' if top else 'modlinks'}" onclick="{'openState' if top else 'openMap'}(event, '{id}')">{name}</button>"""
+            return f"""<button class="{'statelinks' if top else 'modlinks'} tab" onclick="{'openState' if top else 'openMap'}(event, '{id}')">{name}</button>"""
 
         def build_tab_content(state: str, mod: str) -> str:
             return f"""
 <div id="{state}{mod}z" class="tabcontent" width = "80%">
-    {get_svg(self.svg[state][mod])}
+    {get_svg(self.svg[state][mod], mw.palette().text().color().name())}
 </div>
 """
-        contents = '<div class="statetabs">'
+        contents = '<div class="statetabs tabs">'
         for state in self.mappings:
             contents += '\n'
             contents += build_tab(state, state, True)
@@ -96,7 +96,7 @@ class ControllerConfigEditor(ConfigEditor):
 
         for state in self.mappings:
             contents += '\n'
-            contents += f'<div id="{state}" class="modtabs {state}">'
+            contents += f'<div id="{state}" class="modtabs {state} tabs">'
             for mod in ['','R2','L2']:
                 contents += '\n'
                 contents += build_tab(f'{state}{mod}z', mod if mod else 'Base', False)
@@ -171,18 +171,19 @@ class ControllerConfigEditor(ConfigEditor):
 
 
     def get_css(self) -> str:
-        theme = "333333" if get_dark_mode() else "bbbbbb"
-
         css = f"""
             html {{
             height:100%;
-            background-color: #{theme}
+            }}
+
+            .tabs {{
+            text-align: center;
+            width: 100%;
             }}
 
             .tab {{
             overflow: hidden;
             border: 1px solid #ccc;
-            background-color: #{theme};
             }}
 
             .tab button {{
@@ -207,6 +208,12 @@ class ControllerConfigEditor(ConfigEditor):
             display: none;
             position: fixed;
             bottom: 0;
+            width: 100%;
+            }}
+            
+            .modtabs {{
+            display: none;
+            position: fixed;
             width: 100%;
             }}
             """

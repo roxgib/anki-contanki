@@ -1,22 +1,30 @@
 from typing import Callable
-from aqt import QWidget, mw
+
+from anki.decks import DeckId
+import aqt
+from aqt import  QWidget, mw
+from aqt.deckoptions import display_options_for_deck_id
 from aqt.qt import QCoreApplication, QEvent, QMouseEvent, QPoint, QPointF, Qt
 from aqt.qt import QKeyEvent as QKE
 from aqt.utils import tooltip, current_window
 from os.path import dirname, abspath, join
 
-
 # Internal
 
 def get_state() -> str:
-    return mw.reviewer.state if mw.state == "review" else mw.state
-
+    if focus := current_window():
+        if focus.objectName() == 'MainWindow':
+            return mw.reviewer.state if mw.state == "review" else mw.state
+        else:
+            return focus.objectName()
+    else:
+        return 'NoFocus'
 
 def _pass() -> None:
     pass
 
 
-def cdid() -> int:
+def cdid() -> DeckId:
     return mw.col.decks.get_current_id()
 
 
@@ -28,11 +36,6 @@ def build_mappings(mappings):
             "profileManager":   mappings['profileManager'],
             'question':         mappings['question'],
             'answer':           mappings['answer'],
-            'browser':          mappings['browser'],
-            'add':              mappings['add'],
-            'edit':             mappings['edit'],
-            'options':          mappings['options'],
-            'preferences':      mappings['preferences'],
             'dialog':           mappings['dialog'],
         }
 
@@ -42,15 +45,12 @@ def build_mappings(mappings):
         if key not in states['answer'] or states['answer'][key] == '':
             states['answer'][key] = value
 
-    for key, value in mappings['dialog'].items():
-        for d in ['add','edit','options','preferences']:
-            if key not in states[d] or states[d][key] == '':
-                states[d][key] = value
-
     for key, value in mappings['all'].items():
         for state, d in states.items():
             if key not in d or d[key] == '':
                 states[state][key] = value
+
+    states['NoFocus'] = {'Pad':'Focus Main Window'}
 
     return states
 
@@ -64,6 +64,7 @@ def _get_dark_mode() -> Callable:
         from aqt.utils import is_mac, is_win
     except:
         return lambda: False
+
 
     if is_win:
         from aqt.theme import get_windows_dark_mode
@@ -178,22 +179,25 @@ def forward() -> None:
 
 
 def onOptions() -> None:
+    def deckOptions(did: str) -> None:
+        try: 
+            display_options_for_deck_id(DeckId(int(did)))
+        except:
+            mw.onPrefs
     if mw.state == "review":
         mw.reviewer.onOptions()
     elif mw.state == "deckBrowser":
-        pass
+        mw.web.evalWithCallback('document.activeElement.parentElement.parentElement.id', deckOptions)
     elif mw.state == "overview":
-        pass
+        display_options_for_deck_id(cdid())
 
 
-def _fullscreen() -> Callable:
-    try:
-        f = mw.on_toggle_fullscreen
-        return f
-    except:
-        return lambda: tooltip('Not supported on this version of Anki')
-
-fullscreen = _fullscreen()
+def toggle_fullscreen():
+    if cw := current_window().window():
+        if cw.isFullScreen():
+            cw.showNormal()
+        else:
+            cw.showFullScreen()
 
 
 ### Review
@@ -303,7 +307,7 @@ func_map = {
     "Back":                 back,                                               # Works
     "Forward":              forward,                                            # Works
     "Enter":                on_enter,                                           # Needs Refactor
-    "Fullscreen":           fullscreen,                                         # Not Tested
+    "Fullscreen":           toggle_fullscreen,                                  # Not Tested
     "Volume Up":            lambda: keyPress(Qt.Key.Key_VolumeUp),              # Doesn't Work
     "Volume Down":          lambda: keyPress(Qt.Key.Key_VolumeDown),            # Doesn't Work
     "Menubar":              mw.menuWidget().setFocus,                           # Not Tested
@@ -325,13 +329,19 @@ func_map = {
                                         Qt.KeyboardModifier.ShiftModifier
                                         ),
     "Select":               select,                                             # Works
-    "Focus Main Window":    mw.setFocus,                                        # Not Tested
+    "Focus Main Window":    mw.window().activateWindow,                         # Not Tested
     "Switch Window":        mw.focusNextChild,                                  # Not Tested
     "Escape":               lambda:keyPress(Qt.Key.Key_Escape),                 # Not Tested
     "Up":                   lambda: keyPress(Qt.Key.Key_Up),                    # Not Tested
     "Down":                 lambda: keyPress(Qt.Key.Key_Down),                  # Not Tested
+    "Up by 10":             lambda: keyPress(Qt.Key.Key_Up, Qt.Key.Key_Control),# Not Tested
+    "Down by 10":           lambda: keyPress(                                   # Not Tested
+                                Qt.Key.Key_Down,
+                                Qt.Key.Key_Control),                  
     'Scroll Up':            lambda: scroll(0, -50),                             # Not Tested
     'Scroll Down':          lambda: scroll(0, 50),                              # Not Tested
+    'Options':              onOptions,                                          # Not Tested
+
     
     # Deck Browser Functions
     "Next Deck":            lambda: choose_deck(True),                          # Works
@@ -343,15 +353,15 @@ func_map = {
     "Rebuild":              lambda: mw.col.sched.rebuild_filtered_deck(cdid()), # Not Tested
     "Empty":                lambda: mw.col.sched.empty_filtered_deck(cdid()),   # Not Tested
     "Check Database":       mw.onCheckDB,                                       # Works
-    "Check Media":          mw.on_check_media_db,                               # Works
-    "Empty Cards":          mw.onEmptyCards,                                    # Works
-    "Manage Note Types":    mw.onNoteTypes,                                     # Works
-    "Study Deck":           mw.onStudyDeck,                                     # Works
+    "Check Media":          mw.on_check_media_db,                               # Works but opens dialog
+    "Empty Cards":          mw.onEmptyCards,                                    # Works but opens dialog
+    "Manage Note Types":    mw.onNoteTypes,                                     # Works but opens dialog
+    "Study Deck":           mw.onStudyDeck,                                     # Works but opens dialog
     "Export":               mw.onExport,                                        # Not Tested
     "Import":               mw.onImport,                                        # Not Tested
     
     # Overview Functions
-    "Custom Study":         lambda: keyPress(Qt.Key.Key_C),                     # Not Tested
+    "Custom Study":         lambda: keyPress(Qt.Key.Key_C),                     # Works but opens dialog
     
     # Reviewer Functions
     "Again":                lambda: mw.reviewer._answerCard(1),                 # Works
@@ -366,8 +376,8 @@ func_map = {
     "Delete Note":          mw.reviewer.delete_current_note,                    # Works
     "Record Voice":         mw.reviewer.onRecordVoice,                          # Not Tested
     "Replay Voice":         mw.reviewer.onReplayRecorded,                       # Not Tested
-    "Card Info":            mw.reviewer.on_card_info,                           # Not Tested
-    "Previous Card Info":   mw.reviewer.on_previous_card_info,                  # Not Tested
+    "Card Info":            mw.reviewer.on_card_info,                           # Works but opens dialog
+    "Previous Card Info":   mw.reviewer.on_previous_card_info,                  # Works but opens dialog
     "Pause Audio":          mw.reviewer.on_pause_audio,                         # Not Tested
     "Audio +5s":            mw.reviewer.on_seek_forward,                        # Not Tested
     "Audio -5s":            mw.reviewer.on_seek_backward,                       # Not Tested
