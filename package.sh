@@ -1,1 +1,1 @@
-zip -r -X contanki.ankiaddon ./contanki/*
+cd contanki && zip -r ../contanki.ankiaddon *
