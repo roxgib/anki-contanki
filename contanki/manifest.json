@@ -1,9 +1,0 @@
-{
-    "name": "Contanki",
-    "package": "contanki",
-    "ankiweb_id": "",
-    "author": "Sam Bradshaw",
-    "version": "v0.1a",
-    "homepage": "https://github.com/roxgib/anki-contanki",
-    "conflicts": []
-}

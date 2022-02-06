@@ -3,6 +3,7 @@ anki-addon-directory/
 ds4-env/
 .vscode*\
 notes
+contanki.ankiaddon
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
