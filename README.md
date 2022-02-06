@@ -6,8 +6,8 @@ Features:
  - Comfortably review your cards and much more using a gamepad
  - Control almost any Anki feature without a keyboard or mouse
  - Pull up a helpful overlay to remind you of the control mapping
- - Customisable key bindings
  - Cursor control for limited situations where the gamepad is insufficient
+ - Customisable control bindings
 
 ## Usage Notes
 
