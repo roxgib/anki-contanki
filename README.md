@@ -7,8 +7,7 @@ Features:
  - Control almost any Anki feature without a keyboard or mouse
  - Pull up a helpful overlay to remind you of the control mapping
  - Customisable key bindings
- - Support for mouse control for limited situations where the gamepad is insufficient
- - Various useful additional actions, such as navigating through due decks
+ - Cursor control for limited situations where the gamepad is insufficient
 
 ## Usage Notes
 
