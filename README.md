@@ -27,7 +27,6 @@ I have been testing using a DualShock 4, which can be readily purchased secondha
 Please report all issues on the GitHub issue tracker. Reports about bugs on Windows or when using an Xbox controller are particularly welcome as I have been testing almost exclusively on Mac using a DualShock 4 up to now. 
 
 ### Known issues
- - Sometimes a manifest error is encountered while installing
  - Add-on doesn't function in the profile window
  - Clicking in the title bar or outside of Anki doesn't work 
  - Clicking the deck gear menu or the reviewer options menu prevents any actions from firing, until it's closed and they fire all at once
