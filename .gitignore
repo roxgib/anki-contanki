@@ -4,6 +4,7 @@ ds4-env/
 .vscode*\
 notes
 contanki.ankiaddon
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
