@@ -168,6 +168,8 @@ class Contanki(AnkiWebView):
 
     def on_connect(self, buttons, *con) -> None:
         self.buttons = [False for i in range(int(buttons))]
+        if type(con) != str: 
+            con = con[0]
         tooltip('Controller Connected | ' + str(con))
 
 
@@ -180,7 +182,10 @@ class Contanki(AnkiWebView):
         if message[:3] == 'pcs':
             _, func, *values = message.split(':')
             if func == 'message':
-                tooltip(str(values))
+                if type(values) == list:
+                    tooltip(str(values[0]))
+                else:
+                    tooltip(str(values))
             else:
                 if type(values) != list(): values=list(values)
                 self.funcs[func](*values)

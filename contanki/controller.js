@@ -7,39 +7,54 @@ initialise()
 function initialise() {
     if (ready) {return}
     try {
-        bridgeCommand('pcs:message:bridgeCommand ready');
-    } 
-    catch (err) {
+        bridgeCommand('pcs:message:Contanki Initialised');
+    } catch (err) {
         setTimeout(initialise, 1000);
         return;
     }
     window.addEventListener("gamepadconnected", on_controller_connect);
-    window.addEventListener("gamepaddisconnected", on_controller_connect);
+    window.addEventListener("gamepaddisconnected", on_controller_disconnect);
     on_controller_connect();
+    ready = true;
 }
+
 
 function on_controller_connect(e) {
     let controllers = window.navigator.getGamepads();
-    if (controllers.length == 0 || controllers[index].connected == false) {
+    if (controllers.length == 0) {
         window.clearInterval(polling);
-        bridgeCommand(`pcs:on_disconnect:`);
+        bridgeCommand(`pcs:on_disconnect:arg`);
     } else {
         for (let i = 0; i < controllers.length; i++) {
-            if (controllers[i].id.includes('DUAL')) {
+            if (controllers[i].id.includes('DUAL') && controllers[i].connected == true) {
                 bridgeCommand(`pcs:on_connect:${controllers[i].buttons.length}:${controllers[i].id}`);
                 index = i;
                 polling = setInterval(poll, 50);
-                break;
+                return;
             }
         }
     }
+    window.clearInterval(polling);
 }
+
+function on_controller_disconnect(e) {
+    bridgeCommand(`pcs:on_disconnect:arg`);
+    window.clearInterval(polling);
+    index = null;
+    on_controller_connect();
+}
+
 
 function poll() {
     let _controller = window.navigator.getGamepads()[index];
 
-    if (_controller.connected == false) {
-        on_controller_connect();
+    try{
+        if (_controller.connected == false) {
+            on_controller_disconnect();
+            return;
+        } 
+    } catch (err) {
+        on_controller_disconnect();
         return;
     }
     

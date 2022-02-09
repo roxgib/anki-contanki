@@ -16,6 +16,11 @@ class ControlsOverlay(AnkiWebView):
         self.svg = build_svg_mappings(bindings, controller)
         self.setFixedWidth(800)
         self.setFixedHeight(330)
+        geometry = mw.geometry()
+        geometry.setBottom(mw.height() - 70)
+        geometry.setTop(mw.height() - self.height() - 70)
+        geometry.setLeft((mw.width() - self.width()) // 2)
+        geometry.setRight(mw.width() - ((mw.width() - self.width()) // 2))
         self.hide()
 
     def disappear(self) -> None:
@@ -33,9 +38,6 @@ class ControlsOverlay(AnkiWebView):
 
         if mod == "L2 + R2":
             mod = ""
-
-        if state == 'question' or state == 'answer':
-            mw.reviewer.showContextMenu
 
         body = f"""<html style="background-color: #{mw.app.palette().base().color().name()}"><body><div class="text-block" min-height="100%" style="text-align:center">
                     <div position="fixed" bottom="0" width="100%">
