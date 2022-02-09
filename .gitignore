@@ -1,7 +1,7 @@
 # Project specific
 anki-addon-directory/
 ds4-env/
-.vscode*\
+.vscode*
 notes
 contanki.ankiaddon
 .DS_Store

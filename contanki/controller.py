@@ -12,7 +12,7 @@ from .CONSTS import *
 from .help import *
 from .config import *
 
-class CSE(AnkiWebView):
+class Contanki(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
 
@@ -49,6 +49,8 @@ class CSE(AnkiWebView):
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         mw.addonManager.setConfigAction(__name__, lambda: dialogs.open('ControllerConfigEditor'))
         dialogs.register_dialog('ControllerConfigEditor', self.on_config)
+        self.setFixedSize(0,0)
+        self.show()
         #gui_hooks.focus_did_change.append(lambda _, __: tooltip(get_state()))
 
 
@@ -185,9 +187,3 @@ class CSE(AnkiWebView):
             return (True, None)
         else:
             return handled
-
-
-def initialise() -> None:
-    mw.controller = CSE(mw)
-    mw.controller.show()
-    mw.controller.setFixedSize(0,0)

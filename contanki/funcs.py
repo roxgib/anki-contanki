@@ -16,7 +16,7 @@ def get_state() -> str:
         if focus.objectName() == 'MainWindow':
             return mw.reviewer.state if mw.state == "review" else mw.state
         else:
-            return focus.objectName()
+            return focus.objectName().lower()
     else:
         return 'NoFocus'
 
@@ -221,6 +221,16 @@ def _cycle_flag() -> Callable:
 cycle_flag = _cycle_flag()
 
 
+def _previous_card_info():
+    try:
+        f = mw.reviewer.on_previous_card_info
+        return f
+    except:
+        return _pass
+
+previous_card_info = _previous_card_info()
+
+
 ### Deck Browser
 
 def _build_deck_list(due: bool = False) -> list:
@@ -377,7 +387,7 @@ func_map = {
     "Record Voice":         mw.reviewer.onRecordVoice,                          # Not Tested
     "Replay Voice":         mw.reviewer.onReplayRecorded,                       # Not Tested
     "Card Info":            mw.reviewer.on_card_info,                           # Works but opens dialog
-    "Previous Card Info":   mw.reviewer.on_previous_card_info,                  # Works but opens dialog
+    "Previous Card Info":   previous_card_info,                                 # Not Tested
     "Pause Audio":          mw.reviewer.on_pause_audio,                         # Not Tested
     "Audio +5s":            mw.reviewer.on_seek_forward,                        # Not Tested
     "Audio -5s":            mw.reviewer.on_seek_backward,                       # Not Tested
