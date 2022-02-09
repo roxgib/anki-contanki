@@ -23,11 +23,11 @@ The right stick is used to move and click the mouse, and you can use L2 + right 
 I have been testing using a DualShock 4, which can be readily purchased secondhand at a reasonable price and otherwise makes a good choice, although cheaper options will probably work just as well.
 
 ## Testing
-I'm now looking for alpha testers - download the latest Alpha release and please let me know how it goes. Please report all issues on the GitHub issue tracker. Reports about bugs on Windows or when using an Xbox controller are particularly welcome as I have been testing almost exclusively on Mac using a DualShock 4 up to now. 
+I'm now looking for alpha testers - download the latest Alpha release and let me know how it goes. Please report all issues on the GitHub issue tracker. Reports about bugs on Windows or when using an Xbox controller are particularly welcome as I have been testing almost exclusively on Mac using a DualShock 4 up to now. 
 
 Currently each button press triggers a tooltip - while annoying, this is intended to help with testing. If you encounter an issue, let me know what you were trying to do, what platform and controller you're using, and the text of any error or message your receive. Please take note of the known issues and don't report anything listed there. Suggestions are also welcome, and should also be raised on the issue tracker.
 
-### Known issues
+## Known issues
  - Add-on doesn't function in the profile window
  - Clicking in the title bar or outside of Anki doesn't work 
  - Opening certain menus or dialogs prevents any actions from firing, until it's closed and they fire all at once
@@ -37,7 +37,7 @@ Currently each button press triggers a tooltip - while annoying, this is intende
  - Many controllers won't be supported properly yet
  - Trackpad on DualShock 4 doesn't work, except as a button
 
- ## Version Related:
+ ### Version Related:
  - Alpha 3 only works on 2.1.49 and 2.1.50, but Alpha 2 will work on most earlier versions. This should be fixed soon.
 
 ## Development log
