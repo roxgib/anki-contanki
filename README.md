@@ -34,3 +34,35 @@ Please report all issues on the GitHub issue tracker. Reports about bugs on Wind
  - Several options are not actually configurable despite appearing in the options
  - Many controllers won't be supported properly yet
  - Trackpad on DualShock 4 doesn't work, except as a button
+
+ Version Related:
+ - Alpha 3 only works on 2.1.49 and 2.1.50, but Alpha 2 will work on most earlier versions. This should be fixed soon.
+
+
+## Development log
+
+### Alpha 3
+
+Alpha 3 is now available for download. Unfortunately it only supports 2.1.49 and 2.1.50, but this should be fixed in the next release.
+
+New features
+ - Greatly improved dialog interaction (although see below regarding the dialog/menu issue)
+
+Fixes:
+ - Message shown on controller disconnect
+ - Reconnects now more reliable
+ - Tentative fix for excessive CPU usage if Anki has been left open for several days
+ - Compatibility fixes for earlier Anki versions (but most testing is still on 49 & 50 so far)
+ 
+ I've been working on fixing the dialogs/menus .exec() issue, but the fixes required are in Anki's code, so it's unlikely this issue will be addressed for any current version of Anki, and it requires changes to each individual menu or dialog and a lot of testing to ensure it doesn't introduce other issues, so is likely to take some time. This add-on won't be moved to beta until these fixes make it to a main Anki release.
+
+In the meantime users will simply have to avoid clicking the menus or opening affected dialogs. I might release a version with those features disabled, but for testing purposes they are enabled in alpha versions.
+
+Both clicking outside Anki and touchpad support are low priority right now, as they are both likely to require a lot of work and possibly different solutions for each platform. I do intend to eventually support both however.
+
+The following features are intended before the beta release:
+
+ - Improved config dialog
+ - Full support for Xbox controllers
+ - All actions configurable
+ - Compatibility back to 2.1.45 (probably without dialog access)
