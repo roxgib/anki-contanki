@@ -26,7 +26,7 @@ function on_controller_connect(e) {
         bridgeCommand(`pcs:on_disconnect:arg`);
     } else {
         for (let i = 0; i < controllers.length; i++) {
-            if (controllers[i].id.includes('DUAL') && controllers[i].connected == true) {
+            if (controllers[i].connected == true) {
                 bridgeCommand(`pcs:on_connect:${controllers[i].buttons.length}:${controllers[i].id}`);
                 index = i;
                 polling = setInterval(poll, 50);

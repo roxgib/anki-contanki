@@ -1,10 +1,11 @@
 # Project specific
 anki-addon-directory/
-ds4-env/
+anki-env/
 .vscode*
 notes
 contanki.ankiaddon
 .DS_Store
+test.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

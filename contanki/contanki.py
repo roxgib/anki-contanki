@@ -2,25 +2,33 @@ import os
 from time import time
 from typing import List
 
-from aqt import mw
+from aqt import mw, gui_hooks
 from aqt.webview import AnkiWebView
 from aqt.utils import tooltip, showInfo
-from aqt import gui_hooks
+from aqt.qt import QAction, qconnect
 
 from .funcs import *
 from .CONSTS import *
-from .help import *
+from .overlay import *
 from .config import *
+from .config_new import *
+from .actions import *
+from .profile import *
 
 class Contanki(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
 
         self.config = mw.addonManager.getConfig(__name__)['options']
+        self.profile = 'DualShock4'
 
         self.mappings = build_mappings(mw.addonManager.getConfig(__name__)['mappings'])
         addon_path = os.path.dirname(os.path.abspath(__file__))
         self.controlsOverlay = ControlsOverlay(mw, addon_path, self.mappings)
+
+        menuItem = QAction(f"Controller Options", mw)
+        qconnect(menuItem.triggered, self.on_new_config)
+        mw.form.menuTools.addAction(menuItem)
 
         self.stdHtml(f"""DS4 Support\n<p id="ds4"></p>\n<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
         
@@ -51,7 +59,9 @@ class Contanki(AnkiWebView):
         dialogs.register_dialog('ControllerConfigEditor', self.on_config)
         self.setFixedSize(0,0)
         self.show()
-        #gui_hooks.focus_did_change.append(lambda _, __: tooltip(get_state()))
+
+    def on_new_config(self) -> None:
+        ContankiConfig(mw)
 
 
     def on_config(self) -> None:
@@ -69,9 +79,9 @@ class Contanki(AnkiWebView):
             if value == self.buttons[i]: continue
             self.buttons[i] = value
             if value:
-                self.on_button_press(BUTTONS[i])
+                self.on_button_press(BUTTON_NAMES["DualShock4"][i])
             else:
-                self.on_button_release(BUTTONS[i])
+                self.on_button_release(BUTTON_NAMES["DualShock4"][i])
 
 
     def on_button_press(self, button: str) -> None:
@@ -168,9 +178,17 @@ class Contanki(AnkiWebView):
 
     def on_connect(self, buttons, *con) -> None:
         self.buttons = [False for i in range(int(buttons))]
-        if type(con) != str: 
+        showInfo(str(con))
+        if type(con) != str:
             con = con[0]
-        tooltip('Controller Connected | ' + str(con))
+
+        controller = identifyController(str(con))
+        if controller:
+            tooltip(f'{getControllerName(controller)} Connected')
+            self.profile = controller
+        else:
+            self.profile = 'DualShock4'
+            tooltip('Unknown Controller Connected | ' + str(con))
 
 
     def on_disconnect(self, *args) -> None:

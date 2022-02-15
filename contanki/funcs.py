@@ -1,12 +1,12 @@
 from typing import Callable
+import subprocess
 
 from anki.decks import DeckId
-import aqt
-from aqt import  QWidget, mw
+from aqt import mw
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.qt import QCoreApplication, QEvent, QMouseEvent, QPoint, QPointF, Qt
 from aqt.qt import QKeyEvent as QKE
-from aqt.utils import tooltip, current_window
+from aqt.utils import current_window
 from os.path import dirname, abspath, join
 
 # Internal
@@ -19,6 +19,7 @@ def get_state() -> str:
             return focus.objectName().lower()
     else:
         return 'NoFocus'
+
 
 def _pass() -> None:
     pass
@@ -93,6 +94,9 @@ def get_file(file: str) -> str:
     elif os.path.exists(join(addon_path, 'controllers', file)):
         with open(join(addon_path, 'controllers', file)) as f:
             return f.read()
+    elif os.path.exists(join(addon_path, 'user_files', file)):
+        with open(join(addon_path, 'controllers', file)) as f:
+            return f.read()
 
 
 # Common
@@ -114,31 +118,9 @@ def click(
     mod: Qt.KeyboardModifier = Qt.KeyboardModifier.NoModifier,
 ) -> None:
     """
-    Currently bugged in two distinct ways:
-      - clicks are propagating to slightly below the correct location, probably due to the wrong screen 
-        geometry being used to map from global
-      - clicks are only being propagated to the main webview, not to anything else
-
-    There's probably no way to propagate clicks outside of Anki, but it should be possible to send them to 
-    other windows.
-
-    Update: looks like the problem might not be the screen geometry, but possibly the window geometry 
-    ignoring the title bar. 
-
-    Update: That seems to have made things worse, despite the correct corrdinates now being reported.
-
-    Update: the coordinates need to be local to the widget! So the two problems are actually related
-
-    Update: It works!!! Clicking is functional for everything within the main window (nothing outside Anki,
-    but that'll have to suffice for now unless I find an OS level way to implement clicks.)
-
     The following problems now remain:
-      - The interface is completely disabled when the options menu is clicked, and buttons that are pressed 
-      stack up and execute all at once when it's clicked out of. This is somewhat dangerous because users
-      might click a bunch of random buttons trying to get it to work
-      - Right clicking to open other context menus doesn't cause this issue, but the context menus stay
-      open indefinitely.
       - Clicking in the title bar doesn't work
+      - Sometimes laggy on older machinese
     """
     pos = mw.cursor().pos()
     widget = mw.app.widgetAt(pos)
@@ -198,6 +180,22 @@ def toggle_fullscreen():
             cw.showNormal()
         else:
             cw.showFullScreen()
+
+def changeVolume(direction=True):
+    try:
+        from aqt.utils import is_mac
+    except:
+        return
+        
+    if is_mac:
+        current_volume = subprocess.run(
+            'osascript -e "get volume settings"', 
+            shell=True,
+            capture_output=True,
+            text=True
+        ).stdout.split(',')[0].split[':'][1] / 14
+        current_volume += -0.5 + int(direction)
+        subprocess.run(f'osascript -e "set volume {current_volume}"', shell=True)
 
 
 ### Review
@@ -300,100 +298,3 @@ def choose_deck(direction: bool, due: bool = False) -> None:
 def collapse_deck() -> None:
     if get_state() != 'deckBrowser': return
     mw.web.eval("document.activeElement.parentElement.getElementsByClassName('collapse')[0].click()")
-
-
-func_map = {
-    "": _pass,  # handle unmapped buttons
-    
-    # Common Function                                           
-    "Sync":                 mw.onSync,                                          # Works
-    "Overview":             lambda: mw.moveToState("overview"),                 # Works
-    "Browser":              mw.onBrowse,                                        # Works
-    "Statistics":           mw.onStats,                                         # Works
-    "Main Screen":          lambda: mw.moveToState("deckBrowser"),              # Works
-    "Review":               lambda: mw.moveToState("review"),                   # Works
-    "Undo":                 mw.undo,                                            # Works
-    "Redo":                 mw.redo,                                            # Works
-    "Back":                 back,                                               # Works
-    "Forward":              forward,                                            # Works
-    "Enter":                on_enter,                                           # Needs Refactor
-    "Fullscreen":           toggle_fullscreen,                                  # Not Tested
-    "Volume Up":            lambda: keyPress(Qt.Key.Key_VolumeUp),              # Doesn't Work
-    "Volume Down":          lambda: keyPress(Qt.Key.Key_VolumeDown),            # Doesn't Work
-    "Menubar":              mw.menuWidget().setFocus,                           # Not Tested
-    "Add":                  mw.onAddCard,                                       # Not Tested
-    "About Anki":           mw.onAbout,                                         # Not Tested
-    "Preferences":          mw.onPrefs,                                         # Not Tested
-    "Quit":                 mw.close,                                           # Not Tested
-    "Switch Profile":       mw.unloadProfileAndShowProfileManager,              # Not Tested
-    "Hide Cursor":          hideCursor,                                         # Not Tested
-    "Anki Help":            mw.onDocumentation,                                 # Not Tested
-    
-    
-    # UI Functions
-    "Click":                click,                                              # Mostly works
-    "Secondary Click":      lambda: click(button=Qt.MouseButton.RightButton),   # Mostly works
-    "Select Next":          lambda: keyPress(Qt.Key.Key_Tab),                   # Works
-    "Select Previous":      lambda: keyPress(                                   # Works
-                                        Qt.Key.Key_Tab, 
-                                        Qt.KeyboardModifier.ShiftModifier
-                                        ),
-    "Select":               select,                                             # Works
-    "Focus Main Window":    mw.window().activateWindow,                         # Not Tested
-    "Switch Window":        mw.focusNextChild,                                  # Not Tested
-    "Escape":               lambda:keyPress(Qt.Key.Key_Escape),                 # Not Tested
-    "Up":                   lambda: keyPress(Qt.Key.Key_Up),                    # Not Tested
-    "Down":                 lambda: keyPress(Qt.Key.Key_Down),                  # Not Tested
-    "Up by 10":             lambda: keyPress(Qt.Key.Key_Up, Qt.Key.Key_Control),# Not Tested
-    "Down by 10":           lambda: keyPress(                                   # Not Tested
-                                Qt.Key.Key_Down,
-                                Qt.Key.Key_Control),                  
-    'Scroll Up':            lambda: scroll(0, -50),                             # Not Tested
-    'Scroll Down':          lambda: scroll(0, 50),                              # Not Tested
-    'Options':              onOptions,                                          # Not Tested
-
-    
-    # Deck Browser Functions
-    "Next Deck":            lambda: choose_deck(True),                          # Works
-    "Previous Deck":        lambda: choose_deck(False),                         # Works
-    "Next Due Deck":        lambda: choose_deck(True, True),                    # Works
-    "Previous Due Deck":    lambda: choose_deck(False, True),                   # Works
-    "Collapse/Expand":      collapse_deck,                                      # Works
-    "Filter":               mw.onCram,                                          # Not Tested
-    "Rebuild":              lambda: mw.col.sched.rebuild_filtered_deck(cdid()), # Not Tested
-    "Empty":                lambda: mw.col.sched.empty_filtered_deck(cdid()),   # Not Tested
-    "Check Database":       mw.onCheckDB,                                       # Works
-    "Check Media":          mw.on_check_media_db,                               # Works but opens dialog
-    "Empty Cards":          mw.onEmptyCards,                                    # Works but opens dialog
-    "Manage Note Types":    mw.onNoteTypes,                                     # Works but opens dialog
-    "Study Deck":           mw.onStudyDeck,                                     # Works but opens dialog
-    "Export":               mw.onExport,                                        # Not Tested
-    "Import":               mw.onImport,                                        # Not Tested
-    
-    # Overview Functions
-    "Custom Study":         lambda: keyPress(Qt.Key.Key_C),                     # Works but opens dialog
-    
-    # Reviewer Functions
-    "Again":                lambda: mw.reviewer._answerCard(1),                 # Works
-    "Hard":                 lambda: mw.reviewer._answerCard(2),                 # Works
-    "Good":                 lambda: mw.reviewer._answerCard(3),                 # Works
-    "Easy":                 lambda: mw.reviewer._answerCard(4),                 # Works
-    "Suspend Card":         mw.reviewer.suspend_current_card,                   # Works
-    "Suspend Note":         mw.reviewer.suspend_current_note,                   # Works
-    "Bury Card":            mw.reviewer.bury_current_card,                      # Works
-    "Bury Note":            mw.reviewer.bury_current_note,                      # Works
-    "Mark Note":            mw.reviewer.toggle_mark_on_current_note,            # Works
-    "Delete Note":          mw.reviewer.delete_current_note,                    # Works
-    "Record Voice":         mw.reviewer.onRecordVoice,                          # Not Tested
-    "Replay Voice":         mw.reviewer.onReplayRecorded,                       # Not Tested
-    "Card Info":            mw.reviewer.on_card_info,                           # Works but opens dialog
-    "Previous Card Info":   previous_card_info,                                 # Not Tested
-    "Pause Audio":          mw.reviewer.on_pause_audio,                         # Not Tested
-    "Audio +5s":            mw.reviewer.on_seek_forward,                        # Not Tested
-    "Audio -5s":            mw.reviewer.on_seek_backward,                       # Not Tested
-    "Replay Audio":         mw.reviewer.replayAudio,                            # Works
-    "Edit Note":            mw.onEditCurrent,                                   # Not Tested
-    "Flip Card":            mw.reviewer.onEnterKey,                             # Works
-    "Cycle Flag":           cycle_flag,                                         # Works
-    "Set Due Date":         mw.reviewer.on_set_due,                             # Not Tested
-}

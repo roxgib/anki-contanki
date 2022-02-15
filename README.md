@@ -64,6 +64,7 @@ Both clicking outside Anki and touchpad support are low priority right now, as t
 The following features are intended before the beta release:
 
  - Improved config dialog
+ - Controllers profiles
  - Full support for Xbox controllers
  - All actions configurable
  - Compatibility back to 2.1.45 (probably without dialog access)
