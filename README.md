@@ -42,6 +42,14 @@ Currently each button press triggers a tooltip - while annoying, this is intende
 
 ## Development log
 
+### Alpha 4
+
+This release demos the new config dialog, although right now it's not actually functional. I've been implementing the module for handling profiles that will save your controller layouts, and I really want that to be locked down because changes to it might break people's profiles which would be a huge pain. Along with the new config dialogs comes various features for detecting consoles, support for different controllers, new options to configure, and more, but for these to be put to use the main code for handling controls now needs to be updated to use these. I wanted to push out this release before I start.
+
+There's still a problem with 2.1.48 and below, which I've put off investigating since the upcoming refactor to the main controller code might well fix it . Right now the latest 2.1.50 beta works best, but 2.1.49 works fine as well. More controllers should now work, although proper support for the full range of controllers will come in the next release once the new profile and control mapping module is fulling implemented.
+
+Speaking of which, I've also been working on resolving the dialog on Anki's end by submitting pull requests to fix the affected dialogs and menus one by one. You can now see the results of this on the latest Anki beta, with the deck selector, custom study, and deck configuration dialogs now navigable using Contanki. I'll work on the context menus next. I plan to make this issue a priority in the hope that can be fully or largely resolved by the time of the 2.1.50 release.
+
 ### Alpha 3
 
 Alpha 3 is now available for download. Unfortunately it only supports 2.1.49 and 2.1.50, but this should be fixed in the next release.
@@ -64,7 +72,7 @@ Both clicking outside Anki and touchpad support are low priority right now, as t
 The following features are intended before the beta release:
 
  - Improved config dialog
- - Controllers profiles
+ - Controller profiles
  - Full support for Xbox controllers
  - All actions configurable
  - Compatibility back to 2.1.45 (probably without dialog access)
