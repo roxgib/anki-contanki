@@ -1,8 +1,7 @@
 CONTROLLER_NAMES = {
-    "DualShock3": "DualShock 3 (PS3)",
-    "DualShock4": "DualShock 4 (PS4)",
-    "DualSense": "DualSense (PS5)",
-    "DualSense": "DualSense (PS5)",
+    "DualShock3": "DualShock 3",
+    "DualShock4": "DualShock 4",
+    "DualSense": "DualSense",
     "JoyCon": "Joy-Con",
     "JoyConL": "Joy-Con Left",
     "JoyConR": "Joy-Con Right",

@@ -178,17 +178,15 @@ class Contanki(AnkiWebView):
 
     def on_connect(self, buttons, *con) -> None:
         self.buttons = [False for i in range(int(buttons))]
-        showInfo(str(con))
-        if type(con) != str:
-            con = con[0]
+        con = ':'.join(con)
 
         controller = identifyController(str(con))
         if controller:
             tooltip(f'{getControllerName(controller)} Connected')
             self.profile = controller
         else:
-            self.profile = 'DualShock4'
-            tooltip('Unknown Controller Connected | ' + str(con))
+            self.profile = 'DualShock4' 
+            tooltip('Unknown Controller Connected | ' + con)
 
 
     def on_disconnect(self, *args) -> None:

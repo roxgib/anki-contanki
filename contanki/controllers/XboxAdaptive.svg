@@ -10,64 +10,8 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview7"
-     pagecolor="#505050"
-     bordercolor="#eeeeee"
-     borderopacity="1"
-     inkscape:pageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     inkscape:document-units="mm"
-     showgrid="false"
-     showguides="false"
-     inkscape:guide-bbox="true"
-     units="cm"
-     inkscape:lockguides="true"
-     inkscape:zoom="1.2933583"
-     inkscape:cx="201.02705"
-     inkscape:cy="119.84305"
-     inkscape:window-width="2138"
-     inkscape:window-height="1262"
-     inkscape:window-x="651"
-     inkscape:window-y="37"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="layer1">
-    <inkscape:grid
-       type="xygrid"
-       id="grid9" />
-    <sodipodi:guide
-       position="129.19114,80.000002"
-       orientation="0,1"
-       id="guide21"
-       inkscape:label=""
-       inkscape:locked="true"
-       inkscape:color="rgb(0,0,255)" />
-    <sodipodi:guide
-       position="120,100"
-       orientation="-1,0"
-       id="guide23"
-       inkscape:label=""
-       inkscape:locked="true"
-       inkscape:color="rgb(0,0,255)" />
-    <sodipodi:guide
-       position="150,20.000001"
-       orientation="0,1"
-       id="guide25"
-       inkscape:label=""
-       inkscape:locked="true"
-       inkscape:color="rgb(0,0,255)" />
-    <sodipodi:guide
-       position="30.000001,-1.5039822e-14"
-       orientation="-1,0"
-       id="guide27"
-       inkscape:label=""
-       inkscape:locked="true"
-       inkscape:color="rgb(0,0,255)" />
-  </sodipodi:namedview>
-  <defs
-     id="defs2">
+   xmlns:svg="http://www.w3.org/2000/svg"
+   style="fill:#000000;stroke:#000000;stroke-width:0.5" >
     <clipPath
        clipPathUnits="userSpaceOnUse"
        id="clipPath38735">

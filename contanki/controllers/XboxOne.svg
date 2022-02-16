@@ -11,67 +11,11 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview7"
-     pagecolor="#505050"
-     bordercolor="#eeeeee"
-     borderopacity="1"
-     inkscape:pageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     inkscape:document-units="mm"
-     showgrid="false"
-     showguides="true"
-     inkscape:guide-bbox="true"
-     units="cm"
-     inkscape:lockguides="true"
-     inkscape:zoom="1.8723841"
-     inkscape:cx="226.98334"
-     inkscape:cy="100.94082"
-     inkscape:window-width="2138"
-     inkscape:window-height="1262"
-     inkscape:window-x="651"
-     inkscape:window-y="37"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="layer1">
-    <inkscape:grid
-       type="xygrid"
-       id="grid9" />
-    <sodipodi:guide
-       position="129.19114,80.000002"
-       orientation="0,1"
-       id="guide21"
-       inkscape:label=""
-       inkscape:locked="true"
-       inkscape:color="rgb(0,0,255)" />
-    <sodipodi:guide
-       position="120,100"
-       orientation="-1,0"
-       id="guide23"
-       inkscape:label=""
-       inkscape:locked="true"
-       inkscape:color="rgb(0,0,255)" />
-    <sodipodi:guide
-       position="150,20.000001"
-       orientation="0,1"
-       id="guide25"
-       inkscape:label=""
-       inkscape:locked="true"
-       inkscape:color="rgb(0,0,255)" />
-    <sodipodi:guide
-       position="30.000001,-1.5039822e-14"
-       orientation="-1,0"
-       id="guide27"
-       inkscape:label=""
-       inkscape:locked="true"
-       inkscape:color="rgb(0,0,255)" />
-  </sodipodi:namedview>
-  <defs
-     id="defs2" />
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     style="fill:#000000;stroke:#000000;stroke-width:0.5" >
     <path
        d="m 91.051035,20.739259 c -0.09456,0.157605 -0.03152,0.31521 0.126084,0.31521 0.189126,0 0.346731,-0.157605 0.346731,-0.31521 0,-0.189125 -0.06304,-0.315209 -0.126084,-0.315209 -0.09456,0 -0.252168,0.126084 -0.346731,0.315209 z"
        id="path33504" />

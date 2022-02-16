@@ -141,17 +141,27 @@ class ContankiConfig(QDialog):
         def add_buttons(widget):
             widget.buttons = list()
             for control, loc in CONTROLLER_IMAGE_MAPS[controller]['BUTTONS'].items():
-                x, y = loc[2] * 5, loc[3] * 5
-                x += (x - 375) * 0.5
-                y += (y - 375) * 0.5
+                # x, y = loc[2] * 5, loc[3] * 5
+                # x += (x - 375) * 0.5
+                # y += (y - 375) * 0.5
+                # x -= loc[4] * 16
+
+                x, y = loc[2] * 4.58, loc[3] * 4.8
+                x += (x - 375) * 0.12
                 x -= loc[4] * 16
+
                 widget.buttons.append(QComboBox(widget))
                 widget.buttons[-1].addItems(self.actions)
                 widget.buttons[-1].setObjectName(str(control))
                 widget.buttons[-1].move(QPoint(x, y))
             for control, loc in CONTROLLER_IMAGE_MAPS[controller]['AXES'].items():
-                x, y = loc[2] * 5, loc[3] * 5
+                # x, y = loc[2] * 5, loc[3] * 5
+                # x -= loc[4] * 16
+
+                x, y = loc[2] * 4.58, loc[3] * 4.8
+                x += (x - 375) * 0.12
                 x -= loc[4] * 16
+
                 widget.buttons.append(QComboBox(widget))
                 widget.buttons[-1].addItems(self.actions)
                 widget.buttons[-1].setObjectName(str(100 + control))
