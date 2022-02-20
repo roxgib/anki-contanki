@@ -7,7 +7,7 @@ initialise()
 function initialise() {
     if (ready) {return}
     try {
-        bridgeCommand('pcs:message:Contanki Initialised');
+        bridgeCommand('contanki::message::Contanki Initialised');
     } catch (err) {
         setTimeout(initialise, 1000);
         return;
@@ -22,12 +22,11 @@ function initialise() {
 function on_controller_connect(e) {
     let controllers = window.navigator.getGamepads();
     if (controllers.length == 0) {
-        window.clearInterval(polling);
-        bridgeCommand(`pcs:on_disconnect:arg`);
+        bridgeCommand(`contanki::on_disconnect::arg`);
     } else {
         for (let i = 0; i < controllers.length; i++) {
-            if (controllers[i].connected == true) {
-                bridgeCommand(`pcs:on_connect:${controllers[i].buttons.length}:${controllers[i].id}`);
+            if (controllers[i] != null && controllers[i].connected == true) {
+                bridgeCommand(`contanki::on_connect::${controllers[i].buttons.length}::${controllers[i].axes.length}::${controllers[i].id}`);
                 index = i;
                 polling = setInterval(poll, 50);
                 return;
@@ -38,7 +37,7 @@ function on_controller_connect(e) {
 }
 
 function on_controller_disconnect(e) {
-    bridgeCommand(`pcs:on_disconnect:arg`);
+    bridgeCommand(`contanki::on_disconnect::arg`);
     window.clearInterval(polling);
     index = null;
     on_controller_connect();
@@ -57,15 +56,17 @@ function poll() {
         on_controller_disconnect();
         return;
     }
-    
-    bridgeCommand(`pcs:update_left:${_controller.axes[0]}:${_controller.axes[1]}`);
-    bridgeCommand(`pcs:update_right:${_controller.axes[2]}:${_controller.axes[3]}`);
-    bridgeCommand(`pcs:update_triggers:${_controller.buttons[6].value}:${_controller.buttons[7].value}`);
 
     let buttons = new Array();
+    let axes = new Array();
+
     for (let i = 0; i < _controller.buttons.length; i++) {
         buttons.push(_controller.buttons[i].pressed.toString());
     }
+
+    for (let i = 0; i < _controller.axes.length; i++) {
+        axes.push(_controller.axes[i].toString());
+    }
     
-    bridgeCommand(`pcs:update_buttons:${buttons.toString()}`);
+    bridgeCommand(`contanki::poll::${buttons.toString()}::${axes.toString()}`);
 }

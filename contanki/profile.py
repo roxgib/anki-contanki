@@ -10,45 +10,59 @@ from .actions import *
 
 addon_path = os.path.dirname(os.path.abspath(__file__))
 user_profile_path = os.path.join(addon_path, 'user_files', 'profiles')
+user_files_path = os.path.join(addon_path, 'user_files')
 default_profile_path = os.path.join(addon_path, 'profiles')
 
-class Binding:
-    compatibility = {
-        (17,4): ['DualShock4', 'DualSense', 'XboxOne'],
-        (16,4): ['DualShock3', 'XBox360', 'XboxOne']
-    }
-
+class Profile:
     def __init__(self, profile: dict):
-        self.binding = profile['binding']
+        self.bindings = profile['bindings']
         self.mods = profile['mods']
+        self.name = profile['name']
+        self.size = profile['size']
         self.controller = profile['controller']
         self.buildActions()
 
+
     def buildActions(self):
         self.actions = dict()
+        self.releaseActions = dict()
         for state, a in self.bindings.items():
             self.actions[state] = dict()
-            for mod, b in a:
+            for mod, b in a.items():
                 self.actions[state][mod] =  dict()
-                for button, action in b:
-                    if button in func_map:
-                        self.actions[state][mod][button] = func_map[action]
+                for button, action in b.items():
+                    if action in button_actions:
+                        self.actions[state][mod][button] = button_actions[action]
+                    if action in button_release_actions:
+                        self.releaseActions[state][mod][button] = button_release_actions[action]
 
-    def doAction(self, state, mod, button = None, axis = None):
+
+    def doAction(self, state, mod, button = None, axis = None, value = None):
         try:
             if button:
                 self.actions[state][mod][button]()
             elif axis:
-                self.actions[state][mod][axis + 100]()
+                self.actions[state][mod][axis + 100](value)
         except KeyError:
             tooltip('Error: not mapped')
+
+    
+    def doReleaseAction(self, state, mod, button = None, axis = None, value = None):
+        try:
+            if button:
+                self.actions[state][mod][button]()
+            elif axis:
+                self.actions[state][mod][axis + 100](value)
+        except KeyError:
+            tooltip('Error: not mapped')
+
         
     def updateBinding(self, state: str, mod: int, button: int = None, axis: int = None, action = "") -> None:
         if action == 'mod':
             showInfo('Error: use Binding.updateMods to change the modifier keys')
         try:
             if button:
-                self.binding[state][mod][button] = action
+                self.bindings[state][mod][button] = action
             elif axis:
                 self.actions[state][mod][axis + 100] = action
         except KeyError:
@@ -61,25 +75,21 @@ class Binding:
             new_mod += 100
         if old_mod in self.mods:
             self.mods[self.mods.index(old_mod)] = new_mod
-        for state in self.binding:
+        for state in self.bindings:
             for mod in state:
-                self.binding[state][mod][old_mod] = ""
-                self.binding[state][mod][new_mod] = "mod"
+                self.bindings[state][mod][old_mod] = ""
+                self.bindings[state][mod][new_mod] = "mod"
 
     def getCompatibility(self, controller):
-        if type(controller) == str:
-            for key, item in self.compatibility.items():
-                if controller in item:
-                    return item
-        elif type(controller) == tuple:
-            if controller in self.compatibility:
-                return self.compatibility[controller]
+        pass
 
     def save(self) -> dict:
         return {
-        'controller' : self.controller,
-        'mods'       : self.mods,
-        'binding'    : self.binding,
+        'name'      : self.name,
+        'size'      : self.size,
+        'controller': self.controller,
+        'mods'      : self.mods,
+        'bindings'  : self.bindings,
         }
 
 def identifyController(id: str) -> str:
@@ -92,7 +102,6 @@ def identifyController(id: str) -> str:
             return 'DualShock4'
         elif 'dualsense' in id:
             return 'DualSense'
-
     elif 'xbox' in id:
         if '360' in id:
             return 'Xbox306'
@@ -102,7 +111,6 @@ def identifyController(id: str) -> str:
             return 'XboxElite'
         elif 'series' in id:
             return 'XboxSeries'
-
     elif 'joycon' in id or 'joy-con' in id:
         if 'left' in id:
             return 'JoyConLeft'
@@ -110,13 +118,16 @@ def identifyController(id: str) -> str:
             return 'JoyConRight'
         else:
             return 'JoyCon'
-
     elif 'switch' in id:
         if 'pro' in id:
             return 'SwitchPro'
         else:
-            return 'JoyCon'
-    
+            if 'left' in id:
+                return 'JoyConLeft'
+            if 'right' in id:
+                return 'JoyConRight'
+            else:
+                return 'JoyCon'
     elif 'wii' in id or 'joy-con' in id:
         if 'nunchuck' in id:
             return 'WiiNunchuck'
@@ -136,83 +147,79 @@ def getControllerName(controller: str) -> str:
         return CONTROLLER_NAMES[controller]
 
 
-def getProfileList(controller: Optional[str] = None, pretty: bool = False) -> List[str]:
+def getProfileList(compatibility: Optional[str] = None, pretty: bool = False) -> List[str]:
     profiles = list()
     for file_name in os.listdir(user_profile_path):
-        if controller:
-            with open(user_profile_path + file_name) as f:
-                if controller in json.load(f)['controller']:
-                    profiles.append(file_name)
-        else:
-            profiles.append(file_name)
+        profiles.append(file_name)
 
     for file_name in os.listdir(default_profile_path):
-        if file_name == controller or not controller:
+        if file_name == str(compatibility) or not compatibility:
             profiles.append(file_name)
 
     if pretty:
-        return sorted([CONTROLLER_NAMES[profile] for profile in profiles])
+        return sorted([getProfile(profile).name for profile in profiles])
     else:
         return sorted(profiles)
 
 
-def getProfile(name: str) -> Binding:
-    if os.path.exists(user_profile_path + name):
-        file = user_profile_path + name
-    elif os.path.exists(default_profile_path + name):
-        file = default_profile_path + name
-    else:
-        showInfo(f"Couldn't fine profile '{name}'")
+def getProfile(name: str) -> Profile:
+    if not name: return
+    path = os.path.join(default_profile_path, name)
+    if not os.path.exists(path):
+        path = os.path.join(user_profile_path, name)
+        if not os.path.exists(path):
+            showInfo(f"Couldn't find profile '{name}'")
+            return
+
+    with open(path, 'rt') as f:
+        out = Profile(json.load(f))
+
+    return out
+
+
+def createProfile(controller: str = None) -> Profile:
+    old, okay1 = QInputDialog().getItem(
+        mw, 
+        'Create New Profile', 
+        'Select an existing profile to copy:', 
+        getProfileList(),
+        editable = False,
+    )
+    if not okay1 or not old: return
+    name, okay2 = QInputDialog().getText(mw, 'Create New Profile', 'Enter the new profile name:')
+    if not name or not okay2: return
+
+    if os.path.exists(os.path.join(user_profile_path, name)):
+        showInfo(f"Error: Profile name '{name}' already in use")
+        return
+    if os.path.exists(os.path.join(default_profile_path, name)):
+        showInfo(f"Error: Profile name '{name}' already in use")
         return
 
-    with open(file) as f:
-        return Binding(json.load(f.read()))
-
-
-def createProfile(controller: str = None) -> Binding:
-    old, okay1 = QInputDialog().getItem(mw, 'Select a profile as the base', '', getProfileList(controller))
-    name, okay2 = QInputDialog().getText(mw, 'Select a profile as the base','')
-    
-    if os.path.exists(user_profile_path + name):
-        showInfo(f"Error: Profile name '{name}' already in use")
-    elif os.path.exists(default_profile_path + name):
-        showInfo(f"Error: Profile name '{name}' already in use")
-
     copyProfile(old, name)
-
     return getProfile(name)
 
 
-def saveProfile(name: str, profile: Binding) -> None:
-    path = os.path.join(default_profile_path, name)
-    if os.exists(path):
+def saveProfile(profile: Profile) -> None:
+    path = os.path.join(default_profile_path, profile.name)
+    if os.path.exists(path):
         tooltip('Cannot overwrite built-in profiles.')
-    path = os.path.join(user_profile_path, name)
-    
-    def save():
-        with open(path, 'w') as f:
-            json.dump(profile.save(), f)
-    
-    if os.exists(path):
-        confirm = QMessageBox()
-        confirm.setText("This will overwrite the existing profile.")
-        confirm.setWindowTitle("Overwrite Profile")
-        confirm.buttonClicked.connect(save)
-        confirm.open()
-    else:
-        save()
+        return
+    path = os.path.join(user_profile_path, profile.name)
 
+    with open(path, 'w') as f:
+            json.dump(profile.save(), f)
 
 def deleteProfile(name: str) -> None:
     path = os.path.join(default_profile_path, name)
-    if os.exists(path):
+    if os.path.exists(path):
         tooltip('Cannot delete built-in profiles.')
 
     path = os.path.join(user_profile_path, name)
     def delete():
         os.remove(path)
     
-    if os.exists(path):
+    if os.path.exists(path):
         confirm = QMessageBox()
         confirm.setText(f"This will delete the profile '{name}'.")
         confirm.setWindowTitle("Overwrite Profile")
@@ -221,13 +228,34 @@ def deleteProfile(name: str) -> None:
 
 
 def copyProfile(name: str, new_name: str) -> None:
-    if not os.exists(path := os.path.join(default_profile_path, name)):
-        if not os.exists(path := os.path.join(user_profile_path, name)):
+    if not os.path.exists(os.path.join(default_profile_path, name)):
+        if not os.path.exists(os.path.join(user_profile_path, name)):
             tooltip(f"Error: profile '{name}' does not exist")
             return
 
-    with open(path) as f:
-        profile = f.read()
+    profile = getProfile(name)
 
-    with open(os.path.join(user_profile_path, new_name), 'w') as f:
-       f.write(profile)
+    profile.name = new_name
+
+    saveProfile(profile)
+
+
+def findProfile(controller: str, len_buttons, len_axes) -> Profile:
+    if controller:
+        with open(os.path.join(user_files_path, 'controllers'), 'r') as f:
+            controllers = json.load(f)
+        if controller in controllers:
+            return getProfile(controllers[controller])
+        else:
+            for p in os.listdir(default_profile_path):
+                if getProfile(p).size == [len_buttons, len_axes]:
+                    controllers[controller] = p
+                    with open(os.path.join(user_files_path, 'controllers'), 'w') as f:
+                        json.dump(controllers, f)
+                    return getProfile(p)
+    copyProfile('default', f'Controller ({len_buttons} Buttons, {len_axes} Axes)')
+    controllers[controller] = f'Controller ({len_buttons} Buttons, {len_axes} Axes)'
+    with open(os.path.join(user_files_path, 'controllers'), 'w') as f:
+        json.dump(controllers, f)
+    showInfo("It seems your controller has an unusual configuration. You'll have to set up the controls yourself.")
+    return getProfile(controllers[controller])

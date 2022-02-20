@@ -1,126 +1,273 @@
-from aqt import QButtonGroup, QComboBox, QLayout, QListWidget, QPoint, mw
-from aqt.qt import QDialog, QWidget, QPushButton, QRadioButton, QCheckBox, QHBoxLayout, QVBoxLayout, QTabWidget, QGroupBox
+from operator import index
+import os
+import json
+
+from aqt import QBoxLayout, QComboBox, QFormLayout, QHeaderView, QKeySequence, QLayout, QPoint, QShortcut, QStringListModel, QTableView, QTableWidget, QTableWidgetItem, QTextFormat, QTextList, QTextTable, mw
+from aqt.qt import QAction, QDialog, QWidget, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QTabWidget, QGroupBox, QFont
 from aqt.qt import QKeySequenceEdit, QLineEdit, QSpinBox, QLabel, QGridLayout
 from aqt.qt import Qt
 from aqt.webview import AnkiWebView
 from aqt.theme import theme_manager
+from aqt.utils import showInfo
 
-from .svg import *
-from .profile import *
-from .funcs import *
+from .CONSTS import BUTTON_NAMES
+from .svg import buildSVG, CONTROLLER_IMAGE_MAPS
+from .profile import createProfile, getControllerList, getControllerName, getProfile, getProfileList, Profile, saveProfile, user_files_path
+from .actions import button_actions, state_actions
 
 class ContankiConfig(QDialog):
-    def __init__(self, parent: QWidget = mw) -> None:
+    def __init__(self, parent: QWidget, profile: Profile) -> None:
+        if not profile:
+            showInfo("Controller not detected. Connect using Bluetooth or USB, and press any button to initialise.")
+        
         super().__init__(parent)
         self.setWindowTitle("Contanki Options")
         self.setFixedWidth(800)
         self.setFixedHeight(660)
-        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        
-        self.mappings = build_mappings(mw.addonManager.getConfig(__name__)['mappings'])
-        self.svg = build_svg_mappings(self.mappings)
-        self.options = mw.addonManager.getConfig(__name__)['options']
-        self.actions = func_map.keys()
-        
+
+        self.profile = profile
         self.layout = QVBoxLayout(self)
         self.tabBar = QTabWidget()
         self.tabs = dict()
         self.setupOptions()
         self.setupBindings()
         
-        self.layout.addWidget(self.tabBar)
+        self.saveButton = QPushButton(self)
+        self.cancelButton = QPushButton(self)
+        self.helpButton = QPushButton(self)
+
+        self.saveButton.setText('Save')
+        self.cancelButton.setText('Cancel')
+        self.helpButton.setText('Help')
         
-        self.updateButton = QPushButton(self)
-        self.updateButton.setText('Update')
-        self.updateButton.clicked.connect(self.updateContents)
-        self.layout.addWidget(self.updateButton)
+        self.saveButton.clicked.connect(self.save)
+        self.cancelButton.clicked.connect(self.close)
+        self.helpButton.clicked.connect(self.help)
+
+        self.buttons = QWidget()
+        self.buttons.layout = QHBoxLayout()
+
+        self.buttons.layout.addWidget(self.helpButton)
+        self.buttons.layout.addWidget(self.cancelButton)
+        self.buttons.layout.addWidget(self.saveButton)
+        
+        self.buttons.layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
+        self.buttons.setLayout(self.buttons.layout)
+        
+        self.layout.addWidget(self.tabBar)
+        self.layout.addWidget(self.buttons)
+
         self.setLayout(self.layout)
         self.open()
 
-    def setupOptions(self):
+
+    def save(self):
+        for key in self.options.keys():
+            if type(self._options[key]) == int:
+                self._options[key] = self.options[key].value()
+            elif type(self._options[key]) == bool:
+                self._options[key] = self.options[key].isChecked()
+            elif key == "Custom Actions":
+                for row in range(self.options[key].rowCount()):
+                    self._options[self.options[key].item(row, 0).text()] = self.options[key].cellWidget(row, 1).keySequence().toString()
+            elif key == "Flags":
+                self._options["Flags"] = []
+                for flag in self.options[key].findChildren(QCheckBox):
+                    if flag.isChecked():
+                        self._options["Flags"].append(int(flag.objectName()))
+
+        mw.addonManager.writeConfig(__name__, self._options)
+
+        states = [
+            "all",
+            "deckBrowser",
+            "overview",
+            "review",
+            "question",
+            "answer",
+            "dialog",
+        ]
+
+        mods = {0:"Default"}
+        if self.profile.controller in BUTTON_NAMES:
+            for i, mod in enumerate(self.profile.mods):
+                mods[i+1] = BUTTON_NAMES[self.profile.controller][mod]
+        else:
+            for i, mod in enumerate(self.profile.mods):
+                mods[i+1] = f"Modifier {i+1}"
+
+        controls = self.tabs['bindings']
+
+        for state in states:
+            for mod, title in mods.items():
+                for button in range(self.profile.size[0]):
+                    if button in self.profile.mods:
+                        continue
+                    control = controls.stateTabs[state].modTabs[mod].controls[button].currentText()
+                    if 'inherited' in control:
+                        control = ""
+                    self.profile.bindings[state][str(mod)][str(button)] = control
+                for axis in range(self.profile.size[1]):
+                    if button in self.profile.mods:
+                        continue
+                    _axis = axis + self.profile.size[0]
+                    control = controls.stateTabs[state].modTabs[mod].controls[_axis].currentText()
+                    if 'inherited' in control:
+                        control = ""
+                    self.profile.bindings[state][str(mod)][str(axis + 100)] = control
+
+
+
+        self.profile.buildActions()
+        mw.controller.profile = self.profile
+        saveProfile(self.profile)
+
+        with open(os.path.join(user_files_path, 'controllers'), 'r') as f:
+            controllers = json.load(f)
+
+        controllers[self.profile.controller] = self.profile.name
+
+        with open(os.path.join(user_files_path, 'controllers'), 'w') as f:
+            json.dump(controllers, f)
+
+        self.close()
+
+
+    def help(self):
+        pass
+
+    
+    def changeProfile(self, profile: Profile = None) -> None:
+
+        if not profile:
+            profile = getProfile(self._profile.currentText())
+        elif type(profile) == str:
+            profile = getProfile(profile)
+        if not profile:
+            return
+        self.profile = profile
+        self.tabBar.removeTab(1)
+        self.setupBindings()
+
+
+    def findCustomActions(self):
+        shortcuts = [shortcut for name, shortcut in self._options["Custom Actions"].items()]
+        for action in mw.findChildren(QAction):
+            if (scut := action.shortcut().toString()) != "" and scut not in shortcuts:
+                if action.objectName() != "":
+                    self._options["Custom Actions"][action.objectName()] = scut
+                else:
+                    self._options["Custom Actions"][scut] = scut
+
+        for scut in mw.findChildren(QShortcut):
+            if scut.key().toString() != "":
+                self._options["Custom Actions"][scut.key().toString()] = scut.key().toString()
+
+
+    def addProfile(self) -> None:
+        new_profile = createProfile()
+        if not new_profile: return
+        self._profile.addItem(new_profile.name)
+        self._profile.setCurrentIndex(-1)
+        self.changeProfile(new_profile)
+
+
+    def setupOptions(self) -> None:
         tab = QWidget()
         self.tabs['main'] = tab
-        tab.layout = QGridLayout(self)
-        tab.layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
+        tab.layout = QGridLayout(tab)
+        tab.layout.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
 
         main                    = QWidget()
         mouse                   = QWidget()
         flags                   = QGroupBox('Flags', self.tabs['main'])
-        advanced                = QGroupBox('Advanced', self.tabs['main'])
+        form                    = QWidget()
 
         main.layout             = QVBoxLayout()
         mouse.layout            = QGridLayout()
-        flags.layout            = QVBoxLayout()
-        advanced.layout         = QVBoxLayout()
+        flags.layout            = QFormLayout()
+        form.layout             = QFormLayout()
         
         _profiles = QWidget()
         _profiles.layout = QHBoxLayout()
-        profiles = QComboBox(tab)
+        self._profile = profiles = QComboBox(tab)
         profiles.addItems(getProfileList(pretty=True))
+        profiles.setCurrentIndex(getProfileList(pretty=True).index(self.profile.name))
+        profiles.currentTextChanged.connect(self.changeProfile)
         _profiles.layout.addWidget(QLabel("Profile", tab))
         _profiles.layout.addWidget(profiles)
+        
+        addButton = QPushButton('Add Profile', tab)
+        addButton.clicked.connect(self.addProfile)
+        _profiles.layout.addWidget(addButton)
+        _profiles.layout.addWidget(QPushButton('Delete Profile', tab))
+        _profiles.layout.addWidget(QPushButton('Rename Profile', tab))
         _profiles.setLayout(_profiles.layout)
 
-        profile_buttons = QWidget()
-        profile_buttons.layout = QHBoxLayout()
-        profile_buttons.layout.addWidget(QPushButton('Add Profile', tab))
-        profile_buttons.layout.addWidget(QPushButton('Delete Profile', tab))
-        profile_buttons.layout.addWidget(QPushButton('Copy Profile', tab))
-        profile_buttons.setLayout(profile_buttons.layout)
+        self._options = mw.addonManager.getConfig(__name__)
+        self.findCustomActions()
+        self.options = dict()
 
-        main.layout.addWidget(_profiles)
-        main.layout.addWidget(profile_buttons)
-        
-        mouse.layout.addWidget(QLabel("Cursor Speed", tab), 0, 0)
-        mouse.layout.addWidget(QSpinBox(tab), 0, 1)
-        mouse.layout.addWidget(QLabel("Cursor Acceleration", tab), 1, 0)
-        mouse.layout.addWidget(QSpinBox(tab), 1, 1)
-        mouse.layout.addWidget(QLabel("Scroll Speed", tab), 2, 0)
-        mouse.layout.addWidget(QSpinBox(tab), 2, 1)
-        
-        for flag in mw.flags.all():
-            check = QCheckBox(flag.label, self.tabs['main'])
-            check.setIcon(theme_manager.icon_from_resources(flag.icon))
-            flags.layout.addWidget(check)
-        
-        advanced.layout.addWidget(QCheckBox('Enable Overlays', tab))
-        advanced.layout.addWidget(QCheckBox('Review Tooltips', tab))
-        advanced.layout.addWidget(QCheckBox("Enable Dialog/Menu Access", self.tabs['main']))
-        advanced.layout.addWidget(QCheckBox("Enable Unsupported Controllers", self.tabs['main']))
-        polling_rate = QWidget()
-        polling_rate.layout = QHBoxLayout()
-        polling_rate.layout.addWidget(QLabel("Polling Rate"))
-        _polling_rate = QSpinBox(tab)
-        _polling_rate.setSuffix('ms')
-        _polling_rate.setValue(50)
-        polling_rate.layout.addWidget(_polling_rate)
-        polling_rate.setLayout(polling_rate.layout)
-        advanced.layout.addWidget(polling_rate)
+        flags.layout.setVerticalSpacing(20)
+        form.layout.setVerticalSpacing(20)
 
-        main.layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
+        for key, value in self._options.items():
+            if type(value) == int:
+                self.options[key] = QSpinBox(tab)
+                self.options[key].setMinimumWidth(70)
+                self.options[key].setValue(value)
+                form.layout.addRow(key, self.options[key])
+            elif type(value) == bool:
+                self.options[key] = QCheckBox(key, tab)
+                self.options[key].setChecked(self._options[key])
+                form.layout.addRow(self.options[key])
+            elif key == "Custom Actions":
+                self.options[key] = QTableWidget(len(value),2,tab)
+                self.options[key].setHorizontalHeaderLabels(["Name", "Shortcut"])
+                for row, (_key, _value) in enumerate(value.items()):
+                    self.options[key].setItem(row, 0, QTableWidgetItem(_key,0))
+                    self.options[key].setCellWidget(row, 1, QKeySequenceEdit(QKeySequence(_value)))
+                self.options[key].horizontalHeader().setSectionResizeMode(0,QHeaderView.ResizeMode.Stretch)
+                self.options[key].setColumnWidth(1, 70)
+                tab.layout.addWidget(self.options[key],1,2)
+            elif key == "Flags":
+                self.options[key] = flags
+                for flag in mw.flags.all():
+                    check = QCheckBox(flag.label, tab)
+                    check.setIcon(theme_manager.icon_from_resources(flag.icon))
+                    check.setObjectName(str(flag.index))
+                    if flag.index in self._options["Flags"]:
+                        check.setChecked(True)
+                    flags.layout.addWidget(check)
+                flags.setLayout(flags.layout)
+                tab.layout.addWidget(self.options[key],1,1)
+            else: continue
 
-        main.setLayout(main.layout)
-        mouse.setLayout(mouse.layout)
-        flags.setLayout(flags.layout)
-        advanced.setLayout(advanced.layout)
+        form.setLayout(form.layout)
+        tab.layout.addWidget(_profiles,0,0,1,3)
+        tab.layout.addWidget(form,1,0)
         
-        self.tabs['main'].layout.addWidget(main, 0, 0)
-        self.tabs['main'].layout.addWidget(mouse, 0, 1)
-        self.tabs['main'].layout.addWidget(flags, 1, 0)
-        self.tabs['main'].layout.addWidget(advanced, 1, 1)
-
         tab.setLayout(tab.layout)
         self.tabBar.addTab(tab, "Options")
 
+
     def setupBindings(self):
         tab = self.tabs['bindings'] = QTabWidget()
+        
         corner = self.corner = QComboBox()
-        for controller in getControllerList(True):
-            self.corner.addItem(controller, controller)
-        controller = mw.controller.profile
-        self.corner.setCurrentIndex(getControllerList(False).index(controller))
-        self.corner.currentIndexChanged.connect(self.updateContents)
-        self.tabs['bindings'].setCornerWidget(self.corner)
+        controllers = getControllerList()
+        for controller in controllers:
+            corner.addItem(getControllerName(controller), controller)
+        controller = self.profile.controller
+        if controller:
+            corner.setCurrentIndex(controllers.index(controller))
+        else:
+            corner.setCurrentIndex(0)
+            self.profile.controller = corner.currentData()
+        self.profile.controller = controller = corner.currentData()
+        corner.currentIndexChanged.connect(self.updateContents)
+        self.tabs['bindings'].setCornerWidget(corner)
+
 
         states = {
             "all": "Default",
@@ -132,72 +279,87 @@ class ContankiConfig(QDialog):
             "dialog": "Dialogs",
         }
 
-        mods = {
-            "L2": "Left Trigger",
-            "": "Default",
-            "R2": "Right Trigger",
-        }
+        mods = {0:"Default"}
+        if controller in BUTTON_NAMES:
+            for i, mod in enumerate(self.profile.mods):
+                mods[i+1] = BUTTON_NAMES[controller][mod]
+        else:
+            for i, mod in enumerate(self.profile.mods):
+                mods[i+1] = f"Modifier {i+1}"
 
-        def add_buttons(widget):
-            widget.buttons = list()
-            for control, loc in CONTROLLER_IMAGE_MAPS[controller]['BUTTONS'].items():
-                # x, y = loc[2] * 5, loc[3] * 5
-                # x += (x - 375) * 0.5
-                # y += (y - 375) * 0.5
-                # x -= loc[4] * 16
+        def addButtons(widget, state, mod, control, loc, axis = False):
+            x, y = loc[2] * 4.58, loc[3] * 4.8
+            x += (x - 375) * 0.12
+            if control in self.profile.mods:
+                y -= 5
+                button = QLabel(f'<b>{mods[self.profile.mods.index(control) + 1]}</b>' if mod == self.profile.mods.index(control) + 1 else mods[self.profile.mods.index(control) + 1], widget)
+                button.setFont(QFont("Helvetica", 15))
+            else:
+                x -= loc[4] * 40
+                button = QComboBox(widget)
+                button.addItems(state_actions[state])
+                if str(control + 100 if axis else control) in self.profile.bindings[state][str(mod)]:
+                    button.setCurrentIndex(state_actions[state].index(self.profile.bindings[state][str(mod)][str(control + 100 if axis else control)]))
+                if state == "question" or state == "answer":
+                    if button.currentIndex() == 0:
+                        if str(control + 100 if axis else control) in self.profile.bindings['review'][str(mod)]:
+                            inherited = self.profile.bindings["review"][str(mod)][str(
+                                    control + 100 if axis else control
+                                )]
+                            if inherited != "":
+                                button.addItem(inherited + " (inherited)")
+                                button.setCurrentText(inherited + " (inherited)")
+                if button.currentIndex() == 0:
+                    if str(control + 100 if axis else control) in self.profile.bindings['all'][str(mod)]:
+                        inherited = self.profile.bindings["all"][str(mod)][str(
+                                    control + 100 if axis else control
+                                )]
+                        if inherited != "":
+                                button.addItem(inherited + " (inherited)")
+                                button.setCurrentText(inherited + " (inherited)")
+                        
 
-                x, y = loc[2] * 4.58, loc[3] * 4.8
-                x += (x - 375) * 0.12
-                x -= loc[4] * 16
+                button.setFixedWidth(150)
+            button.setObjectName(str(control + 100 if axis else control))
+            widget.controls.append(button)
+            button.move(QPoint(x, y))
 
-                widget.buttons.append(QComboBox(widget))
-                widget.buttons[-1].addItems(self.actions)
-                widget.buttons[-1].setObjectName(str(control))
-                widget.buttons[-1].move(QPoint(x, y))
-            for control, loc in CONTROLLER_IMAGE_MAPS[controller]['AXES'].items():
-                # x, y = loc[2] * 5, loc[3] * 5
-                # x -= loc[4] * 16
-
-                x, y = loc[2] * 4.58, loc[3] * 4.8
-                x += (x - 375) * 0.12
-                x -= loc[4] * 16
-
-                widget.buttons.append(QComboBox(widget))
-                widget.buttons[-1].addItems(self.actions)
-                widget.buttons[-1].setObjectName(str(100 + control))
-                widget.buttons[-1].move(QPoint(x, y))
-
-        tab.states = list()
+        tab.stateTabs = dict()
         for state, title in states.items():
-            tab.states.append(QTabWidget())
-            tab.states[-1].widgets = list()
+            tab.stateTabs[state] = (QTabWidget())
+            tab.stateTabs[state].setObjectName(state)
+            tab.stateTabs[state].modTabs = dict()
             for mod, mTitle in mods.items():
-                tab.states[-1].widgets.append(QWidget())
-                tab.states[-1].widgets[-1].layout = QVBoxLayout()
-                tab.states[-1].widgets[-1].web = AnkiWebView(tab.states[-1].widgets[-1])
-                tab.states[-1].widgets[-1].web.setHtml(self.build_html(controller))
-                tab.states[-1].widgets[-1].layout.addWidget(tab.states[-1].widgets[-1].web)
-                tab.states[-1].widgets[-1].setLayout(tab.states[-1].widgets[-1].layout)
-                add_buttons(tab.states[-1].widgets[-1])
-                tab.states[-1].addTab(tab.states[-1].widgets[-1], mTitle)
-            tab.states[-1].setTabPosition(QTabWidget.TabPosition.South)
-            tab.states[-1].setCurrentIndex(1)
-            tab.addTab(tab.states[-1], title)
-
+                tab.stateTabs[state].modTabs[mod] = QWidget()
+                tab.stateTabs[state].modTabs[mod].setObjectName(str(mod))
+                tab.stateTabs[state].modTabs[mod].layout = QVBoxLayout()
+                tab.stateTabs[state].modTabs[mod].web = AnkiWebView(tab.stateTabs[state].modTabs[mod])
+                tab.stateTabs[state].modTabs[mod].web.setHtml(self.build_html(self.profile.controller))
+                tab.stateTabs[state].modTabs[mod].layout.addWidget(tab.stateTabs[state].modTabs[mod].web)
+                tab.stateTabs[state].modTabs[mod].setLayout(tab.stateTabs[state].modTabs[mod].layout)
+                tab.stateTabs[state].modTabs[mod].controls = list()
+                for control, loc in CONTROLLER_IMAGE_MAPS[controller]['BUTTONS'].items():
+                    addButtons(tab.stateTabs[state].modTabs[mod], state, mod, control, loc)
+                for control, loc in CONTROLLER_IMAGE_MAPS[controller]['AXES'].items():
+                    addButtons(tab.stateTabs[state].modTabs[mod], state, mod, control, loc, True)
+                tab.stateTabs[state].addTab(tab.stateTabs[state].modTabs[mod], mTitle)
+            tab.stateTabs[state].setTabPosition(QTabWidget.TabPosition.South)
+            tab.addTab(tab.stateTabs[state], title)
         self.tabBar.addTab(tab, "Controls")
+
 
     def updateContents(self):
         tab = self.tabs['bindings']
         corner = self.corner
         controller = getControllerList()[corner.currentIndex()]
-
-        for state in tab.states:
-            for widget in state.widgets:
-                widget.web.setHtml(self.build_html(controller))
-                for button in widget.buttons:
-                    name = int(button.objectName())
+        for state, d in tab.stateTabs.items():
+            for widget, e in d.modTabs.items():
+                e.web.setHtml(self.build_html(controller))
+                for button in e.controls:
+                    index = int(button.objectName())
+                    index, control = (index, 'BUTTONS') if index < 100 else (index - 100, 'AXES')
                     try:
-                        loc = CONTROLLER_IMAGE_MAPS[controller]['BUTTONS' if name < 100 else 'AXES'][name if name < 100 else name - 100]
+                        loc = CONTROLLER_IMAGE_MAPS[controller][control][index]
                         x, y = loc[2] * 4.58, loc[3] * 4.8
                         x += (x - 375) * 0.12
                         x -= loc[4] * 16
@@ -205,6 +367,7 @@ class ContankiConfig(QDialog):
                     except KeyError:
                         x, y = 1000, 1000
                     button.move(QPoint(x, y))
+        self.profile.controller = corner.currentData()
 
 
     def build_html(self, controller = 'DualShock4'):

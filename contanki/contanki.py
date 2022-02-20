@@ -1,57 +1,31 @@
 import os
 from time import time
-from typing import List
 
-from aqt import mw, gui_hooks
-from aqt.webview import AnkiWebView
-from aqt.utils import tooltip, showInfo
+from aqt import QShortcut, gui_hooks, mw
 from aqt.qt import QAction, qconnect
+from aqt.utils import tooltip
+from aqt.webview import AnkiWebView
 
-from .funcs import *
-from .CONSTS import *
-from .overlay import *
+from .actions import *
 from .config import *
 from .config_new import *
-from .actions import *
+from .CONSTS import *
+from .funcs import *
+from .overlay import *
 from .profile import *
+
 
 class Contanki(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
+        self.profile = None
 
-        self.config = mw.addonManager.getConfig(__name__)['options']
-        self.profile = 'DualShock4'
-
-        self.mappings = build_mappings(mw.addonManager.getConfig(__name__)['mappings'])
-        addon_path = os.path.dirname(os.path.abspath(__file__))
-        self.controlsOverlay = ControlsOverlay(mw, addon_path, self.mappings)
-
-        menuItem = QAction(f"Controller Options", mw)
-        qconnect(menuItem.triggered, self.on_new_config)
-        mw.form.menuTools.addAction(menuItem)
-
-        self.stdHtml(f"""DS4 Support\n<p id="ds4"></p>\n<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
-        
-        self.last = {'time': 0, 'button': 0, 'Left Stick': 0, 'Right Stick': 0}
-
-        self.axes = {
-            'Left Stick Horizontal':    False,
-            'Left Stick Vertical':      False,
-            'Right Stick Horizontal':   False,
-            'Right Stick Vertical':     False,
-        }
-
-        self.triggers = [False, False]
+        self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
 
         self.funcs = {
             'on_connect':               self.on_connect,
             'on_disconnect':            self.on_disconnect,
-            'on_button_press':          self.on_button_press,
-            'on_button_release':        self.on_button_release,
-            'update_triggers':          self.on_update_triggers,
-            'update_buttons':           self.on_update_buttons,
-            'update_right':             self.on_move_mouse,
-            'update_left':              self.on_left_stick,
+            'poll':                     self.poll,
         }
 
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
@@ -60,104 +34,96 @@ class Contanki(AnkiWebView):
         self.setFixedSize(0,0)
         self.show()
 
-    def on_new_config(self) -> None:
-        ContankiConfig(mw)
+    def on_connect(self, buttons, axes, *con) -> None:
+        buttons, axes, con = int(buttons), int(axes), '::'.join(con)
+        controller = identifyController(con)
+        self.controller = controller
+
+        self.buttons = [False for i in range(buttons)]
+        self.axes = [False for i in range(axes)]
+        self.len_buttons = buttons
+        self.len_axes = axes
+        
+        if controller:
+            self.profile = findProfile(controller, buttons, axes)
+            self.profile.controller = controller
+            tooltip(f'{getControllerName(controller)} Connected')
+        else:
+            self.profile = findProfile(con, buttons, axes)
+            tooltip('Unknown Controller Connected | ' + con)
+
+        self.mods = [False] * (len(self.profile.mods))
+
+        menuItem = QAction(f"Controller Options", mw)
+        qconnect(menuItem.triggered, self.on_config)
+        mw.form.menuTools.addAction(menuItem)
+        self.controlsOverlay = ControlsOverlay(mw, addon_path, self.profile.bindings)
 
 
+    def on_disconnect(self, *args) -> None:
+        self.controlsOverlay.disappear()
+        tooltip('Controller Disconnected')
+        self.buttons = None
+        self.axes = None
+        self.profile = None
+        self.controlsOverlay = None
+
+
+    def on_receive_message(self, handled: tuple, message: str, context: str) -> tuple:
+        if message[:8] == 'contanki':
+            _, func, *args = message.split('::')
+            if func == 'message':
+                tooltip(str(args[0]))
+            else:
+                if type(args) != list(): args=list(args)
+                self.funcs[func](*args)
+            return (True, None)
+        else:
+            return handled
+
+    
     def on_config(self) -> None:
-        ControllerConfigEditor(self, self.mappings)
+        ContankiConfig(mw, self.profile)
 
 
-    def update_config(self) -> dict:
-        self.mappings = build_mappings(mw.addonManager.getConfig(__name__)['mappings'])
-        return self.mappings
-
-
-    def on_update_buttons(self, buttons: str) -> None:
+    def poll(self, buttons, axes):
         buttons = [True if button == 'true' else False for button in buttons.split(',')]
+        axes = [float(axis) for axis in axes.split(',')]
+
+        mods = tuple(buttons[mod] 
+            if mod < 100 
+            else (
+                True 
+                if axes[mod-100] > 0.1 
+                else False
+            ) 
+            for mod 
+            in self.profile.mods
+        )
+
+        if mods != self.mods:
+            if any(mods):    
+                self.controlsOverlay.appear(mods)
+            else:
+                self.controlsOverlay.disappear()
+
+        self.mods = mods
+
         for i, value in enumerate(buttons):
             if value == self.buttons[i]: continue
             self.buttons[i] = value
             if value:
-                self.on_button_press(BUTTON_NAMES["DualShock4"][i])
+                self.profile.doAction(get_state(), mods, i)
             else:
-                self.on_button_release(BUTTON_NAMES["DualShock4"][i])
+                self.profile.doReleaseAction(get_state(), mods, i)
 
-
-    def on_button_press(self, button: str) -> None:
-        if button == 'L2' or button == 'R2': return
-        mapping = self.mappings[get_state()]
-
-        button = ' + '.join(self.get_triggers() + [button])
-        if button not in mapping:
-            tooltip(f"{button} | '(not mapped)'")
-            return
-        
-        action = mapping[button]
-        if action not in func_map:
-            tooltip(f"'{action}' not found.")
-            return
-
-        tooltip(f"{button} | {action if action else '(not mapped)'}")
-        try:
-            func_map[action]()
-        except Exception as err: 
-            showInfo(f"Something went wrong!\n\nButton: {button}\nAction: {action}\n{str(err)}")
-
-
-    def on_button_release(self, button: str) -> None:
-        pass
-
-
-    def on_move_mouse(self, x: str, y: str) -> None:
-        x, y = float(x), float(y)
-        if abs(x) + abs(y) < 0.05: return
-        cursor = mw.cursor()
-        pos = cursor.pos()
-        x = pos.x() + quadCurve(x, 8)
-        y = pos.y() + quadCurve(y, 8)
-
-        geom = mw.screen().geometry()
-        x, y = max(x, geom.x()), max(y, geom.y())
-        x, y = min(x, geom.width()), min(y, geom.height())
-        
-        pos.setX(x)
-        pos.setY(y)
-        cursor.setPos(pos)
-
-
-    def on_update_triggers(self, *values: List[str]) -> None:
-        T = [True if float(value) > 0.4 else False for value in values]
-        if self.triggers == T: return
-        self.triggers = T
-        if any(T):
-            self.controlsOverlay.appear(' + '.join(self.get_triggers()))
-        else:
-            self.controlsOverlay.disappear()        
-
-
-    def on_left_stick(self, x: str, y: str) -> None:
-        x, y = float(x), float(y)
-        abs_x, abs_y = abs(x), abs(y)
-        if max(abs_x, abs_y) < 0.08: return
-        
-        if self.get_triggers() == ['R2']:
-            mw.web.eval(f'window.scrollBy({quadCurve(x)}, {quadCurve(y)})')
-        
-        elif self.timeGuard("Left Stick", max(abs_x, abs_y)):
-            return
-        
-        elif abs_x > abs_y:
-            if abs_x < 0.4: return
-            if x < 0:
-                back()
-            else:
-                forward()
-        else:
-            if y < 0:
-                keyPress(Qt.Key.Key_Tab, Qt.KeyboardModifier.ShiftModifier)
-            else:
-                keyPress(Qt.Key.Key_Tab)
+        for i, value in enumerate(axes):
+            if _value := (abs(value) > 0.05) == self.axes[i]: continue
+            self.axes[i] = _value
+            if _value:
+                self.profile.doAction(get_state(), mods, axis = i, value = value)
+            if _value:
+                self.profile.doAction(get_state(), mods, axis = i, value = value)
 
 
     def timeGuard(self, axis: str, value: float) -> bool:
@@ -166,45 +132,4 @@ class Contanki(AnkiWebView):
             return False
         return True
 
-
-    def get_triggers(self) -> List[str]:
-        triggers = list()
-        if self.triggers[0]:
-            triggers.append('L2')
-        if self.triggers[1]:
-            triggers.append('R2')
-        return triggers
-
-
-    def on_connect(self, buttons, *con) -> None:
-        self.buttons = [False for i in range(int(buttons))]
-        con = ':'.join(con)
-
-        controller = identifyController(str(con))
-        if controller:
-            tooltip(f'{getControllerName(controller)} Connected')
-            self.profile = controller
-        else:
-            self.profile = 'DualShock4' 
-            tooltip('Unknown Controller Connected | ' + con)
-
-
-    def on_disconnect(self, *args) -> None:
-        self.controlsOverlay.disappear()
-        tooltip('Controller Disconnected')
-
-
-    def on_receive_message(self, handled: tuple, message: str, context: str) -> tuple:
-        if message[:3] == 'pcs':
-            _, func, *values = message.split(':')
-            if func == 'message':
-                if type(values) == list:
-                    tooltip(str(values[0]))
-                else:
-                    tooltip(str(values))
-            else:
-                if type(values) != list(): values=list(values)
-                self.funcs[func](*values)
-            return (True, None)
-        else:
-            return handled
+QAction().__str__()

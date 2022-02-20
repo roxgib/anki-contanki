@@ -4,9 +4,11 @@ from aqt.qt import Qt
 from .funcs import *
 from .funcs import _pass
 
-func_map = {
-    "": _pass,  # handle unmapped buttons
+button_actions = {
+    "":                     _pass,                      # handle unmapped buttons
+    "mod":                  _pass,                      # For buttons used as modifiers
     
+
     # Common Function                                           
     "Sync":                 mw.onSync,                                          # Works
     "Overview":             lambda: mw.moveToState("overview"),                 # Works
@@ -30,23 +32,24 @@ func_map = {
     "Switch Profile":       mw.unloadProfileAndShowProfileManager,              # Not Tested
     "Hide Cursor":          hideCursor,                                         # Works
     "Anki Help":            mw.onDocumentation,                                 # Not Tested
-    
-    
+
+
     # UI Functions
     "Click":                click,                                              # Mostly works
     "Secondary Click":      lambda: click(button=Qt.MouseButton.RightButton),   # Mostly works
     "Select Next":          lambda: keyPress(Qt.Key.Key_Tab),                   # Works
     "Select Previous":      lambda: keyPress(                                   # Works
                                         Qt.Key.Key_Tab, 
-                                        Qt.KeyboardModifier.ShiftModifier
-                                        ),
+                                        Qt.KeyboardModifier.ShiftModifier),
     "Select":               select,                                             # Works
     "Focus Main Window":    mw.window().activateWindow,                         # Doesn't Work
     "Switch Window":        mw.focusNextChild,                                  # Not Tested
     "Escape":               lambda:keyPress(Qt.Key.Key_Escape),                 # Works
     "Up":                   lambda: keyPress(Qt.Key.Key_Up),                    # Works
     "Down":                 lambda: keyPress(Qt.Key.Key_Down),                  # Works
-    "Up by 10":             lambda: keyPress(Qt.Key.Key_Up, Qt.Key.Key_Control),# Works
+    "Up by 10":             lambda: keyPress(                                   # Works
+                                Qt.Key.Key_Up, 
+                                Qt.Key.Key_Control),
     "Down by 10":           lambda: keyPress(                                   # Works
                                 Qt.Key.Key_Down,
                                 Qt.Key.Key_Control),                  
@@ -72,9 +75,11 @@ func_map = {
     "Export":               mw.onExport,                                        # Not Tested
     "Import":               mw.onImport,                                        # Not Tested
     
+
     # Overview Functions
     "Custom Study":         lambda: keyPress(Qt.Key.Key_C),                     # Works but opens dialog
     
+
     # Reviewer Functions
     "Again":                lambda: mw.reviewer._answerCard(1),                 # Works
     "Hard":                 lambda: mw.reviewer._answerCard(2),                 # Works
@@ -96,11 +101,189 @@ func_map = {
     "Replay Audio":         mw.reviewer.replayAudio,                            # Works
     "Edit Note":            mw.onEditCurrent,                                   # Not Tested
     "Flip Card":            mw.reviewer.onEnterKey,                             # Works
-    "Flag":           cycle_flag,                                               # Works
+    "Flag":                 cycle_flag,                                         # Works
     "Set Due Date":         mw.reviewer.on_set_due,                             # Works but opens dialog
     "Show Hint":            _pass,                                              # Not Implemented
+}
 
-    # Other
-    "":                     _pass,                                              # For unassigned buttons
-    "mod":                  _pass,                                              # For buttons used as modifiers
+button_release_actions = {
+
+}
+
+release_actions = {
+    "": _pass,
+    "Undo":                 _pass,
+    "Redo":                 _pass,
+    "Click":                _pass,
+    "Secondary Click":      _pass,
+    "Select Next":          _pass,
+    "Select Previous":      _pass,
+    "Up":                   _pass,
+    "Down":                 _pass,
+    "Up by 10":             _pass,
+    "Down by 10":           _pass,
+    "Scroll Up":            _pass,
+    "Scroll Down":          _pass,
+    "Next Deck":            _pass,
+    "Previous Deck":        _pass,
+    "Next Due Deck":        _pass,
+    "Previous Due Deck":    _pass,
+    "":                     _pass,
+    "mod":                  _pass,
+}
+
+
+state_actions = {
+    "all": [
+        "",
+
+        # Common Function                                           
+        "Sync",                 "Overview",             "Browser",              "Statistics",
+        "Main Screen",          "Review",               "Undo",                 "Redo",
+        "Back",                 "Forward",              "Enter",                "Fullscreen",
+        "Volume Up",            "Volume Down",          "Menubar",              "Add",
+        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
+        "Hide Cursor",          "Anki Help",    
+
+        # UI Functions  
+        "Click",                "Secondary Click",      "Select Next",          "Select Previous",
+        "Select",               "Scroll Up",            "Scroll Down",          "Options",
+
+        # Deck Browser Functions    
+        "Check Database",       "Check Media",          "Empty Cards",          "Manage Note Types",
+        "Study Deck",           
+    ],  
+
+    "deckBrowser": [    
+        "",
+
+        # Common Function                                               
+        "Sync",                 "Overview",             "Browser",              "Statistics",
+        "Main Screen",          "Review",               "Undo",                 "Redo",
+        "Back",                 "Forward",              "Enter",                "Fullscreen",
+        "Volume Up",            "Volume Down",          "Menubar",              "Add",
+        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
+        "Hide Cursor",          "Anki Help",    
+
+        # UI Functions      
+        "Click",                "Secondary Click",      "Select Next",          "Select Previous",
+        "Select",               "Scroll Up",            "Scroll Down",          "Options",
+
+        # Deck Browser Functions    
+        "Next Deck",            "Previous Deck",        "Next Due Deck",        "Previous Due Deck",
+        "Collapse/Expand",      "Filter",               "Rebuild",              "Empty",
+        "Check Database",       "Check Media",          "Empty Cards",          "Manage Note Types",
+        "Study Deck",           "Export",               "Import",   
+    ],      
+
+    "overview": [       
+        "",   
+
+        # Common Function                                                   
+        "Sync",                 "Overview",             "Browser",              "Statistics",
+        "Main Screen",          "Review",               "Undo",                 "Redo",
+        "Back",                 "Forward",              "Enter",                "Fullscreen",
+        "Volume Up",            "Volume Down",          "Menubar",              "Add",
+        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
+        "Hide Cursor",          "Anki Help",    
+
+        # UI Functions      
+        "Click",                "Secondary Click",      "Select Next",          "Select Previous",
+        "Select",               "Scroll Up",            "Scroll Down",          "Options",
+
+        # Deck Browser Functions    
+        "Next Deck",            "Previous Deck",        "Next Due Deck",        "Previous Due Deck",
+        "Collapse/Expand",      "Filter",               "Rebuild",              "Empty",
+        "Check Database",       "Check Media",          "Empty Cards",          "Manage Note Types",
+        "Study Deck",           "Export",               "Import",   
+
+        # Overview Functions        
+        "Custom Study",     
+    ],      
+
+    "review": [     
+        "",      
+
+        # Common Function                                                   
+        "Sync",                 "Overview",             "Browser",              "Statistics",
+        "Main Screen",          "Review",               "Undo",                 "Redo",
+        "Back",                 "Forward",              "Enter",                "Fullscreen",
+        "Volume Up",            "Volume Down",          "Menubar",              "Add",
+        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
+        "Hide Cursor",          "Anki Help",    
+
+        # UI Functions      
+        "Click",                "Secondary Click",      "Select Next",          "Select Previous",
+        "Select",               "Scroll Up",            "Scroll Down",          "Options",
+
+        # Reviewer Functions        
+        "Again",                "Hard",                 "Good",                 "Easy",
+        "Suspend Card",         "Suspend Note",         "Bury Card",            "Bury Note",
+        "Mark Note",            "Delete Note",          "Record Voice",         "Replay Voice",
+        "Card Info",            "Previous Card Info",   "Pause Audio",          "Audio +5s",
+        "Audio -5s",            "Replay Audio",         "Edit Note",            "Flip Card",
+        "Flag",                 "Set Due Date",         "Show Hint",    
+    ],      
+
+    "question": [       
+        "",      
+
+        # Common Function                                                   
+        "Sync",                 "Overview",             "Browser",              "Statistics",
+        "Main Screen",          "Review",               "Undo",                 "Redo",
+        "Back",                 "Forward",              "Enter",                "Fullscreen",
+        "Volume Up",            "Volume Down",          "Menubar",              "Add",
+        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
+        "Hide Cursor",          "Anki Help",    
+
+        # UI Functions      
+        "Click",                "Secondary Click",      "Select Next",          "Select Previous",
+        "Select",               "Scroll Up",            "Scroll Down",          "Options",
+
+        # Reviewer Functions        
+        "Again",                "Hard",                 "Good",                 "Easy",
+        "Suspend Card",         "Suspend Note",         "Bury Card",            "Bury Note",
+        "Mark Note",            "Delete Note",          "Record Voice",         "Replay Voice",
+        "Card Info",            "Previous Card Info",   "Pause Audio",          "Audio +5s",
+        "Audio -5s",            "Replay Audio",         "Edit Note",            "Flip Card",
+        "Flag",                 "Set Due Date",         "Show Hint",    
+    ],      
+
+    "answer": [     
+        "",      
+
+        # Common Function                                                   
+        "Sync",                 "Overview",             "Browser",              "Statistics",
+        "Main Screen",          "Review",               "Undo",                 "Redo",
+        "Back",                 "Forward",              "Enter",                "Fullscreen",
+        "Volume Up",            "Volume Down",          "Menubar",              "Add",
+        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
+        "Hide Cursor",          "Anki Help",    
+
+        # UI Functions      
+        "Click",                "Secondary Click",      "Select Next",          "Select Previous",
+        "Select",               "Scroll Up",            "Scroll Down",          "Options",
+
+        # Reviewer Functions        
+        "Again",                "Hard",                 "Good",                 "Easy",
+        "Suspend Card",         "Suspend Note",         "Bury Card",            "Bury Note",
+        "Mark Note",            "Delete Note",          "Record Voice",         "Replay Voice",
+        "Card Info",            "Previous Card Info",   "Pause Audio",          "Audio +5s",
+        "Audio -5s",            "Replay Audio",         "Edit Note",            "Flip Card",
+        "Flag",                 "Set Due Date",         "Show Hint",    
+    ],      
+
+    "dialog": [     
+        "",
+
+        # Common Function                                                   
+        "Undo",                 "Redo",                 "Quit",                 "Menubar",
+        "Back",                 "Forward",              "Enter",                "Hide Cursor",
+
+        # UI Functions      
+        "Click",                "Secondary Click",      "Select Next",          "Select Previous",
+        "Select",               "Focus Main Window",    "Switch Window",        "Escape",
+        "Up",                   "Down",                 "Up by 10",             "Down by 10",
+        "Scroll Up",            "Scroll Down",          
+    ],
 }

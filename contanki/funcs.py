@@ -109,9 +109,48 @@ def keyPress(key: Qt.Key, mod: Qt.KeyboardModifier = Qt.KeyboardModifier.NoModif
 def select() -> None:
     mw.web.eval("document.activeElement.click()")
 
+def scrollandtab(self, x: str, y: str) -> None:
+        x, y = float(x), float(y)
+        abs_x, abs_y = abs(x), abs(y)
+        if max(abs_x, abs_y) < 0.08: return
+        
+        if self.get_triggers() == ['R2']:
+            mw.web.eval(f'window.scrollBy({quadCurve(x)}, {quadCurve(y)})')
+        
+        elif self.timeGuard("Left Stick", max(abs_x, abs_y)):
+            return
+        
+        elif abs_x > abs_y:
+            if abs_x < 0.4: return
+            if x < 0:
+                back()
+            else:
+                forward()
+        else:
+            if y < 0:
+                keyPress(Qt.Key.Key_Tab, Qt.KeyboardModifier.ShiftModifier)
+            else:
+                keyPress(Qt.Key.Key_Tab)
+
 
 def hideCursor() -> None:
     mw.cursor().setPos(QPoint(mw.app.primaryScreen().size().width(), mw.app.primaryScreen().size().height())),
+
+def on_move_mouse(x: str, y: str) -> None:
+    x, y = float(x), float(y)
+    if abs(x) + abs(y) < 0.05: return
+    cursor = mw.cursor()
+    pos = cursor.pos()
+    x = pos.x() + quadCurve(x, 8)
+    y = pos.y() + quadCurve(y, 8)
+
+    geom = mw.screen().geometry()
+    x, y = max(x, geom.x()), max(y, geom.y())
+    x, y = min(x, geom.width()), min(y, geom.height())
+    
+    pos.setX(x)
+    pos.setY(y)
+    cursor.setPos(pos)
 
 def click(
     button: Qt.MouseButton = Qt.MouseButton.LeftButton,
@@ -201,7 +240,7 @@ def changeVolume(direction=True):
 ### Review
 
 def _cycle_flag() -> Callable:
-    flags = mw.addonManager.getConfig(__name__)['options']["flags"]
+    flags = mw.addonManager.getConfig(__name__)["Flags"]
 
     def cycle_flag(flags):
         flag = mw.reviewer.card.flags
