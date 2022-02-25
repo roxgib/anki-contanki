@@ -15,6 +15,8 @@ def get_state() -> str:
     if focus := current_window():
         if focus.objectName() == 'MainWindow':
             return mw.reviewer.state if mw.state == "review" else mw.state
+        elif focus.objectName() == '':
+            return 'NoFocus'
         else:
             return focus.objectName().lower()
     else:
@@ -109,42 +111,36 @@ def keyPress(key: Qt.Key, mod: Qt.KeyboardModifier = Qt.KeyboardModifier.NoModif
 def select() -> None:
     mw.web.eval("document.activeElement.click()")
 
-def scrollandtab(self, x: str, y: str) -> None:
-        x, y = float(x), float(y)
-        abs_x, abs_y = abs(x), abs(y)
-        if max(abs_x, abs_y) < 0.08: return
-        
-        if self.get_triggers() == ['R2']:
-            mw.web.eval(f'window.scrollBy({quadCurve(x)}, {quadCurve(y)})')
-        
-        elif self.timeGuard("Left Stick", max(abs_x, abs_y)):
-            return
-        
-        elif abs_x > abs_y:
-            if abs_x < 0.4: return
-            if x < 0:
-                back()
-            else:
-                forward()
-        else:
-            if y < 0:
-                keyPress(Qt.Key.Key_Tab, Qt.KeyboardModifier.ShiftModifier)
-            else:
-                keyPress(Qt.Key.Key_Tab)
+
+def scroll(value: float) -> None:
+        if max(abs(value)) < 0.08: return
+        mw.web.eval(f'window.scrollBy({quadCurve(x)}, {quadCurve(y)})')
+
+
+def tab(value: float):
+    if value < 0:
+        keyPress(Qt.Key.Key_Tab, Qt.KeyboardModifier.ShiftModifier)
+    elif value > 0:
+        keyPress(Qt.Key.Key_Tab)
 
 
 def hideCursor() -> None:
-    mw.cursor().setPos(QPoint(mw.app.primaryScreen().size().width(), mw.app.primaryScreen().size().height())),
+    mw.cursor().setPos(
+        QPoint(
+            mw.app.primaryScreen().size().width(), 
+            mw.app.primaryScreen().size().height()
+        )
+    ),
 
-def on_move_mouse(x: str, y: str) -> None:
-    x, y = float(x), float(y)
+
+def moveMouse(x: float, y: float) -> None:
     if abs(x) + abs(y) < 0.05: return
     cursor = mw.cursor()
     pos = cursor.pos()
+    geom = mw.screen().geometry()
+
     x = pos.x() + quadCurve(x, 8)
     y = pos.y() + quadCurve(y, 8)
-
-    geom = mw.screen().geometry()
     x, y = max(x, geom.x()), max(y, geom.y())
     x, y = min(x, geom.width()), min(y, geom.height())
     
@@ -152,15 +148,11 @@ def on_move_mouse(x: str, y: str) -> None:
     pos.setY(y)
     cursor.setPos(pos)
 
+
 def click(
     button: Qt.MouseButton = Qt.MouseButton.LeftButton,
     mod: Qt.KeyboardModifier = Qt.KeyboardModifier.NoModifier,
 ) -> None:
-    """
-    The following problems now remain:
-      - Clicking in the title bar doesn't work
-      - Sometimes laggy on older machinese
-    """
     pos = mw.cursor().pos()
     widget = mw.app.widgetAt(pos)
     if not widget: return

@@ -1,18 +1,18 @@
-from operator import index
 import os
 import json
 
-from aqt import QBoxLayout, QComboBox, QFormLayout, QHeaderView, QKeySequence, QLayout, QPoint, QShortcut, QStringListModel, QTableView, QTableWidget, QTableWidgetItem, QTextFormat, QTextList, QTextTable, mw
-from aqt.qt import QAction, QDialog, QWidget, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QTabWidget, QGroupBox, QFont
-from aqt.qt import QKeySequenceEdit, QLineEdit, QSpinBox, QLabel, QGridLayout
-from aqt.qt import Qt
+from aqt import mw 
+from aqt import QComboBox, QFormLayout, QHeaderView, QKeySequence, QLayout, QPoint, QShortcut
+from aqt import QTableWidget, QTableWidgetItem
+from aqt.qt import QAction, QDialog, QWidget, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QTabWidget
+from aqt.qt import QKeySequenceEdit, QSpinBox, QLabel, QGridLayout, QGroupBox, QFont
 from aqt.webview import AnkiWebView
 from aqt.theme import theme_manager
 from aqt.utils import showInfo
 
 from .CONSTS import BUTTON_NAMES
 from .svg import buildSVG, CONTROLLER_IMAGE_MAPS
-from .profile import createProfile, getControllerList, getControllerName, getProfile, getProfileList, Profile, saveProfile, user_files_path
+from .profile import createProfile, getControllerList, getControllerName, getProfile, getProfileList, Profile, user_files_path
 from .actions import button_actions, state_actions
 
 class ContankiConfig(QDialog):
@@ -61,7 +61,7 @@ class ContankiConfig(QDialog):
         self.open()
 
 
-    def save(self):
+    def save(self) -> None:
         for key in self.options.keys():
             if type(self._options[key]) == int:
                 self._options[key] = self.options[key].value()
@@ -98,29 +98,30 @@ class ContankiConfig(QDialog):
 
         controls = self.tabs['bindings']
 
+        for key in range(self.profile.size[1]):
+            self.profile.axes_bindings[key] = self.axes_bindings[key].currentText()
+
         for state in states:
             for mod, title in mods.items():
                 for button in range(self.profile.size[0]):
                     if button in self.profile.mods:
                         continue
-                    control = controls.stateTabs[state].modTabs[mod].controls[button].currentText()
-                    if 'inherited' in control:
-                        control = ""
-                    self.profile.bindings[state][str(mod)][str(button)] = control
-                for axis in range(self.profile.size[1]):
-                    if button in self.profile.mods:
-                        continue
-                    _axis = axis + self.profile.size[0]
-                    control = controls.stateTabs[state].modTabs[mod].controls[_axis].currentText()
-                    if 'inherited' in control:
-                        control = ""
-                    self.profile.bindings[state][str(mod)][str(axis + 100)] = control
-
-
+                    action = controls.stateTabs[state].modTabs[mod].controls[button].currentText()
+                    if 'inherit' in action:
+                        action = ""
+                    self.profile.updateBinding(state, mod, button, action, build_actions=False)
+                # for axis in range(self.profile.size[1]):
+                #     if button in self.profile.mods:
+                #         continue
+                #     _axis = axis + self.profile.size[0]
+                #     action = controls.stateTabs[state].modTabs[mod].controls[_axis].currentText()
+                #     if 'inherited' in action:
+                #         action = ""
+                #     self.profile.updateBinding(state, mod, axis=axis, action=action, build_actions=False)
 
         self.profile.buildActions()
         mw.controller.profile = self.profile
-        saveProfile(self.profile)
+        self.profile.save()
 
         with open(os.path.join(user_files_path, 'controllers'), 'r') as f:
             controllers = json.load(f)
@@ -133,12 +134,11 @@ class ContankiConfig(QDialog):
         self.close()
 
 
-    def help(self):
+    def help(self) -> None:
         pass
 
     
     def changeProfile(self, profile: Profile = None) -> None:
-
         if not profile:
             profile = getProfile(self._profile.currentText())
         elif type(profile) == str:
@@ -150,7 +150,7 @@ class ContankiConfig(QDialog):
         self.setupBindings()
 
 
-    def findCustomActions(self):
+    def findCustomActions(self) -> None:
         shortcuts = [shortcut for name, shortcut in self._options["Custom Actions"].items()]
         for action in mw.findChildren(QAction):
             if (scut := action.shortcut().toString()) != "" and scut not in shortcuts:
@@ -243,6 +243,21 @@ class ContankiConfig(QDialog):
                 tab.layout.addWidget(self.options[key],1,1)
             else: continue
 
+        self.axes_bindings = list()
+        for axis, value in self.profile.axes_bindings.items():
+            button = QComboBox()
+            button.addItems([
+                "Unassigned", 
+                "Buttons",
+                "Cursor Horizontal",
+                "Cursor Vertical",
+                "Scroll Horizontal",
+                "Scroll Vertical",
+            ])
+            button.setCurrentText(value)
+            self.axes_bindings.append(button)
+            form.layout.addRow(f"Axis {axis}", button)
+
         form.setLayout(form.layout)
         tab.layout.addWidget(_profiles,0,0,1,3)
         tab.layout.addWidget(form,1,0)
@@ -251,14 +266,14 @@ class ContankiConfig(QDialog):
         self.tabBar.addTab(tab, "Options")
 
 
-    def setupBindings(self):
+    def setupBindings(self) -> None:
         tab = self.tabs['bindings'] = QTabWidget()
         
         corner = self.corner = QComboBox()
         controllers = getControllerList()
         for controller in controllers:
             corner.addItem(getControllerName(controller), controller)
-        controller = self.profile.controller
+        controller = None # need to set up proper controller detection
         if controller:
             corner.setCurrentIndex(controllers.index(controller))
         else:
@@ -298,20 +313,20 @@ class ContankiConfig(QDialog):
                 x -= loc[4] * 40
                 button = QComboBox(widget)
                 button.addItems(state_actions[state])
-                if str(control + 100 if axis else control) in self.profile.bindings[state][str(mod)]:
-                    button.setCurrentIndex(state_actions[state].index(self.profile.bindings[state][str(mod)][str(control + 100 if axis else control)]))
+                if str(control + 100 if axis else control) in self.profile.bindings[state][mod]:
+                    button.setCurrentIndex(state_actions[state].index(self.profile.bindings[state][mod][str(control + 100 if axis else control)]))
                 if state == "question" or state == "answer":
                     if button.currentIndex() == 0:
-                        if str(control + 100 if axis else control) in self.profile.bindings['review'][str(mod)]:
-                            inherited = self.profile.bindings["review"][str(mod)][str(
+                        if str(control + 100 if axis else control) in self.profile.bindings['review'][mod]:
+                            inherited = self.profile.bindings["review"][mod][str(
                                     control + 100 if axis else control
                                 )]
                             if inherited != "":
                                 button.addItem(inherited + " (inherited)")
                                 button.setCurrentText(inherited + " (inherited)")
                 if button.currentIndex() == 0:
-                    if str(control + 100 if axis else control) in self.profile.bindings['all'][str(mod)]:
-                        inherited = self.profile.bindings["all"][str(mod)][str(
+                    if str(control + 100 if axis else control) in self.profile.bindings['all'][mod]:
+                        inherited = self.profile.bindings["all"][mod][str(
                                     control + 100 if axis else control
                                 )]
                         if inherited != "":
@@ -348,7 +363,7 @@ class ContankiConfig(QDialog):
         self.tabBar.addTab(tab, "Controls")
 
 
-    def updateContents(self):
+    def updateContents(self) -> None:
         tab = self.tabs['bindings']
         corner = self.corner
         controller = getControllerList()[corner.currentIndex()]
@@ -370,7 +385,7 @@ class ContankiConfig(QDialog):
         self.profile.controller = corner.currentData()
 
 
-    def build_html(self, controller = 'DualShock4'):
+    def build_html(self, controller: str) -> str:
         svg = buildSVG(controller)
         html = f"""
 <html>

@@ -24,12 +24,12 @@ def build_svg_mappings(bindings: dict, controller: str = 'DS4') -> dict:
     svg = defaultdict(dict)
     for state in bindings.keys():
         for mod in ['', 'R2', 'L2']:
-            svg[state][mod] = build_svg_content(bindings[state], mod, controller)
+            svg[state][mod] = buildSVG(controller, bindings[state], mod)
 
     return svg
 
 
-def build_svg_content(bindings: dict, mod, controller: str = 'DS4') -> str:
+def build_svg_content(bindings: dict, mod, controller: str = 'DualShock4') -> str:
         
     texts = {
         "Cross":        '<text text-anchor="start" y="60.85" x="194" >',

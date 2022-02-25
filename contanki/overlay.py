@@ -8,12 +8,13 @@ from .funcs import get_state
 from .funcs import get_dark_mode
 from .svg import *
 from .CONSTS import *
+from .profile import Profile
 
 class ControlsOverlay(AnkiWebView):
-    def __init__(self, parent, path: str, bindings: dict, controller:str = 'DS4'):
+    def __init__(self, parent, path: str, profile: Profile):
         super().__init__(parent=parent)
         self.path = path
-        self.svg = build_svg_mappings(bindings, controller)
+        self.svg = build_svg_mappings(profile.bindings, profile.controller)
         self.setFixedWidth(800)
         self.setFixedHeight(330)
         geometry = mw.geometry()
@@ -46,7 +47,7 @@ class ControlsOverlay(AnkiWebView):
 
         self.stdHtml(body)
 
-    def print_svg(self):
+    def print_svg(self) -> None:
         # for state in mw.controller.controlsOverlay.svg.keys():
         for state in self.svg.keys():
             print(state + "\n")

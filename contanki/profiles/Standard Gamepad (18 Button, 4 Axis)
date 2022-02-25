@@ -3,6 +3,12 @@
     "mods": [6,7],
     "controller": null,
     "size": [18,4],
+    "axes_bindings":{
+      "0": "Scroll Vertical",
+      "1": "Buttons",
+      "2": "Cursor Horizontal",
+      "3": "Cursor Vertical"
+    },
     "bindings": {
       "all": {
         "0": {

@@ -1,7 +1,6 @@
-import os
 from time import time
 
-from aqt import QShortcut, gui_hooks, mw
+from aqt import gui_hooks, mw
 from aqt.qt import QAction, qconnect
 from aqt.utils import tooltip
 from aqt.webview import AnkiWebView
@@ -34,7 +33,8 @@ class Contanki(AnkiWebView):
         self.setFixedSize(0,0)
         self.show()
 
-    def on_connect(self, buttons, axes, *con) -> None:
+
+    def on_connect(self, buttons: str, axes:str, *con: List[str]) -> None:
         buttons, axes, con = int(buttons), int(axes), '::'.join(con)
         controller = identifyController(con)
         self.controller = controller
@@ -57,16 +57,13 @@ class Contanki(AnkiWebView):
         menuItem = QAction(f"Controller Options", mw)
         qconnect(menuItem.triggered, self.on_config)
         mw.form.menuTools.addAction(menuItem)
-        self.controlsOverlay = ControlsOverlay(mw, addon_path, self.profile.bindings)
+        #self.controlsOverlay = ControlsOverlay(mw, addon_path, self.profile)
 
 
     def on_disconnect(self, *args) -> None:
-        self.controlsOverlay.disappear()
+        # self.controlsOverlay.disappear()
         tooltip('Controller Disconnected')
-        self.buttons = None
-        self.axes = None
-        self.profile = None
-        self.controlsOverlay = None
+        self.buttons = self.axes = self.profile = self.controlsOverlay = None
 
 
     def on_receive_message(self, handled: tuple, message: str, context: str) -> tuple:
@@ -80,7 +77,7 @@ class Contanki(AnkiWebView):
             return (True, None)
         else:
             return handled
-
+            
     
     def on_config(self) -> None:
         ContankiConfig(mw, self.profile)
@@ -89,41 +86,34 @@ class Contanki(AnkiWebView):
     def poll(self, buttons, axes):
         buttons = [True if button == 'true' else False for button in buttons.split(',')]
         axes = [float(axis) for axis in axes.split(',')]
+        state = get_state()
 
-        mods = tuple(buttons[mod] 
-            if mod < 100 
-            else (
-                True 
-                if axes[mod-100] > 0.1 
-                else False
-            ) 
-            for mod 
-            in self.profile.mods
+        mods = tuple(
+            buttons[mod] if mod < 100 
+            else (True if axes[mod-100] else False)
+            for mod in self.profile.mods
         )
 
-        if mods != self.mods:
-            if any(mods):    
-                self.controlsOverlay.appear(mods)
-            else:
-                self.controlsOverlay.disappear()
+        # if mods != self.mods:
+        #     if any(mods):    
+        #         self.controlsOverlay.appear(mods)
+        #     else:
+        #         self.controlsOverlay.disappear()
 
         self.mods = mods
+
+        mod = mods.index(True) + 1 if any(mods) else 0
 
         for i, value in enumerate(buttons):
             if value == self.buttons[i]: continue
             self.buttons[i] = value
             if value:
-                self.profile.doAction(get_state(), mods, i)
+                self.profile.doAction(state, mod, i)
             else:
-                self.profile.doReleaseAction(get_state(), mods, i)
+                self.profile.doReleaseAction(state, mod, i)
 
-        for i, value in enumerate(axes):
-            if _value := (abs(value) > 0.05) == self.axes[i]: continue
-            self.axes[i] = _value
-            if _value:
-                self.profile.doAction(get_state(), mods, axis = i, value = value)
-            if _value:
-                self.profile.doAction(get_state(), mods, axis = i, value = value)
+        if any(axes):
+            self.profile.doAxesActions(state, mod, axes)
 
 
     def timeGuard(self, axis: str, value: float) -> bool:
@@ -131,5 +121,3 @@ class Contanki(AnkiWebView):
             self.last[axis] = _time
             return False
         return True
-
-QAction().__str__()
