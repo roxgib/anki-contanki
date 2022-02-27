@@ -17,7 +17,7 @@ CONTROLLER_NAMES = {
 }
 
 BUTTON_NAMES = {
-    "DualShock4": {
+    "DualShock 4": {
         0: 'Cross',
         1: 'Circle',
         2: 'Square',
@@ -36,13 +36,9 @@ BUTTON_NAMES = {
         15: 'D-Pad Right',
         16: 'PS',
         17: 'Pad',
-        100: 'Left Stick Horizontal',
-        101: 'Left Stick Vertical',
-        102: 'Right Stick Horizontal',
-        103: 'Right Stick Vertical',
     },
 
-    "DualShock3": {
+    "DualShock 3": {
         0: 'Cross',
         1: 'Circle',
         2: 'Square',
@@ -59,11 +55,6 @@ BUTTON_NAMES = {
         13: 'D-Pad Down',
         14: 'D-Pad Left',
         15: 'D-Pad Right',
-        16: 'PS',
-        100: 'Left Stick Horizontal',
-        101: 'Left Stick Vertical',
-        102: 'Right Stick Horizontal',
-        103: 'Right Stick Vertical',
     },
 
     "DualSense": {
@@ -91,7 +82,7 @@ BUTTON_NAMES = {
         103: 'Right Stick Vertical',
     },
 
-    "XboxOne": {
+    "Xbox One Controller": {
         0: 'A',
         1: 'B',
         2: 'X',
@@ -117,7 +108,7 @@ BUTTON_NAMES = {
         105: 'Right Trigger',
     },
 
-    "XboxSeries": {
+    "Xbox Series Controller": {
         0: 'A',
         1: 'B',
         2: 'X',
@@ -144,7 +135,7 @@ BUTTON_NAMES = {
         105: 'Right Trigger',
     },
 
-    "Xbox360": {
+    "Xbox 360 Controller": {
         0: 'A',
         1: 'B',
         2: 'X',
@@ -170,7 +161,7 @@ BUTTON_NAMES = {
         105: 'Right Trigger',
     },
 
-    "Wii": {
+    "Wii Remote": {
         0: '1',
         1: '2',
         2: 'A',
@@ -184,7 +175,7 @@ BUTTON_NAMES = {
         103: 'Roll',
     },
 
-    "WiiNunchuck": {
+    "Wii Nunchuck": {
         0: 'A',
         1: 'B',
         2: 'C',
@@ -207,4 +198,30 @@ BUTTON_NAMES = {
         102: 'Pitch',
         103: 'Roll',
     },
+    "Joycon Right": {
+        0: 'A',
+        1: 'X',
+        2: 'B',
+        3: 'Y',
+        4: 'Side Shoulder Left',
+        5: 'Side Shoulder Right',
+        9: '+',
+        11: 'Right Stick',
+        12: 'Home',
+        14: 'Right Shoulder',
+        15: 'Right Trigger',
+    },
+    "Joycon Left": {
+        0: 'Left',
+        1: 'Down',
+        2: 'Up',
+        3: 'Right',
+        4: 'Side Shoulder Left',
+        5: 'Side Shoulder Right',
+        9: '-',
+        11: 'Left Stick',
+        12: 'Capture',
+        14: 'Left Shoulder',
+        15: 'Left Trigger' 
+    }
 }
