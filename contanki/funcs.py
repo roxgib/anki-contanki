@@ -7,7 +7,7 @@ from aqt.deckoptions import display_options_for_deck_id
 from aqt.qt import QCoreApplication, QEvent, QMouseEvent, QPoint, QPointF, Qt
 from aqt.qt import QKeyEvent as QKE
 from aqt.utils import current_window
-from os.path import dirname, abspath, join
+from os.path import dirname, abspath, join, exists
 
 # Internal
 
@@ -88,17 +88,17 @@ get_dark_mode = _get_dark_mode()
 def get_file(file: str) -> str:
     addon_path = dirname(abspath(__file__))
 
-    import os.path
+    paths = [
+        addon_path,
+        join(addon_path, 'user_files'), 
+        join(addon_path, 'profiles'), 
+        join(addon_path, 'user_files', 'profiles'), 
+    ]
 
-    if os.path.exists(join(addon_path, file)):
-        with open(join(addon_path, file)) as f:
-            return f.read()
-    elif os.path.exists(join(addon_path, 'controllers', file)):
-        with open(join(addon_path, 'controllers', file)) as f:
-            return f.read()
-    elif os.path.exists(join(addon_path, 'user_files', file)):
-        with open(join(addon_path, 'controllers', file)) as f:
-            return f.read()
+    for path in paths:
+        if exists(join(path, file)):
+            with open(join(addon_path, file)) as f:
+                return f.read()
 
 
 # Common
@@ -112,8 +112,7 @@ def select() -> None:
     mw.web.eval("document.activeElement.click()")
 
 
-def scroll(value: float) -> None:
-        if max(abs(value)) < 0.08: return
+def scroll(x: float, y: float) -> None:
         mw.web.eval(f'window.scrollBy({quadCurve(x)}, {quadCurve(y)})')
 
 

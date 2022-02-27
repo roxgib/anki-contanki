@@ -3,18 +3,18 @@
         "045e": "Microsoft",
         "0955": "NVIDIA",
         "054c": "Sony",
-        "2dc8": "",
+        "2dc8": "8BitDo",
         "0428": "Advanced Gravis Computer Tech, Ltd",
         "050d": "Belkin Components",
         "041e": "Creative Technology, Ltd",
         "0079": "DragonRise Inc.",
         "0111": "DragonRise Inc.",
         "0411": "DragonRise Inc.",
-        "1bad": "",
+        "1bad": "Harmonix Music",
         "2e24": "Hyperkin",
         "05fd": "InterAct, Inc.",
         "047d": "Kensington",
-        "0e6f": "",
+        "0e6f": "Logic3",
         "046d": "Logitech, Inc.",
         "0738": "Mad Catz, Inc.",
         "0078": "Microntek",
@@ -23,42 +23,9 @@
         "0810": "Personal Communication Systems, Inc.",
         "06a3": "Saitek PLC",
         "044f": "ThrustMaster, Inc.",
-        "24c6": "",
-        "28de": "",
-        "0e8f": "",
-        "0f0d": "",
-        "0f30": "",
-        "102c": "",
-        "10c4": "",
-        "11c0": "",
-        "11c9": "",
-        "11ff": "",
-        "124b": "",
-        "12ab": "",
-        "12bd": "",
-        "146b": "",
-        "14d8": "",
-        "162e": "",
-        "16c0": "",
-        "16d0": "",
-        "18d1": "",
-        "19fa": "",
-        "1a15": "",
-        "1a34": "",
-        "1d50": "",
-        "1d79": "",
-        "1dd8": "",
-        "20bc": "",
-        "20d6": "",
-        "22ba": "",
-        "25f0": "",
-        "289b": "",
-        "2c22": "",
-        "2dfa": "",
-        "aa55": "",
-        "d209": "",
-        "f000": "",
-        "f766": ""
+        "24c6": "ThrustMaster, Inc.",
+        "28de": "Valve Software",
+        "081f": ""
     },
     "devices": {
         "045e": {
@@ -75,34 +42,33 @@
             "0038": "SideWinder Precision 2",
             "003b": "SideWinder Game Voice",
             "003c": "SideWinder Joystick",
-            "0285": "Xbox Controller S",
-            "0288": "Xbox Controller S Hub",
-            "0289": "Xbox Controller S",
-            "028e": "Xbox360 Controller",
-            "028f": "Xbox360 Wireless Controller",
-            "0291": "Xbox 360 Wireless Receiver for Windows",
-            "02a1": "Xbox 360 Wireless Receiver for Windows",
+            "0285": "Xbox Controller",
+            "0288": "Xbox Controller",
+            "0289": "Xbox Controller",
+            "028e": "Xbox 360 Controller",
+            "028f": "Xbox 360 Controller",
+            "0291": "Xbox 360 Controller",
+            "02a1": "Xbox 360 Controller",
             "02d1": "Xbox One Controller",
-            "02d5": "Xbox One Digital TV Tuner",
-            "02dd": "Xbox One Controller (Firmware 2015)",
+            "02dd": "Xbox One Controller",
             "02e3": "Xbox One Elite Controller",
             "02e6": "Wireless XBox Controller Dongle",
-            "02ea": "Xbox One S Controller",
-            "02fd": "Xbox One S Controller [Bluetooth]"
+            "02ea": "Xbox Wireless Controller",
+            "02fd": "Xbox Wireless Controller"
         },
         "0955": {
             "7214": "NVIDIA Controller",
             "0955": "ShieldController"
         },
         "054c": {
-            "09cc": "DualShock 4 [CUH-ZCT2x]",
-            "0268": "Batoh Device / PlayStation 3 Controller",
-            "0ba0": "Dualshock4 Wireless Adaptor",
-            "05c4": "DualShock 4 [CUH-ZCT1x]",
+            "09cc": "DualShock 4",
+            "0268": "DualShock 3",
+            "0ba0": "DualShock 4",
+            "05c4": "DualShock 2",
             "03d5": "PlayStation Move motion controller",
             "042f": "PlayStation Move navigation controller",
             "0cda": "PlayStation Classic controller",
-            "0ce6": "DualSense wireless controller (PS5)"
+            "0ce6": "DualSense"
         },
         "2dc8": {
             "5006": "M30 Bluetooth gamepad",
@@ -113,7 +79,7 @@
             "ab12": "N30 gamepad",
             "ab20": "SN30/SF30 gamepad",
             "ab21": "SF30 gamepad",
-            "2dc8": "8BitdoSf30_ab21"
+            "2dc8": "8BitdoN30Arcade_1003"
         },
         "0428": {
             "4001": "GamePad Pro"
@@ -126,7 +92,7 @@
         "041e": {
             "1003": "Blaster GamePad Cobra",
             "1050": "GamePad Cobra",
-            "041e": "GamePadCobra"
+            "041e": "BlasterGamePad"
         },
         "0079": {
             "0006": "PC TWIN SHOCK Gamepad",
@@ -135,30 +101,24 @@
             "181b": "Venom Arcade Joystick",
             "1843": "Mayflash GameCube Controller Adapter",
             "1844": "Mayflash GameCube Controller",
-            "0079": "GpdWin2Xbox360"
+            "0079": "PcTwinShock"
         },
         "0111": {
-            "0111": "Nimbus"
+            "0111": "StratusXL"
         },
         "0411": {
             "0411": "BuffaloClassicFamicom"
         },
         "1bad": {
-            "0002": "Rock Band Guitar for Xbox 360",
-            "0003": "Rock Band Drum Kit for Xbox 360",
-            "0130": "Ion Drum Rocker for Xbox 360",
             "028e": "Controller",
-            "3330": "Rock Band 3 Keyboard wii interface",
             "f016": "Controller",
             "f018": "Street Fighter IV SE FightStick for Xbox 360",
             "f019": "BrawlStick for Xbox 360",
-            "f021": "Ghost Recon Future Soldier Gamepad for Xbox 360",
-            "f023": "MLG Pro Circuit Controller for Xbox 360",
-            "f025": "Call of Duty Controller for Xbox 360",
-            "f027": "FPS Pro Controller for Xbox 360",
+            "f021": "Xbox 360 Controller",
+            "f023": "Xbox 360 Controller",
+            "f025": "Xbox 360 Controller",
+            "f027": "Xbox 360 Controller",
             "f028": "Street Fighter IV FightPad for Xbox 360",
-            "f02e": "FightPad",
-            "f030": "MC2 MicroCON Racing Wheel for Xbox 360",
             "f036": "MicroCON Gamepad Pro for Xbox 360",
             "f038": "Street Fighter IV FightStick TE for Xbox 360",
             "f039": "Marvel VS Capcom 2 Tournament Stick for Xbox 360",
@@ -176,14 +136,13 @@
             "f506": "Real Arcade Pro.EX Premium VLX for Xbox 360",
             "f900": "Controller",
             "f901": "GameStop Controller",
-            "f903": "Tron Controller for Xbox 360",
+            "f903": "Xbox 360 Controller",
             "f904": "PDP Versus Fighting Pad for Xbox 360",
             "f906": "Mortal Kombat FightStick for Xbox 360",
             "f907": "Afterglow Gamepad",
             "fa01": "Gamepad",
             "fd00": "Razer Onza Tournament Edition",
-            "fd01": "Razer Onza Classic Edition",
-            "1bad": "RazerOnzaXbox360"
+            "fd01": "Razer Onza Classic Edition"
         },
         "2e24": {
             "0652": "Duke Xbox One controller",
@@ -204,12 +163,6 @@
             "daae": "Game Shark",
             "dbae": "Datel XBoxMC",
             "05fe": "Chic Technology Corp.",
-            "0001": "Mouse",
-            "0003": "Cypress USB Mouse",
-            "0005": "Viewmaster 4D Browser Mouse",
-            "0007": "Twinhead Mouse",
-            "0009": "Inland Pro 4500/5000 Mouse",
-            "0011": "Browser Mouse",
             "0014": "Gamepad",
             "1010": "Optical Wireless",
             "2001": "Microsoft Wireless Receiver 700",
@@ -230,37 +183,35 @@
             "0008": "After Glow Pro Controller",
             "0105": "Disney's High School Musical 3 Dance Pad for Xbox 360",
             "0113": "Afterglow AX.1 Gamepad",
-            "011f": "Rock Candy Wired Controller for Xbox 360",
-            "0128": "Wireless PS3 Controller",
+            "011f": "Xbox 360 Controller",
+            "0128": "DualShock 3",
             "0131": "PDP EA Sports Controller",
             "0133": "Wired Controller",
-            "0139": "Afterglow Prismatic Wired Controller for Xbox One",
-            "013a": "PDP Xbox One Controller",
-            "0146": "Rock Candy Wired Controller for Xbox One",
-            "0147": "PDP Marvel Controller for Xbox One",
+            "0139": "Xbox One Controller",
+            "013a": "Xbox One Controller",
+            "0146": "Xbox One Controller",
+            "0147": "Xbox One Controller",
             "015c": "PDP Arcade Stick for Xbox One",
-            "0161": "Camo Wired Controller for Xbox One",
-            "0162": "Xbox One Wired Controller",
+            "0161": "Xbox One Controller",
+            "0162": "Xbox One Controller",
             "0163": "Legendary Collection Deliverer of Truth",
-            "0164": "Battlefield 1 Wired Controller for Xbox One",
-            "0165": "Titanfall 2 Wired Controller for Xbox One",
+            "0164": "Xbox One Controller",
+            "0165": "Xbox One Controller",
             "0201": "Pelican PL-3601",
-            "0213": "Afterglow Gamepad for Xbox 360",
-            "021f": "Rock Candy Gamepad for Xbox 360",
-            "0246": "Rock Candy Gamepad for Xbox One",
+            "0213": "Xbox 360 Controller",
+            "021f": "Xbox 360 Controller",
+            "0246": "Xbox One Controller",
             "0301": "Controller",
-            "0346": "Rock Candy Wired Controller for Xbox One",
+            "0346": "Xbox One Controller",
             "0401": "Controller",
-            "0413": "Afterglow AX.1 Gamepad for Xbox 360",
+            "0413": "Xbox 360 Controller",
             "0501": "Wired Controller",
             "f501": "Hi-TEC Essentials Wired Gamepad",
             "f900": "Afterglow AX.1",
             "0e6f": "AfterglowXbox360_f900"
         },
         "046d": {
-            "0200": "WingMan Extreme Joystick",
-            "0242": "Chillstream for Xbox 360",
-            "c201": "WingMan Extreme Joystick with Throttle",
+            "0242": "Xbox 360 Controller",
             "c202": "WingMan Formula",
             "c207": "WingMan Extreme Digital 3D",
             "c208": "WingMan Gamepad Extreme",
@@ -283,9 +234,6 @@
             "c21d": "F310 Gamepad [XInput Mode]",
             "c21e": "F510 Gamepad [XInput Mode]",
             "c21f": "F710 Wireless Gamepad [XInput Mode]",
-            "c24f": "G29 Driving Force Racing Wheel [PS3]",
-            "c260": "G29 Driving Force Racing Wheel [PS4]",
-            "c262": "G920 Driving Force Racing Wheel",
             "c281": "WingMan Force",
             "c283": "WingMan Force 3D",
             "c285": "WingMan Strike Force 3D",
@@ -323,13 +271,13 @@
             "4586": "MicroCON Wireless Controller",
             "4588": "Blaster",
             "45ff": "Beat Pad",
-            "4716": "Wired Xbox 360 Controller",
+            "4716": "Xbox 360 Controller",
             "4718": "Street Fighter IV FightStick SE for Xbox 360",
             "4726": "Xbox 360 Controller",
             "4728": "Street Fighter IV FightPad for Xbox 360",
             "4730": "MC2 Racing Wheel for Xbox 360",
             "4736": "MicroCON for Xbox 360",
-            "4738": "Street Fighter IV Wired Controller for Xbox 360",
+            "4738": "Xbox 360 Controller",
             "4740": "Beat Pad for Xbox 360",
             "4743": "Beat Pad Pro",
             "4758": "Arcade Game Stick",
@@ -339,21 +287,21 @@
             "9871": "Portable Drum Kit",
             "a109": "S.T.R.I.K.E.7 Keyboard",
             "a215": "X-55 Rhino Throttle",
-            "b726": "Modern Warfare 2 Controller for Xbox 360",
+            "b726": "Xbox 360 Controller",
             "b738": "Marvel VS Capcom 2 TE FightStick for Xbox 360",
             "beef": "Joytech Neo SE Advanced Gamepad",
             "cb02": "Saitek Cyborg Rumble Pad",
             "cb03": "Saitek P3200 Rumble Pad",
             "cb29": "Saitek Aviator Stick AV8R02",
             "f738": "Super Street Fighter IV FightStick TE S for Xbox 360",
-            "0738": "SuperStreetFighterIVFightStickTeSXbox360"
+            "0738": "MadCatzGamepad_02a0"
         },
         "0078": {
             "0006": "Joystick"
         },
         "057e": {
-            "0306": "Wii Remote Controller",
-            "0337": "Wii U GameCube Controller Adapter",
+            "0306": "Wii Remote",
+            "0337": "GameCube Controller",
             "2000": "Switch",
             "2006": "Joy-Con Left",
             "2007": "Joy-Con Right",
@@ -421,15 +369,15 @@
             "b016": "USB,5-Axis,10-Button with POV",
             "b018": "TW6 Wheel",
             "ff60": "USB Wireless VibrationPad",
-            "0583": "GeniusMaxFireBlaze3"
+            "0583": "IBuffaloClassic"
         },
         "0810": {
             "0001": "Dual PSX Adaptor",
             "0002": "Dual PCS Adaptor",
             "0003": "PlayStation Gamepad",
             "e001": "Twin controller",
-            "e501": "SNES Gamepad",
-            "0810": "PcsSnesGamepad"
+            "e501": "Super Nintendo Controller",
+            "0810": "TwinUsbPs2Adapter"
         },
         "06a3": {
             "0006": "Cyborg Gold Joystick",
@@ -505,7 +453,7 @@
             "0400": "HOTAS Cougar",
             "0402": "HOTAS Warthog Joystick",
             "0404": "HOTAS Warthog Throttle",
-            "044f": "RunNDriverWirelessPs3",
+            "044f": "GP XID",
             "0f00": "Steering Wheel for Xbox",
             "0f03": "Steering Wheel for Xbox",
             "0f07": "Controller for Xbox",
@@ -546,145 +494,43 @@
         },
         "24c6": {
             "5000": "Razer Atrox Gaming Arcade Stick",
-            "5300": "PowerA Mini ProEX Controller for Xbox 360",
-            "5303": "Airflo Wired Controller for Xbox 360",
-            "530a": "ProEX Controller for Xbox 360",
+            "5300": "Xbox 360 Controller",
+            "5303": "Xbox 360 Controller",
+            "530a": "Xbox 360 Controller",
             "531a": "Pro Ex mini for XBOX",
             "5397": "FUS1ON Tournament Controller",
             "541a": "PowerA CPFA115320-01 [Mini Controller for Xbox One]",
-            "542a": "Spectra for Xbox One",
-            "543a": "PowerA Wired Controller for Xbox One",
+            "542a": "Xbox One Controller",
+            "543a": "Xbox One Controller",
             "5500": "Horipad EX2 Turbo",
             "5501": "Hori Real Arcade Pro.VX-SA for Xbox 360",
             "5502": "Hori Fighting Stick VX Alt for Xbox 360",
-            "5503": "Hori Fighting Edge for Xbox 360",
-            "5506": "Hori Soulcalibur V Stick for Xbox 360",
-            "550d": "Hori Gem Controller for Xbox 360",
+            "5503": "Xbox 360 Controller",
+            "5506": "Xbox 360 Controller",
+            "550d": "Xbox 360 Controller",
             "550e": "Real Arcade Pro V Kai for Xbox One / Xbox 360",
             "551a": "Fusion Pro Controller",
-            "561a": "Fusion Controller for Xbox One",
+            "561a": "Xbox One Controller",
             "5b00": "Ferrari 458 Italia Racing Wheel",
             "5b02": "GPX Controller",
             "5d04": "Sabertooth Elite",
             "fa00": "INF-8032385 Disney Infinity Reader",
             "fafb": "Aplay Controller",
-            "fafd": "Afterglow Gamepad for Xbox 360",
-            "fafe": "Rock Candy Gamepad for Xbox 360",
-            "24c6": "RockCandyXbox360_fafe"
+            "fafd": "Xbox 360 Controller",
+            "fafe": "Xbox 360 Controller",
+            "24c6": "Xbox 360 Controller"
         },
         "28de": {
             "1102": "Wired Controller",
-            "1142": "Wireless Steam Controller",
+            "1142": "Steam Controller",
             "2000": "Lighthouse FPGA RX",
             "2012": "Virtual Reality Controller [VRC]",
             "2101": "Watchman Dongle",
             "2500": "Lighthouse Base Station",
-            "28de": "SteamController_1201"
+            "28de": "Steam Controller"
         },
-        "": {
-            "": ""
-        },
-        "0e8f": {
-            "0e8f": "Gamepad3Turbo"
-        },
-        "0f0d": {
-            "0f0d": "HoripadOne_0100"
-        },
-        "0f30": {
-            "0f30": "BigBenXbMiniPadController"
-        },
-        "102c": {
-            "102c": "JoytechWirelessAdvancedController"
-        },
-        "10c4": {
-            "10c4": "KickAssDynamicEncoder"
-        },
-        "11c0": {
-            "11c0": "Btp2175"
-        },
-        "11c9": {
-            "11c9": "NaconGc100Xf"
-        },
-        "11ff": {
-            "11ff": "UnlicensedPs2Controller"
-        },
-        "124b": {
-            "124b": "NykoAirflo"
-        },
-        "12ab": {
-            "12ab": "DdrDanceMatXbox"
-        },
-        "12bd": {
-            "12bd": "GembirdGamepad_e001"
-        },
-        "146b": {
-            "146b": "BigBenPs3Controller"
-        },
-        "14d8": {
-            "14d8": "ToodlesMcCthulhu"
-        },
-        "162e": {
-            "162e": "JoytechNeoSeTake2"
-        },
-        "16c0": {
-            "16c0": "SegaJoypadAdapter"
-        },
-        "16d0": {
-            "16d0": "4PlayP4"
-        },
-        "18d1": {
-            "18d1": "Adt1"
-        },
-        "19fa": {
-            "19fa": "Team5"
-        },
-        "1a15": {
-            "1a15": "SmartJoyDualPlusAdapter"
-        },
-        "1a34": {
-            "1a34": "HuiJiaGamecubeAdapter"
-        },
-        "1d50": {
-            "1d50": "DarkgameController"
-        },
-        "1d79": {
-            "1d79": "DualBoxWii"
-        },
-        "1dd8": {
-            "1dd8": "IBuffaloBsgp1204P"
-        },
-        "20bc": {
-            "20bc": "BetopAx1Bfm"
-        },
-        "20d6": {
-            "20d6": "PowerAProEx"
-        },
-        "22ba": {
-            "22ba": "JessTechnologyUsbGamepad"
-        },
-        "25f0": {
-            "25f0": "ShanWanGioteckPs3WiredController"
-        },
-        "289b": {
-            "289b": "RaphnetDualSnesToUsb"
-        },
-        "2c22": {
-            "2c22": "QanbaObsidianArcadeJoystickPs3"
-        },
-        "2dfa": {
-            "2dfa": "3dRunner"
-        },
-        "aa55": {
-            "aa55": "XarcadeToGamepadDevice"
-        },
-        "d209": {
-            "d209": "JPac"
-        },
-        "f000": {
-            "f000": "RetroUsbSuperRetroPort"
-        },
-        "f766": {
-            "f766": "BrutalLegendTest"
+        "081f": {
+            "e401" : "Super Nintendo Controller"
         }
     }
 }

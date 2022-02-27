@@ -1,7 +1,7 @@
 import json
 import csv
 
-with open("./Contanki/controllerIDs.csv") as f:
+with open("./controllerIDs.csv") as f:
     controllers = csv.reader(f.readlines())
 
 _controllers = list()
@@ -14,11 +14,13 @@ vendors = dict()
 controllers = dict()
 
 for vid, vendor, pid, product in _controllers:
-    vendors[vid] = vendor
+    if vid not in vendors or vendors[vid] == '':
+        vendors[vid] = vendor
     controllers[vid] = dict()
 
 for vid, vendor, pid, product in _controllers:
-    controllers[vid][pid] = product
+    if pid not in controllers[vid] or controllers[vid][pid] == '':
+        controllers[vid][pid] = product
 
 out = {
     'vendors': vendors,

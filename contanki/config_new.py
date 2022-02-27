@@ -12,7 +12,7 @@ from aqt.utils import showInfo
 
 from .CONSTS import BUTTON_NAMES
 from .svg import buildSVG, CONTROLLER_IMAGE_MAPS
-from .profile import createProfile, getControllerList, getControllerName, getProfile, getProfileList, Profile, user_files_path
+from .profile import createProfile, getControllerList, getProfile, getProfileList, Profile, user_files_path, updateControllers
 from .actions import button_actions, state_actions
 
 class ContankiConfig(QDialog):
@@ -89,48 +89,32 @@ class ContankiConfig(QDialog):
         ]
 
         mods = {0:"Default"}
-        if self.profile.controller in BUTTON_NAMES:
+        if self.controller in BUTTON_NAMES:
             for i, mod in enumerate(self.profile.mods):
-                mods[i+1] = BUTTON_NAMES[self.profile.controller][mod]
+                mods[i+1] = BUTTON_NAMES[self.controller][mod]
         else:
             for i, mod in enumerate(self.profile.mods):
                 mods[i+1] = f"Modifier {i+1}"
 
         controls = self.tabs['bindings']
 
-        for key in range(self.profile.size[1]):
+        for key in range(self.profile.len_axes):
             self.profile.axes_bindings[key] = self.axes_bindings[key].currentText()
 
         for state in states:
             for mod, title in mods.items():
-                for button in range(self.profile.size[0]):
+                for button in range(self.profile.len_buttons):
                     if button in self.profile.mods:
                         continue
                     action = controls.stateTabs[state].modTabs[mod].controls[button].currentText()
                     if 'inherit' in action:
                         action = ""
                     self.profile.updateBinding(state, mod, button, action, build_actions=False)
-                # for axis in range(self.profile.size[1]):
-                #     if button in self.profile.mods:
-                #         continue
-                #     _axis = axis + self.profile.size[0]
-                #     action = controls.stateTabs[state].modTabs[mod].controls[_axis].currentText()
-                #     if 'inherited' in action:
-                #         action = ""
-                #     self.profile.updateBinding(state, mod, axis=axis, action=action, build_actions=False)
 
         self.profile.buildActions()
         mw.controller.profile = self.profile
+        updateControllers(self.controller, self.profile.name)
         self.profile.save()
-
-        with open(os.path.join(user_files_path, 'controllers'), 'r') as f:
-            controllers = json.load(f)
-
-        controllers[self.profile.controller] = self.profile.name
-
-        with open(os.path.join(user_files_path, 'controllers'), 'w') as f:
-            json.dump(controllers, f)
-
         self.close()
 
 
@@ -188,21 +172,21 @@ class ContankiConfig(QDialog):
         flags.layout            = QFormLayout()
         form.layout             = QFormLayout()
         
-        _profiles = QWidget()
-        _profiles.layout = QHBoxLayout()
-        self._profile = profiles = QComboBox(tab)
-        profiles.addItems(getProfileList(pretty=True))
-        profiles.setCurrentIndex(getProfileList(pretty=True).index(self.profile.name))
-        profiles.currentTextChanged.connect(self.changeProfile)
-        _profiles.layout.addWidget(QLabel("Profile", tab))
-        _profiles.layout.addWidget(profiles)
+        profileBar = QWidget()
+        profileBar.layout = QHBoxLayout()
+        self._profile = profileCombo = QComboBox(tab)
+        profileCombo.addItems(p_list := getProfileList(include_defaults=False))
+        profileCombo.setCurrentIndex(p_list.index(self.profile.name))
+        profileCombo.currentTextChanged.connect(self.changeProfile)
+        profileBar.layout.addWidget(QLabel("Profile", tab))
+        profileBar.layout.addWidget(profileCombo)
         
         addButton = QPushButton('Add Profile', tab)
         addButton.clicked.connect(self.addProfile)
-        _profiles.layout.addWidget(addButton)
-        _profiles.layout.addWidget(QPushButton('Delete Profile', tab))
-        _profiles.layout.addWidget(QPushButton('Rename Profile', tab))
-        _profiles.setLayout(_profiles.layout)
+        profileBar.layout.addWidget(addButton)
+        profileBar.layout.addWidget(QPushButton('Delete Profile', tab))
+        profileBar.layout.addWidget(QPushButton('Rename Profile', tab))
+        profileBar.setLayout(profileBar.layout)
 
         self._options = mw.addonManager.getConfig(__name__)
         self.findCustomActions()
@@ -259,7 +243,7 @@ class ContankiConfig(QDialog):
             form.layout.addRow(f"Axis {axis}", button)
 
         form.setLayout(form.layout)
-        tab.layout.addWidget(_profiles,0,0,1,3)
+        tab.layout.addWidget(profileBar,0,0,1,3)
         tab.layout.addWidget(form,1,0)
         
         tab.setLayout(tab.layout)
@@ -272,17 +256,15 @@ class ContankiConfig(QDialog):
         corner = self.corner = QComboBox()
         controllers = getControllerList()
         for controller in controllers:
-            corner.addItem(getControllerName(controller), controller)
-        controller = None # need to set up proper controller detection
+            corner.addItem(controller)
+        controller = mw.controller.controller
         if controller:
             corner.setCurrentIndex(controllers.index(controller))
         else:
             corner.setCurrentIndex(0)
-            self.profile.controller = corner.currentData()
-        self.profile.controller = controller = corner.currentData()
-        corner.currentIndexChanged.connect(self.updateContents)
+        self.controller = controller = corner.currentText()
+        corner.currentIndexChanged.connect(self.repositionButtons)
         self.tabs['bindings'].setCornerWidget(corner)
-
 
         states = {
             "all": "Default",
@@ -302,42 +284,26 @@ class ContankiConfig(QDialog):
             for i, mod in enumerate(self.profile.mods):
                 mods[i+1] = f"Modifier {i+1}"
 
-        def addButtons(widget, state, mod, control, loc, axis = False):
+        def addButtons(widget, state, mod, button, loc):
             x, y = loc[2] * 4.58, loc[3] * 4.8
             x += (x - 375) * 0.12
-            if control in self.profile.mods:
+            if button in self.profile.mods:
                 y -= 5
-                button = QLabel(f'<b>{mods[self.profile.mods.index(control) + 1]}</b>' if mod == self.profile.mods.index(control) + 1 else mods[self.profile.mods.index(control) + 1], widget)
-                button.setFont(QFont("Helvetica", 15))
+                combo = QLabel(f'<b>{mods[self.profile.mods.index(button) + 1]}</b>' if mod == self.profile.mods.index(button) + 1 else mods[self.profile.mods.index(button) + 1], widget)
+                combo.setFont(QFont("Helvetica", 15))
             else:
                 x -= loc[4] * 40
-                button = QComboBox(widget)
-                button.addItems(state_actions[state])
-                if str(control + 100 if axis else control) in self.profile.bindings[state][mod]:
-                    button.setCurrentIndex(state_actions[state].index(self.profile.bindings[state][mod][str(control + 100 if axis else control)]))
-                if state == "question" or state == "answer":
-                    if button.currentIndex() == 0:
-                        if str(control + 100 if axis else control) in self.profile.bindings['review'][mod]:
-                            inherited = self.profile.bindings["review"][mod][str(
-                                    control + 100 if axis else control
-                                )]
-                            if inherited != "":
-                                button.addItem(inherited + " (inherited)")
-                                button.setCurrentText(inherited + " (inherited)")
-                if button.currentIndex() == 0:
-                    if str(control + 100 if axis else control) in self.profile.bindings['all'][mod]:
-                        inherited = self.profile.bindings["all"][mod][str(
-                                    control + 100 if axis else control
-                                )]
-                        if inherited != "":
-                                button.addItem(inherited + " (inherited)")
-                                button.setCurrentText(inherited + " (inherited)")
-                        
-
-                button.setFixedWidth(150)
-            button.setObjectName(str(control + 100 if axis else control))
-            widget.controls.append(button)
-            button.move(QPoint(x, y))
+                combo = QComboBox(widget)
+                combo.addItems(state_actions[state])
+                if button in self.profile.bindings[state][mod] and (action := self.profile.bindings[state][mod][button]):
+                    combo.setCurrentIndex(state_actions[state].index(action))
+                combo.currentIndexChanged.connect(lambda: self.updateBinding(state, mod, button))
+                if state == 'all' or state == 'review':
+                    combo.currentIndexChanged.connect(self.updateInheritence)
+                combo.setFixedWidth(150)
+            combo.setObjectName(str(button))
+            widget.controls.append(combo)
+            combo.move(QPoint(x, y))
 
         tab.stateTabs = dict()
         for state, title in states.items():
@@ -349,21 +315,54 @@ class ContankiConfig(QDialog):
                 tab.stateTabs[state].modTabs[mod].setObjectName(str(mod))
                 tab.stateTabs[state].modTabs[mod].layout = QVBoxLayout()
                 tab.stateTabs[state].modTabs[mod].web = AnkiWebView(tab.stateTabs[state].modTabs[mod])
-                tab.stateTabs[state].modTabs[mod].web.setHtml(self.build_html(self.profile.controller))
+                tab.stateTabs[state].modTabs[mod].web.setHtml(self.build_html(controller))
                 tab.stateTabs[state].modTabs[mod].layout.addWidget(tab.stateTabs[state].modTabs[mod].web)
                 tab.stateTabs[state].modTabs[mod].setLayout(tab.stateTabs[state].modTabs[mod].layout)
                 tab.stateTabs[state].modTabs[mod].controls = list()
-                for control, loc in CONTROLLER_IMAGE_MAPS[controller]['BUTTONS'].items():
+                for control, loc in CONTROLLER_IMAGE_MAPS[controller].items():
                     addButtons(tab.stateTabs[state].modTabs[mod], state, mod, control, loc)
-                for control, loc in CONTROLLER_IMAGE_MAPS[controller]['AXES'].items():
-                    addButtons(tab.stateTabs[state].modTabs[mod], state, mod, control, loc, True)
                 tab.stateTabs[state].addTab(tab.stateTabs[state].modTabs[mod], mTitle)
             tab.stateTabs[state].setTabPosition(QTabWidget.TabPosition.South)
             tab.addTab(tab.stateTabs[state], title)
+        self.updateInheritence()
         self.tabBar.addTab(tab, "Controls")
 
+    
+    def updateBinding(self, state, mod, button):
+        action = self.tabs['bindings'].stateTabs[state].modTabs[mod].controls[button].currentText()
+        self.profile.updateBinding(state, mod, button, action)
 
-    def updateContents(self) -> None:
+
+    def updateInheritence(self):
+        states = [
+            "all",
+            "deckBrowser",
+            "overview",
+            "review",
+            "question",
+            "answer",
+            "dialog",
+        ]
+
+        for state in states:
+            for mod in range(len(self.profile.mods) + 1):
+                for button in range(self.profile.len_buttons):
+                    if button in self.profile.mods:
+                        continue
+                    m = self.tabs['bindings'].stateTabs[state].modTabs[mod]
+                    combo = self.tabs['bindings'].stateTabs[state].modTabs[mod].controls[button]
+                    inherited = None
+                    if state != 'all' and button in (b := self.profile.bindings["all"][mod]):
+                        inherited = b[button]
+                    if (state == "question" or state == "answer") and button in (b := self.profile.bindings["review"][mod]):
+                        if action := self.profile.bindings["review"][mod][button]:
+                            inherited = action
+                    if inherited:
+                        combo.setItemText(0, inherited + " (inherit)")
+                    else:
+                        combo.setItemText(0, "")
+                        
+    def repositionButtons(self) -> None:
         tab = self.tabs['bindings']
         corner = self.corner
         controller = getControllerList()[corner.currentIndex()]
@@ -372,17 +371,16 @@ class ContankiConfig(QDialog):
                 e.web.setHtml(self.build_html(controller))
                 for button in e.controls:
                     index = int(button.objectName())
-                    index, control = (index, 'BUTTONS') if index < 100 else (index - 100, 'AXES')
                     try:
-                        loc = CONTROLLER_IMAGE_MAPS[controller][control][index]
+                        loc = CONTROLLER_IMAGE_MAPS[controller][index]
                         x, y = loc[2] * 4.58, loc[3] * 4.8
                         x += (x - 375) * 0.12
-                        x -= loc[4] * 16
+                        x -= loc[4] * 40
                         button.move(QPoint(x, y))
                     except KeyError:
                         x, y = 1000, 1000
                     button.move(QPoint(x, y))
-        self.profile.controller = corner.currentData()
+        self.controller = corner.currentData()
 
 
     def build_html(self, controller: str) -> str:

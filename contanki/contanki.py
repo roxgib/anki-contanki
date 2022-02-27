@@ -36,24 +36,22 @@ class Contanki(AnkiWebView):
 
     def on_connect(self, buttons: str, axes:str, *con: List[str]) -> None:
         buttons, axes, con = int(buttons), int(axes), '::'.join(con)
-        controller = identifyController(con)
-        self.controller = controller
+        controller = identifyController(con, buttons, axes)
 
-        self.buttons = [False for i in range(buttons)]
-        self.axes = [False for i in range(axes)]
+        self.buttons = [False] * buttons
+        self.axes = [False] * axes
         self.len_buttons = buttons
         self.len_axes = axes
         
         if controller:
+            self.controller = controller
             self.profile = findProfile(controller, buttons, axes)
-            self.profile.controller = controller
-            tooltip(f'{getControllerName(controller)} Connected')
+            tooltip(f'{controller} Connected')
         else:
+            self.controller = "DualShock 4"
             self.profile = findProfile(con, buttons, axes)
             tooltip('Unknown Controller Connected | ' + con)
-
-        self.mods = [False] * (len(self.profile.mods))
-
+ 
         menuItem = QAction(f"Controller Options", mw)
         qconnect(menuItem.triggered, self.on_config)
         mw.form.menuTools.addAction(menuItem)

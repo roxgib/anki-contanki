@@ -1,0 +1,45 @@
+{
+    "name":"Blank",
+    "mods": [],
+    "controller": null,
+    "size": [0,0],
+    "axes_bindings":{
+    },
+    "bindings": {
+      "all": {
+        "0": {
+          "0": ""
+        }
+      },
+      "review": {
+        "0": {
+          "0": ""
+        }
+      },
+      "question": {
+        "0": {
+          "0": ""
+        }
+      },
+      "answer": {
+        "0": {
+          "0": ""
+        }
+      },
+      "deckBrowser": {
+        "0": {
+          "0": ""
+        }
+      },
+      "overview": {
+        "0": {
+          "0": ""
+        }
+      },
+      "dialog": {
+        "0": {
+          "0": ""
+        }
+      }
+    }
+  }

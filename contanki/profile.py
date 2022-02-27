@@ -12,9 +12,10 @@ from .CONSTS import CONTROLLER_NAMES
 from .actions import *
 
 addon_path = os.path.dirname(os.path.abspath(__file__))
-user_profile_path = os.path.join(addon_path, 'user_files', 'profiles')
 user_files_path = os.path.join(addon_path, 'user_files')
+user_profile_path = os.path.join(user_files_path, 'profiles')
 default_profile_path = os.path.join(addon_path, 'profiles')
+controllers_path = os.path.join(addon_path, 'controllers')
 
 
 class Profile:
@@ -22,28 +23,16 @@ class Profile:
         self.bindings = profile['bindings']
         self.mods = profile['mods']
         self.name = profile['name']
-        self.size = profile['size']
-        self.len_buttons = profile['size'][0]
-        self.len_axes = profile['size'][1]
+        self.len_buttons, self.len_axes = self.size = profile['size']
         self.axes_bindings = profile['axes_bindings']
         self.buildActions()
 
-    def buildActions(self) -> None:
-        bindings = deepcopy(self.bindings)
 
-        for key, value in bindings['review'].items():
-            if key not in bindings['question'] or bindings['question'][key] == '':
-                bindings['question'][key] = value
-            if key not in bindings['answer'] or bindings['answer'][key] == '':
-                bindings['answer'][key] = value
-
-        for key, value in bindings['all'].items():
-            for state, d in bindings.items():
-                if key not in d or d[key] == '':
-                    bindings[state][key] = value
-
+    def buildActions(self) -> dict:
+        bindings = self.getInheritedBindings()
         bindings['NoFocus'] = {0: {0:'Focus Main Window'}}
-
+        for i in range(len(self.mods)):
+            bindings['NoFocus'][i + 1] = dict()
         self.actions = dict()
         self.releaseActions = dict()
         for state, a in bindings.items():
@@ -57,6 +46,24 @@ class Profile:
                         self.actions[state][mod][button] = button_actions[action]
                     if action in button_release_actions:
                         self.releaseActions[state][mod][button] = button_release_actions[action]
+        
+        return self.actions
+
+
+    def getInheritedBindings(self) -> dict:
+        bindings = deepcopy(self.bindings)
+        for state, sdict in bindings.items():
+            for mod, mdict in sdict.items():
+                if state == 'question' or state == 'answer':
+                    for button, action in bindings['review'][mod].items():
+                        if button not in mdict or mdict[button] == "":
+                            mdict[button] = action
+                if state != 'all':
+                    for button, action in bindings['all'][mod].items():
+                        if button not in mdict or mdict[button] == "":
+                            mdict[button] = action
+
+        return bindings
 
 
     def doAction(self, state: str, mod: int, button: int) -> None:
@@ -107,19 +114,12 @@ class Profile:
             self.bindings[state][mod][button] = ""
         if action == 'mod' or self.bindings[state][mod][button] == 'mod':
             showInfo('Error: use Binding.updateMods to change the modifier keys')
-        try:
-            if button:
-                self.bindings[state][mod][button] = action
-        except KeyError:
-            showInfo("Error: couldn't update action. Perhaps the wrong controller type is selected")
-        else:
-            if build_actions:
-                self.buildActions()
+        self.bindings[state][mod][button] = action
+        if build_actions:
+            self.buildActions()
 
 
-    def changeMod(self, old_mod: int, new_mod: int, axis: bool = False) -> None:
-        if axis:
-            new_mod += 100
+    def changeMod(self, old_mod: int, new_mod: int) -> None:
         if old_mod in self.mods:
             self.mods[self.mods.index(old_mod)] = new_mod
         for state in self.bindings:
@@ -147,45 +147,59 @@ class Profile:
                 json.dump(output, f)
 
 
-def identifyController(id: str) -> str:
+def identifyController(id: str, len_buttons: int, len_axes: int) -> str:
     vendor_id = search(r'Vendor:\s([0-9a-fA-F]{4}?)', id)
     device_id = search(r'Product:\s([0-9a-fA-F]{4}?)', id)
 
-    controllers = json.loads(get_file('./controllerIDs.json'))
+    controllers = json.loads(get_file('controllerIDs.json'))
 
     if vendor_id in controllers['vendors']:
         vendor_name = controllers['vendors'][vendor_id]
         if device_id in controllers['devices'][vendor_id]:
-            device_name = controllers['vendors'][vendor_id]
+            device_name = controllers['vendors'][vendor_id][device_id]
+            controllers = getControllerList()
+            if device_name in controllers:
+                return device_name
 
     id = id.lower()
 
-    if 'dualshock' in id or 'playstation' in id:
-        if 'dualshock 4' in id:
-            return 'DualShock4'
-        elif 'dualshock 4' in id:
-            return 'DualShock4'
-        elif 'dualsense' in id:
+    if 'dualshock' in id or 'playstation' or 'sony' in id:
+        if len_axes == 0:
+            return "PlayStation Controller"
+        elif len_buttons == 17:
+            return 'DualShock 3'
+        elif len_buttons == 18:
+            return 'DualShock 4'
+        elif 'DualSense' in id or len_buttons == 19:
             return 'DualSense'
-    elif 'xbox' in id:
+
+    if 'xbox' in id:
         if '360' in id:
-            return 'Xbox306'
+            return 'Xbox 360 Controller'
         elif 'one' in id:
-            return 'XboxOne'
+            return 'Xbox One Controller'
         elif 'elite' in id:
-            return 'XboxElite'
+            return 'Xbox Elite Controller'
         elif 'series' in id:
-            return 'XboxSeries'
-    elif 'joycon' in id or 'joy-con' in id:
+            return 'Xbox Series Controller'
+        elif 'adaptive' in id:
+            return 'Xbox Adaptive Controller'
+        elif len_buttons == 16:
+            return 'Xbox 360 Controller'
+        elif len_buttons == 17:
+            return 'Xbox Series Controller'
+
+    if 'joycon' in id or 'joy-con' in id:
         if 'left' in id:
-            return 'JoyConLeft'
+            return 'JoyCon Left'
         if 'right' in id:
-            return 'JoyConRight'
+            return 'JoyCon Right'
         else:
             return 'JoyCon'
-    elif 'switch' in id:
+
+    if 'switch' in id:
         if 'pro' in id:
-            return 'SwitchPro'
+            return 'Switch Pro Controller'
         else:
             if 'left' in id:
                 return 'JoyConLeft'
@@ -193,43 +207,37 @@ def identifyController(id: str) -> str:
                 return 'JoyConRight'
             else:
                 return 'JoyCon'
-    elif 'wii' in id or 'joy-con' in id:
+
+    if 'wii' in id:
         if 'nunchuck' in id:
-            return 'WiiNunchuck'
+            return 'Wii Nunchuck'
         else:
-            return 'Wii'
+            return 'Wii Remote'
+
+    if 'steam' in id or 'valve' in id:
+        return 'Steam Controller'
+
+    return None
 
 
-def getControllerList(pretty = False):
-    path = os.path.join(addon_path, 'controllers')
-    if pretty:
-        return sorted([getControllerName(controller) for controller in os.listdir(path) if getControllerName(controller)])
-    else:
-        return sorted([controller for controller in os.listdir(path) if getControllerName(controller)])
+def getControllerList():
+    return sorted(os.listdir(controllers_path))
 
 
-def getControllerName(controller: str) -> str:
-    if controller in CONTROLLER_NAMES:
-        return CONTROLLER_NAMES[controller]
-
-
-def getProfileList(compatibility: Optional[str] = None, pretty: bool = False) -> List[str]:
+def getProfileList(compatibility: Optional[str] = None, include_defaults: bool = True) -> List[str]:
     profiles = list()
     for file_name in os.listdir(user_profile_path):
         profiles.append(file_name)
 
-    for file_name in os.listdir(default_profile_path):
-        if file_name == str(compatibility) or not compatibility:
-            profiles.append(file_name)
+    if include_defaults:
+        for file_name in os.listdir(default_profile_path):
+            if file_name == str(compatibility) or not compatibility:
+                profiles.append(file_name)
 
-    if pretty:
-        return sorted([getProfile(profile).name for profile in profiles])
-    else:
-        return sorted(profiles)
+    return sorted(profiles)
 
 
 def getProfile(name: str) -> Profile:
-    if not name: return
     path = os.path.join(default_profile_path, name)
     if not os.path.exists(path):
         path = os.path.join(user_profile_path, name)
@@ -247,7 +255,7 @@ def getProfile(name: str) -> Profile:
                 e[k] = v
         return e
 
-    with open(path, 'rt') as f:
+    with open(path) as f:
         profile = Profile(json.load(f, object_hook=intKeys))
 
     return profile
@@ -309,18 +317,18 @@ def findProfile(controller: str, len_buttons: int, len_axes: int) -> Profile:
         controllers = json.load(f)
     if controller in controllers:
         return getProfile(controllers[controller])
+    if (n := f'Standard Gamepad ({len_buttons} Buttons, {len_axes} Axes)') in os.listdir(default_profile_path):
+        profile = n
     else:
-        for p in os.listdir(default_profile_path):
-            if getProfile(p).size == [len_buttons, len_axes]:
-                controllers[controller] = p
-                with open(os.path.join(user_files_path, 'controllers'), 'w') as f:
-                    json.dump(controllers, f)
-                profile = p
-                break
-        profile = 'Standard Gamepad (18 Button, 4 Axis)'
-    copyProfile(profile, f'Controller ({len_buttons} Buttons, {len_axes} Axes)')
-    controllers[controller] = f'Controller ({len_buttons} Buttons, {len_axes} Axes)'
+        profile = 'Blank'
+    copyProfile(profile, controller)
+    controllers[controller] = controller
     with open(os.path.join(user_files_path, 'controllers'), 'w') as f:
         json.dump(controllers, f)
-    # showInfo("It seems your controller has an unusual configuration. You'll have to set up the controls yourself.")
-    return getProfile(controllers[controller])
+    return getProfile(controller)
+def updateControllers(controller, profile):
+    with open(os.path.join(user_files_path, 'controllers'), 'r') as f:
+        controllers = json.load(f)
+    controllers[controller] = profile
+    with open(os.path.join(user_files_path, 'controllers'), 'w') as f:
+        json.dump(controllers, f)
