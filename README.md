@@ -54,7 +54,7 @@ The config dialog is now functional, opening up a lot of new features in the pro
 
 Certain features are not yet fully implemented:
  - Custom modifier keys cannot yet be assigned
- - Custom actions be created or assigned
+ - Custom actions cannot yet be created or assigned
  - Actions cannot be assigned to analog sticks in button mode
  - Not all controllers have default profiles yet
  - Some controllers still lack finished config screens
@@ -67,7 +67,6 @@ I've made further progress on the dialogs issue, and it's likely that dialog acc
 With this release earlier versions of Anki now work, however a new issue has cropped up with certain controllers presenting themselves multiple times, which causes various issues. It's likely I'll have to add support for choosing which controller to use to resolve this.
 
 For the next release I'm aiming to add support for custom actions and modifers, finish the controls screens and default profiles for all supported controllers, and connect the remaining options. That should cover all the key features and once 2.1.50 releases I'll hopefully be ready release a beta.
-
 
 ### Alpha 4
 
