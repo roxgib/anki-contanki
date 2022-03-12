@@ -1,3 +1,4 @@
+import re
 from typing import Callable
 import subprocess
 
@@ -15,6 +16,8 @@ def get_state() -> str:
     if focus := current_window():
         if focus.objectName() == 'MainWindow':
             return mw.reviewer.state if mw.state == "review" else mw.state
+        elif focus.objectName() == 'Preferences':
+            return 'dialog'
         elif focus.objectName() == '':
             return 'NoFocus'
         else:
@@ -132,20 +135,26 @@ def hideCursor() -> None:
     ),
 
 
-def moveMouse(x: float, y: float) -> None:
-    if abs(x) + abs(y) < 0.05: return
-    cursor = mw.cursor()
-    pos = cursor.pos()
-    geom = mw.screen().geometry()
+def _moveMouse() -> None:
+    scale = mw.screen().geometry().width() / 400
+    def moveMouse(x: float, y: float) -> None:
+        if abs(x) + abs(y) < 0.05: return
+        cursor = mw.cursor()
+        pos = cursor.pos()
+        geom = mw.screen().geometry()
 
-    x = pos.x() + quadCurve(x, 8)
-    y = pos.y() + quadCurve(y, 8)
-    x, y = max(x, geom.x()), max(y, geom.y())
-    x, y = min(x, geom.width()), min(y, geom.height())
+        x = pos.x() + ((x * scale)**2) * x
+        y = pos.y() + ((y * scale)**2) * y
+        x, y = max(x, geom.x()), max(y, geom.y())
+        x, y = min(x, geom.width()), min(y, geom.height())
+        
+        pos.setX(x)
+        pos.setY(y)
+        cursor.setPos(pos)
     
-    pos.setX(x)
-    pos.setY(y)
-    cursor.setPos(pos)
+    return moveMouse
+
+moveMouse = _moveMouse()
 
 
 def click(
@@ -159,9 +168,22 @@ def click(
     localPos = QPointF(pos.x() - widgetPostition.x(), pos.y() - widgetPostition.y())
 
     QCoreApplication.postEvent(widget, QMouseEvent(QEvent.Type.MouseButtonPress, localPos, button, button, mod))
+
+
+def click_release(
+    button: Qt.MouseButton = Qt.MouseButton.LeftButton,
+    mod: Qt.KeyboardModifier = Qt.KeyboardModifier.NoModifier,
+) -> None:
+    pos = mw.cursor().pos()
+    widget = mw.app.widgetAt(pos)
+    if not widget: return
+    widgetPostition = widget.mapToGlobal(QPoint(0,0))
+    localPos = QPointF(pos.x() - widgetPostition.x(), pos.y() - widgetPostition.y())
+
     QCoreApplication.postEvent(
         widget,QMouseEvent(QEvent.Type.MouseButtonRelease, localPos, button, Qt.MouseButton.NoButton, mod)
         )
+
 
 def on_enter() -> None:
     if mw.state == "review":
@@ -218,15 +240,20 @@ def changeVolume(direction=True):
         return
         
     if is_mac:
-        current_volume = subprocess.run(
-            'osascript -e "get volume settings"', 
-            shell=True,
-            capture_output=True,
-            text=True
-        ).stdout.split(',')[0].split[':'][1] / 14
-        current_volume += -0.5 + int(direction)
-        subprocess.run(f'osascript -e "set volume {current_volume}"', shell=True)
-
+        current_volume = re.search(
+            r"volume:(\d\d)",
+            subprocess.run(
+                'osascript -e "get volume settings"', 
+                shell=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+            )
+        if current_volume:
+            current_volume = int(current_volume.group(1)) / 14
+            current_volume += -0.5 + int(direction)
+            subprocess.run(f'osascript -e "set volume {current_volume}"', shell=True)
+        
 
 ### Review
 

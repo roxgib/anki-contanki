@@ -7,7 +7,6 @@
     "Scroll Speed": 50,
     "Cursor Speed": 50,
     "Cursor Acceleration": 50,
-    "Polling Rate": 50,
     
     "Custom Actions": {
         "Show Hint": "H",

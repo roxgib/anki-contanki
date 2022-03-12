@@ -1,12 +1,11 @@
 from time import time
 
-from aqt import gui_hooks, mw
+from aqt import QMenu, gui_hooks, mw
 from aqt.qt import QAction, qconnect
 from aqt.utils import tooltip
 from aqt.webview import AnkiWebView
 
 from .actions import *
-from .config import *
 from .config_new import *
 from .CONSTS import *
 from .funcs import *
@@ -18,7 +17,6 @@ class Contanki(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
         self.profile = None
-
         self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
 
         self.funcs = {
@@ -28,8 +26,8 @@ class Contanki(AnkiWebView):
         }
 
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
-        mw.addonManager.setConfigAction(__name__, lambda: dialogs.open('ControllerConfigEditor'))
-        dialogs.register_dialog('ControllerConfigEditor', self.on_config)
+        mw.addonManager.setConfigAction(__name__, self.on_config)
+        # dialogs.register_dialog('ControllerConfigEditor', )
         self.setFixedSize(0,0)
         self.show()
 
@@ -51,17 +49,19 @@ class Contanki(AnkiWebView):
             self.controller = "DualShock 4"
             self.profile = findProfile(con, buttons, axes)
             tooltip('Unknown Controller Connected | ' + con)
- 
-        menuItem = QAction(f"Controller Options", mw)
+
+        self.mods = [False] * len(self.profile.mods)
+        self.menuItem = menuItem = QAction(f"Controller Options", mw)
         qconnect(menuItem.triggered, self.on_config)
         mw.form.menuTools.addAction(menuItem)
-        #self.controlsOverlay = ControlsOverlay(mw, addon_path, self.profile)
+        self.controlsOverlay = ControlsOverlay(mw, addon_path, self.profile)
 
 
     def on_disconnect(self, *args) -> None:
-        # self.controlsOverlay.disappear()
+        self.controlsOverlay.disappear()
         tooltip('Controller Disconnected')
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
+        mw.form.menuTools.removeAction(self.menuItem)
 
 
     def on_receive_message(self, handled: tuple, message: str, context: str) -> tuple:
@@ -92,11 +92,11 @@ class Contanki(AnkiWebView):
             for mod in self.profile.mods
         )
 
-        # if mods != self.mods:
-        #     if any(mods):    
-        #         self.controlsOverlay.appear(mods)
-        #     else:
-        #         self.controlsOverlay.disappear()
+        if mods != self.mods:
+            if any(mods):    
+                self.controlsOverlay.appear(mods)
+            else:
+                self.controlsOverlay.disappear()
 
         self.mods = mods
 

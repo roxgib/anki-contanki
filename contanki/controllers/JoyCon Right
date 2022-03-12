@@ -2,49 +2,20 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   viewBox="0 0 150.00001 100"
+   class="scaling-svg"
+   viewBox="-18 -10 400 200"
+   preserveAspectRatio="xMidYMin slice"
+   width="100%" 
    version="1.1"
    id="svg5"
-   sodipodi:docname="JoyCon Right.svg"
-   inkscape:version="1.1.1 (c3084ef, 2021-09-22)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs38">
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath422">
-      <path
-         id="path424"
-         style="fill:#ff0000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-         d="m 28.75,20.619141 v 43.634765 c 0.243788,0.22607 0.483377,0.500511 0.712891,0.832032 0.208623,0.301344 0.47807,0.566569 0.625,0.902343 0.52115,1.19097 0.963599,2.631552 1.076171,3.957031 0.02939,0.346086 0.123782,0.728913 0.02344,1.054688 0.105987,0.568704 0.159139,1.120808 0.21875,1.503906 -1.249445,-1.822568 0.709783,2.214506 0.300781,1.775391 -0.32461,-0.348508 -0.505237,-0.809115 -0.757812,-1.212891 -0.213419,-0.341179 -0.385886,-0.549726 -0.527344,-0.654297 -0.15429,0.206563 -0.329832,0.380078 -0.537109,0.490235 -0.285454,1.513733 0.143788,5.423386 -1.134766,3.892578 v 2.542969 H 60.51758 v -58.71875 z" />
-    </clipPath>
-  </defs>
-  <sodipodi:namedview
-     id="namedview36"
-     pagecolor="#505050"
-     bordercolor="#eeeeee"
-     borderopacity="1"
-     inkscape:pageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     showgrid="false"
-     inkscape:zoom="7.3515172"
-     inkscape:cx="76.378792"
-     inkscape:cy="58.491328"
-     inkscape:window-width="2138"
-     inkscape:window-height="1290"
-     inkscape:window-x="651"
-     inkscape:window-y="61"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="layer1" />
+   >
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     style="fill:#000000;stroke:#000000;stroke-width:0.5">
+     dark 
+     transform="scale(2.4)"
+     stroke-width="0.3" 
+     font-family="Noto Sans JP" 
+     font-size="4px"
+     >
     <g
        id="g2836"
        transform="rotate(90,88.76102,33.991695)">

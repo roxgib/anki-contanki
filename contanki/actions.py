@@ -10,28 +10,28 @@ button_actions = {
     
 
     # Common Function                                           
-    "Sync":                 mw.onSync,                                          # Works
-    "Overview":             lambda: mw.moveToState("overview"),                 # Works
-    "Browser":              mw.onBrowse,                                        # Works
-    "Statistics":           mw.onStats,                                         # Works
-    "Main Screen":          lambda: mw.moveToState("deckBrowser"),              # Works
-    "Review":               lambda: mw.moveToState("review"),                   # Works
-    "Undo":                 mw.undo,                                            # Works
-    "Redo":                 mw.redo,                                            # Works
-    "Back":                 back,                                               # Works
-    "Forward":              forward,                                            # Works
-    "Enter":                on_enter,                                           # Mostly Works
-    "Fullscreen":           toggle_fullscreen,                                  # Works
-    "Volume Up":            changeVolume,                                       # Not Tested
-    "Volume Down":          lambda: changeVolume(False),                        # Not Tested
-    "Menubar":              mw.menuWidget().setFocus,                           # Doesn't Work
-    "Add":                  mw.onAddCard,                                       # Not Tested
-    "About Anki":           mw.onAbout,                                         # Not Tested
-    "Preferences":          mw.onPrefs,                                         # Not Tested
-    "Quit":                 mw.close,                                           # Works
-    "Switch Profile":       mw.unloadProfileAndShowProfileManager,              # Not Tested
-    "Hide Cursor":          hideCursor,                                         # Works
-    "Anki Help":            mw.onDocumentation,                                 # Not Tested
+    "Sync":                 mw.onSync,                                  # Works
+    "Overview":             lambda: mw.moveToState("overview"),         # Works
+    "Browser":              mw.onBrowse,                                # Works
+    "Statistics":           mw.onStats,                                 # Works
+    "Main Screen":          lambda: mw.moveToState("deckBrowser"),      # Works
+    "Review":               lambda: mw.moveToState("review"),           # Works
+    "Undo":                 mw.undo,                                    # Works
+    "Redo":                 mw.redo,                                    # Works
+    "Back":                 back,                                       # Works
+    "Forward":              forward,                                    # Works
+    "Enter":                on_enter,                                   # Mostly Works
+    "Fullscreen":           toggle_fullscreen,                          # Works
+    "Volume Up":            changeVolume,                               # Only works on Mac
+    "Volume Down":          lambda: changeVolume(False),                # Only works on Mac
+    "Menubar":              mw.menuWidget().setFocus,                   # Doesn't Work
+    "Add":                  mw.onAddCard,                               # Not Tested
+    "About Anki":           mw.onAbout,                                 # Not Tested
+    "Preferences":          mw.onPrefs,                                 # Works, but preferences dialog not controllable
+    "Quit":                 mw.close,                                   # Works
+    "Switch Profile":       mw.unloadProfileAndShowProfileManager,      # Not Tested
+    "Hide Cursor":          hideCursor,                                 # Works
+    "Anki Help":            mw.onDocumentation,                         # Not Tested
 
 
     # UI Functions
@@ -64,14 +64,14 @@ button_actions = {
     "Next Due Deck":        lambda: choose_deck(True, True),                    # Works
     "Previous Due Deck":    lambda: choose_deck(False, True),                   # Works
     "Collapse/Expand":      collapse_deck,                                      # Works
-    "Filter":               mw.onCram,                                          # Works but opens dialog
+    "Filter":               mw.onCram,                                          # Works
     "Rebuild":              lambda: mw.col.sched.rebuild_filtered_deck(cdid()), # Works
     "Empty":                lambda: mw.col.sched.empty_filtered_deck(cdid()),   # Works
     "Check Database":       mw.onCheckDB,                                       # Works
-    "Check Media":          mw.on_check_media_db,                               # Works but opens dialog
-    "Empty Cards":          mw.onEmptyCards,                                    # Works but opens dialog
-    "Manage Note Types":    mw.onNoteTypes,                                     # Works but opens dialog
-    "Study Deck":           mw.onStudyDeck,                                     # Works but opens dialog
+    "Check Media":          mw.on_check_media_db,                               # Works
+    "Empty Cards":          mw.onEmptyCards,                                    # Works
+    "Manage Note Types":    mw.onNoteTypes,                                     # Works
+    "Study Deck":           mw.onStudyDeck,                                     # Works
     "Export":               mw.onExport,                                        # Not Tested
     "Import":               mw.onImport,                                        # Not Tested
     
@@ -96,26 +96,21 @@ button_actions = {
     "Card Info":            mw.reviewer.on_card_info,                           # Works but opens dialog
     "Previous Card Info":   previous_card_info,                                 # Works but opens dialog
     "Pause Audio":          mw.reviewer.on_pause_audio,                         # Works
-    "Audio +5s":            mw.reviewer.on_seek_forward,                        # Not Tested
-    "Audio -5s":            mw.reviewer.on_seek_backward,                       # Not Tested
+    "Audio +5s":            mw.reviewer.on_seek_forward,                        # Works
+    "Audio -5s":            mw.reviewer.on_seek_backward,                       # Works
     "Replay Audio":         mw.reviewer.replayAudio,                            # Works
     "Edit Note":            mw.onEditCurrent,                                   # Not Tested
     "Flip Card":            mw.reviewer.onEnterKey,                             # Works
     "Flag":                 cycle_flag,                                         # Works
-    "Set Due Date":         mw.reviewer.on_set_due,                             # Works but opens dialog
+    "Set Due Date":         mw.reviewer.on_set_due,                             # Works
     "Show Hint":            _pass,                                              # Not Implemented
 }
 
-button_release_actions = {
-
-}
 
 release_actions = {
     "": _pass,
-    "Undo":                 _pass,
-    "Redo":                 _pass,
-    "Click":                _pass,
-    "Secondary Click":      _pass,
+    "Click":                click_release,
+    "Secondary Click":      lambda: click_release(button=Qt.MouseButton.RightButton),
     "Select Next":          _pass,
     "Select Previous":      _pass,
     "Up":                   _pass,

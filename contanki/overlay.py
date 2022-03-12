@@ -14,9 +14,9 @@ class ControlsOverlay(AnkiWebView):
     def __init__(self, parent, path: str, profile: Profile):
         super().__init__(parent=parent)
         self.path = path
-        self.svg = build_svg_mappings(profile.bindings, profile.controller)
+        self.svg = build_svg_mappings(profile.getInheritedBindings(), profile.controller)
         self.setFixedWidth(800)
-        self.setFixedHeight(330)
+        self.setFixedHeight(400)
         geometry = mw.geometry()
         geometry.setBottom(mw.height() - 70)
         geometry.setTop(mw.height() - self.height() - 70)
@@ -27,7 +27,7 @@ class ControlsOverlay(AnkiWebView):
     def disappear(self) -> None:
         self.hide()
 
-    def appear(self, mod: str) -> None:
+    def appear(self, mods: tuple) -> None:
         state = get_state()
         if state not in self.svg: return
         geometry = mw.geometry()
@@ -37,18 +37,23 @@ class ControlsOverlay(AnkiWebView):
         geometry.setRight(mw.width() - ((mw.width() - self.width()) // 2))
         self.setGeometry(geometry)
 
-        if mod == "L2 + R2":
-            mod = ""
+        mod = 0 if all(mods) else mods.index(True) + 1
 
-        body = f"""<html style="background-color: #{mw.app.palette().base().color().name()}"><body><div class="text-block" min-height="100%" style="text-align:center">
-                    <div position="fixed" bottom="0" width="100%">
-                    {get_svg(self.svg[state][mod], mw.app.palette().text().color().name())}
-                    </div></body></html>"""
+        body = f"""<html width="100%" background-color="#{mw.app.palette().base().color().name()}">
+            <body width="100%">
+                <div width="100%" >
+                    {self.svg[state][mod].replace(
+                        "dark", 
+                        f'fill="{mw.app.palette().text().color().name()}" stroke="{mw.app.palette().text().color().name()}"')
+                        }
+                </div>
+            </body>
+            </html>
+            """
 
         self.stdHtml(body)
 
     def print_svg(self) -> None:
-        # for state in mw.controller.controlsOverlay.svg.keys():
         for state in self.svg.keys():
             print(state + "\n")
             for mod, s in self.svg[state].items():

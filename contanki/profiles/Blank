@@ -1,8 +1,8 @@
 {
     "name":"Blank",
     "mods": [],
-    "controller": null,
     "size": [0,0],
+    "controller":"Blank",
     "axes_bindings":{
     },
     "bindings": {

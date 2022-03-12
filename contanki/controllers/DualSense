@@ -2,56 +2,20 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   viewBox="0 0 150.00001 100"
+   class="scaling-svg"
+   viewBox="-18 -10 400 200"
+   preserveAspectRatio="xMidYMin slice"
+   width="100%" 
    version="1.1"
    id="svg5"
-   sodipodi:docname="DualSense.svg"
-   inkscape:version="1.1.1 (c3084ef, 2021-09-22)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs84">
-    <inkscape:path-effect
-       effect="fill_between_many"
-       method="originald"
-       linkedpaths="#path864,0,1"
-       id="path-effect965" />
-    <inkscape:path-effect
-       effect="fill_between_many"
-       method="originald"
-       linkedpaths="#path866,0,1"
-       id="path-effect1050" />
-    <inkscape:path-effect
-       effect="fill_between_many"
-       method="originald"
-       linkedpaths="#path994,0,1|#path996,0,1|#path998,0,1|#path1010,0,1"
-       id="path-effect1055" />
-  </defs>
-  <sodipodi:namedview
-     id="namedview82"
-     pagecolor="#505050"
-     bordercolor="#eeeeee"
-     borderopacity="1"
-     inkscape:pageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     showgrid="false"
-     inkscape:zoom="8.6577441"
-     inkscape:cx="75.828067"
-     inkscape:cy="43.025065"
-     inkscape:window-width="1278"
-     inkscape:window-height="1293"
-     inkscape:window-x="1081"
-     inkscape:window-y="37"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="layer1" />
+   >
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     style="fill:#000000;stroke:#000000;stroke-width:0.5">
+     dark 
+     transform="scale(2.4)"
+     stroke-width="0.3" 
+     font-family="Noto Sans JP" 
+     font-size="4px"
+     >
     <path
        d="m 73.807313,47.658241 c 0,1.075972 -0.15875,1.305277 -1.058334,1.622777 -1.887361,0.652639 -1.181805,1.728612 1.428751,2.204862 2.434167,0.423333 5.732639,-1.569861 3.545417,-2.151945 -0.47625,-0.123472 -0.740834,-0.47625 -0.740834,-1.005417 0,-0.9525 -1.199444,-1.922639 -2.363611,-1.922639 -0.687917,0 -0.811389,0.176389 -0.811389,1.252362 z m 2.046111,-0.352778 c 0.864306,0.617361 1.058334,1.922639 0.264584,1.922639 -0.282222,0 -0.564445,-0.423334 -0.652639,-0.970139 -0.07056,-0.529167 -0.15875,-0.01764 -0.194028,1.128889 -0.07056,2.663473 -0.776111,2.204861 -1.005417,-0.652639 -0.194027,-2.169584 0.123473,-2.451806 1.5875,-1.42875 z m -2.240139,2.645833 c -0.635,0.705556 -0.635,0.705556 0.03528,0.493889 0.511528,-0.15875 0.564445,-0.141111 0.211667,0.123472 -0.511528,0.352778 -1.816806,0.15875 -1.816806,-0.264583 0,-0.264583 1.340556,-1.005417 1.905,-1.058333 0.176389,0 0.03528,0.299861 -0.335139,0.705555 z m 4.250973,0.105834 c 0,0.15875 -0.493889,0.493889 -1.093611,0.758472 -1.075973,0.440972 -1.11125,0.423333 -1.11125,-0.405695 0,-0.758472 0.141111,-0.846666 1.11125,-0.758472 0.599722,0.05292 1.093611,0.246945 1.093611,0.405695 z"
        id="path69"

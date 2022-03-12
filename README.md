@@ -7,7 +7,7 @@ Features:
  - Control almost any Anki feature without a keyboard or mouse
  - Pull up a helpful overlay to remind you of the control mapping
  - Cursor control for limited situations where the gamepad is insufficient
- - Customisable control bindings
+ - Fully customisable control bindings
 
 ## Usage Notes
 
@@ -25,22 +25,49 @@ I have been testing using a DualShock 4, which can be readily purchased secondha
 ## Testing
 I'm now looking for alpha testers - download the latest Alpha release and let me know how it goes. Please report all issues on the GitHub issue tracker. Reports about bugs on Windows or when using an Xbox controller are particularly welcome as I have been testing almost exclusively on Mac using a DualShock 4 up to now. 
 
-Currently each button press triggers a tooltip - while annoying, this is intended to help with testing. If you encounter an issue, let me know what you were trying to do, what platform and controller you're using, and the text of any error or message your receive. Please take note of the known issues and don't report anything listed there. Suggestions are also welcome, and should also be raised on the issue tracker.
+If you encounter an issue, let me know what you were trying to do, what platform and controller you're using, and the text of any error or message your receive. Please take note of the known issues and don't report anything listed there. Suggestions are also welcome, and should also be raised on the issue tracker.
 
 ## Known issues
  - Add-on doesn't function in the profile window
  - Clicking in the title bar or outside of Anki doesn't work 
- - Opening certain menus or dialogs prevents any actions from firing, until it's closed and they fire all at once
  - A number of deck-related actions require opening the overview, and will operate on the wrong deck if you try them from the deck screen
- - Interaction outside of the main window e.g. browser is only partially implemented
- - Several options are not actually configurable despite appearing in the options
- - Many controllers won't be supported properly yet
- - Trackpad on DualShock 4 doesn't work, except as a button
+ - Interaction outside of the main window (e.g. browser) is only partially implemented
+ - Custom modifier keys cannot yet be assigned
+ - Custom actions cannot be yet created or assigned
+ - Actions cannot yet be assigned to analog sticks in button mode
+ - Not all controllers have default profiles yet
+ - Some controllers still lack finished config screens
+ - Certain configuration options are not yet functional
+ - A small number of actions don't yet work
 
- ### Version Related:
- - Alpha 3 only works on 2.1.49 and 2.1.50, but Alpha 2 will work on most earlier versions. This should be fixed soon.
+ Version Specific:
+ - on Anki 2.1.49 and below, opening certain menus or dialogs prevents any actions from firing, until it's closed and they fire all at once
+
+ Platform Specific
+ - Volume controls only work on Mac
 
 ## Development log
+
+### Alpha 5
+
+The config dialog is now functional, opening up a lot of new features in the process. Different profiles can now be created, the controls are now more customisable, and many controllers are now autodetected and will work out of the box. Axes can be reassigned, control inheritence is now visible to the user, and users can control which controller is displayed on the overlays.
+
+Certain features are not yet fully implemented:
+ - Custom modifier keys cannot yet be assigned
+ - Custom actions be created or assigned
+ - Actions cannot be assigned to analog sticks in button mode
+ - Not all controllers have default profiles yet
+ - Some controllers still lack finished config screens
+ - Certain configuration options are not yet functional
+
+These should all be relatively easy to implement now that the underlying profile module is functional. 
+
+I've made further progress on the dialogs issue, and it's likely that dialog access will be basically functional with only limited exceptions in Anki 2.1.50. 
+
+With this release earlier versions of Anki now work, however a new issue has cropped up with certain controllers presenting themselves multiple times, which causes various issues. It's likely I'll have to add support for choosing which controller to use to resolve this.
+
+For the next release I'm aiming to add support for custom actions and modifers, finish the controls screens and default profiles for all supported controllers, and connect the remaining options. That should cover all the key features and once 2.1.50 releases I'll hopefully be ready release a beta.
+
 
 ### Alpha 4
 

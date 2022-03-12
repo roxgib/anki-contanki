@@ -1,21 +1,3 @@
-CONTROLLER_NAMES = {
-    "DualShock3": "DualShock 3",
-    "DualShock4": "DualShock 4",
-    "DualSense": "DualSense",
-    "JoyCon": "Joy-Con",
-    "JoyConL": "Joy-Con Left",
-    "JoyConR": "Joy-Con Right",
-    "SwitchPro": "Switch Pro Controller",
-    "Steam": "Steam Controller",
-    "Wii": "Wii Remote",
-    "WiiNunchuck": "Wii Remote with Nunchuck",
-    "Xbox360": "Xbox 360 Controller",
-    "XboxOne": "Xbox One Controller",
-    "XboxSeries": "Xbox Series Controller",
-    "XboxElite": "Xbox Elite Controller",
-    "XboxAdaptive": "Xbox Adaptive Controller",
-}
-
 BUTTON_NAMES = {
     "DualShock 4": {
         0: 'Cross',
@@ -223,5 +205,14 @@ BUTTON_NAMES = {
         12: 'Capture',
         14: 'Left Shoulder',
         15: 'Left Trigger' 
+    }
+}
+
+AXES_NAMES = {
+    "DualShock 4": {
+        0: "Left Stick Vertical",
+        1: "Left Stick Horizontal",
+        2: "Right Stick Vertical",
+        3: "Right Stick Horizontal",
     }
 }

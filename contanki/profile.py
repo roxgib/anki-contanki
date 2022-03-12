@@ -1,5 +1,4 @@
 from copy import deepcopy
-from curses.ascii import isdigit
 from typing import Dict, List, Optional
 from re import search
 import os
@@ -8,8 +7,8 @@ import json
 from aqt.utils import showInfo, tooltip
 from aqt.qt import QMessageBox, QInputDialog
 
-from .CONSTS import CONTROLLER_NAMES
 from .actions import *
+from .svg import CONTROLLER_IMAGE_MAPS
 
 addon_path = os.path.dirname(os.path.abspath(__file__))
 user_files_path = os.path.join(addon_path, 'user_files')
@@ -24,9 +23,9 @@ class Profile:
         self.mods = profile['mods']
         self.name = profile['name']
         self.len_buttons, self.len_axes = self.size = profile['size']
+        self.controller = profile['controller']
         self.axes_bindings = profile['axes_bindings']
         self.buildActions()
-
 
     def buildActions(self) -> dict:
         bindings = self.getInheritedBindings()
@@ -44,11 +43,10 @@ class Profile:
                 for button, action in b.items():
                     if action in button_actions:
                         self.actions[state][mod][button] = button_actions[action]
-                    if action in button_release_actions:
-                        self.releaseActions[state][mod][button] = button_release_actions[action]
+                    if action in release_actions:
+                        self.releaseActions[state][mod][button] = release_actions[action]
         
         return self.actions
-
 
     def getInheritedBindings(self) -> dict:
         bindings = deepcopy(self.bindings)
@@ -65,16 +63,13 @@ class Profile:
 
         return bindings
 
-
     def doAction(self, state: str, mod: int, button: int) -> None:
         if button in self.actions[state][mod]:
             self.actions[state][mod][button]()
 
-
     def doReleaseAction(self, state: str, mod: int, button: int) -> None:
         if button in self.releaseActions[state][mod]:
             self.releaseActions[state][mod][button]()
-
 
     def doAxesActions(self, state: str, mod: int, axes: List[float]) -> None:
         mx = my = sx = sy = 0
@@ -99,7 +94,6 @@ class Profile:
         if sx or sy:
             scroll(sx, sy)
 
-
     def updateBinding(
         self, 
         state: str,
@@ -118,7 +112,6 @@ class Profile:
         if build_actions:
             self.buildActions()
 
-
     def changeMod(self, old_mod: int, new_mod: int) -> None:
         if old_mod in self.mods:
             self.mods[self.mods.index(old_mod)] = new_mod
@@ -127,10 +120,8 @@ class Profile:
                 self.bindings[state][mod][old_mod] = ""
                 self.bindings[state][mod][new_mod] = "mod"
 
-
     def getCompatibility(self, controller):
         pass
-
 
     def save(self) -> None:
         path = os.path.join(user_profile_path, self.name)
@@ -140,6 +131,7 @@ class Profile:
         'size'             : self.size,
         'mods'             : self.mods,
         'bindings'         : self.bindings,
+        'controller'         : self.controller,
         'axes_bindings'    : self.axes_bindings,
         }
 
@@ -221,18 +213,20 @@ def identifyController(id: str, len_buttons: int, len_axes: int) -> str:
 
 
 def getControllerList():
-    return sorted(os.listdir(controllers_path))
+    return list(CONTROLLER_IMAGE_MAPS.keys())
 
 
 def getProfileList(compatibility: Optional[str] = None, include_defaults: bool = True) -> List[str]:
     profiles = list()
     for file_name in os.listdir(user_profile_path):
-        profiles.append(file_name)
+        if file_name not in ['placeholder', ".DS_Store"]:
+            profiles.append(file_name)
 
     if include_defaults:
         for file_name in os.listdir(default_profile_path):
             if file_name == str(compatibility) or not compatibility:
-                profiles.append(file_name)
+                if file_name not in ['placeholder', ".DS_Store"]:
+                    profiles.append(file_name)
 
     return sorted(profiles)
 
@@ -325,7 +319,12 @@ def findProfile(controller: str, len_buttons: int, len_axes: int) -> Profile:
     controllers[controller] = controller
     with open(os.path.join(user_files_path, 'controllers'), 'w') as f:
         json.dump(controllers, f)
-    return getProfile(controller)
+    profile = getProfile(controller)
+    profile.controller = controller
+    profile.save()
+    return profile
+
+
 def updateControllers(controller, profile):
     with open(os.path.join(user_files_path, 'controllers'), 'r') as f:
         controllers = json.load(f)

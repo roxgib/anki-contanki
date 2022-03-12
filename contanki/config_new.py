@@ -12,8 +12,10 @@ from aqt.utils import showInfo
 
 from .CONSTS import BUTTON_NAMES
 from .svg import buildSVG, CONTROLLER_IMAGE_MAPS
-from .profile import createProfile, getControllerList, getProfile, getProfileList, Profile, user_files_path, updateControllers
+from .profile import createProfile, getControllerList, getProfile, getProfileList, Profile, user_files_path, updateControllers, addon_path
 from .actions import button_actions, state_actions
+from .overlay import ControlsOverlay
+
 
 class ContankiConfig(QDialog):
     def __init__(self, parent: QWidget, profile: Profile) -> None:
@@ -112,7 +114,9 @@ class ContankiConfig(QDialog):
                     self.profile.updateBinding(state, mod, button, action, build_actions=False)
 
         self.profile.buildActions()
+        self.profile.controller = self.corner.currentText()
         mw.controller.profile = self.profile
+        mw.controller.controlsOverlay = ControlsOverlay(mw, addon_path, self.profile)
         updateControllers(self.controller, self.profile.name)
         self.profile.save()
         self.close()
@@ -166,11 +170,13 @@ class ContankiConfig(QDialog):
         mouse                   = QWidget()
         flags                   = QGroupBox('Flags', self.tabs['main'])
         form                    = QWidget()
+        axes                    = QWidget()
 
         main.layout             = QVBoxLayout()
         mouse.layout            = QGridLayout()
         flags.layout            = QFormLayout()
         form.layout             = QFormLayout()
+        axes.layout             = QFormLayout()
         
         profileBar = QWidget()
         profileBar.layout = QHBoxLayout()
@@ -226,13 +232,17 @@ class ContankiConfig(QDialog):
                 flags.setLayout(flags.layout)
                 tab.layout.addWidget(self.options[key],1,1)
             else: continue
+        form.setLayout(form.layout)
+        tab.layout.addWidget(form,1,0)
 
+        # Axes
+        
         self.axes_bindings = list()
         for axis, value in self.profile.axes_bindings.items():
             button = QComboBox()
             button.addItems([
                 "Unassigned", 
-                "Buttons",
+                # "Buttons",
                 "Cursor Horizontal",
                 "Cursor Vertical",
                 "Scroll Horizontal",
@@ -240,12 +250,15 @@ class ContankiConfig(QDialog):
             ])
             button.setCurrentText(value)
             self.axes_bindings.append(button)
-            form.layout.addRow(f"Axis {axis}", button)
+            axes.layout.addRow(f"Axis {axis}", button)
 
-        form.setLayout(form.layout)
+        axes.setLayout(axes.layout)
+        tab.layout.addWidget(axes,2,0)
+
         tab.layout.addWidget(profileBar,0,0,1,3)
-        tab.layout.addWidget(form,1,0)
         
+        # Finish
+
         tab.setLayout(tab.layout)
         self.tabBar.addTab(tab, "Options")
 
@@ -257,7 +270,7 @@ class ContankiConfig(QDialog):
         controllers = getControllerList()
         for controller in controllers:
             corner.addItem(controller)
-        controller = mw.controller.controller
+        controller = self.profile.controller
         if controller:
             corner.setCurrentIndex(controllers.index(controller))
         else:
@@ -284,7 +297,14 @@ class ContankiConfig(QDialog):
             for i, mod in enumerate(self.profile.mods):
                 mods[i+1] = f"Modifier {i+1}"
 
-        def addButtons(widget, state, mod, button, loc):
+        def addButtons(widget, state, mod, button, loc) -> None:
+            if button > self.profile.len_buttons:
+                if button - self.profile.len_buttons > self.profile.len_axes:
+                    if self.profile.axes_bindings[button - self.profile.len_buttons - self.profile.len_axes] != "Buttons":
+                        return 
+                else:
+                    if self.profile.axes_bindings[button - self.profile.len_buttons]:
+                        return
             x, y = loc[2] * 4.58, loc[3] * 4.8
             x += (x - 375) * 0.12
             if button in self.profile.mods:
@@ -384,21 +404,14 @@ class ContankiConfig(QDialog):
 
 
     def build_html(self, controller: str) -> str:
-        svg = buildSVG(controller)
-        html = f"""
-<html>
-    <head>
-    <style>
-    </style>
-    </head>
-    <body>
-        <div width="100%" >
-            {svg}
+        html = f"""<html width="100%" background-color="#{mw.app.palette().base().color().name()}">
+            <body width="100%"
+            {buildSVG(controller).replace(
+                "dark", 
+                f'fill="{mw.app.palette().text().color().name()}" stroke="{mw.app.palette().text().color().name()}"')
+                }
         </div>
     </body>
-
 </head>
 """
-        with open('configHTML.html', 'w') as f:
-            f.write(html)
         return html
