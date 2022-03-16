@@ -7,7 +7,6 @@ from aqt import mw
 from .funcs import get_dark_mode, get_file
 
 
-
 def build_svg_mappings(bindings: dict, controller: str) -> dict:
     svg = defaultdict(dict)
     for state in bindings.keys():
@@ -19,17 +18,14 @@ def build_svg_mappings(bindings: dict, controller: str) -> dict:
 
 def get_svg_file(file: str) -> str:
     addon_path = os.path.dirname(os.path.abspath(__file__))
-
     path = os.path.join(addon_path, 'controllers')
-
-    if os.path.exists(os.path.join(path, file)):
-        with open(os.path.join(path, file)) as f:
-            return f.read()
+    with open(os.path.join(path, file)) as f:
+        return f.read()
 
 
 def buildSVG(controller: str, mapping: Optional[dict] = None) -> str: # needs to insert theme colours
     svg = get_svg_file(controller)
-    annotations = list()
+    annotations = list('')
     if mapping:
         for control, action in mapping.items():
             if action:

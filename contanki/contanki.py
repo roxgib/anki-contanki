@@ -31,7 +31,6 @@ class Contanki(AnkiWebView):
         self.setFixedSize(0,0)
         self.show()
 
-
     def on_connect(self, buttons: str, axes:str, *con: List[str]) -> None:
         buttons, axes, con = int(buttons), int(axes), '::'.join(con)
         controller = identifyController(con, buttons, axes)
@@ -42,11 +41,9 @@ class Contanki(AnkiWebView):
         self.len_axes = axes
         
         if controller:
-            self.controller = controller
             self.profile = findProfile(controller, buttons, axes)
             tooltip(f'{controller} Connected')
         else:
-            self.controller = "DualShock 4"
             self.profile = findProfile(con, buttons, axes)
             tooltip('Unknown Controller Connected | ' + con)
 
@@ -56,13 +53,11 @@ class Contanki(AnkiWebView):
         mw.form.menuTools.addAction(menuItem)
         self.controlsOverlay = ControlsOverlay(mw, addon_path, self.profile)
 
-
     def on_disconnect(self, *args) -> None:
         self.controlsOverlay.disappear()
-        tooltip('Controller Disconnected')
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
         mw.form.menuTools.removeAction(self.menuItem)
-
+        tooltip('Controller Disconnected')
 
     def on_receive_message(self, handled: tuple, message: str, context: str) -> tuple:
         if message[:8] == 'contanki':
@@ -76,10 +71,8 @@ class Contanki(AnkiWebView):
         else:
             return handled
             
-    
     def on_config(self) -> None:
         ContankiConfig(mw, self.profile)
-
 
     def poll(self, buttons, axes):
         buttons = [True if button == 'true' else False for button in buttons.split(',')]
@@ -112,7 +105,6 @@ class Contanki(AnkiWebView):
 
         if any(axes):
             self.profile.doAxesActions(state, mod, axes)
-
 
     def timeGuard(self, axis: str, value: float) -> bool:
         if (_time := time()) - self.last[axis] > 1 - abs(value): 
