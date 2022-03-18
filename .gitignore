@@ -4,7 +4,10 @@ anki-env/
 .vscode*
 notes
 contanki.ankiaddon
+*DS_Store*
 .DS_Store
+*.DS_Store
+*/.DS_Store
 test.sh
 
 # Byte-compiled / optimized / DLL files
@@ -138,3 +141,6 @@ dmypy.json
 .pyre/
 .DS_Store
 .DS_Store
+deloy.sh
+contanki/.DS_Store
+contanki/.DS_Store
