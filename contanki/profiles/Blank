@@ -2,7 +2,7 @@
     "name":"Blank",
     "mods": [],
     "size": [0,0],
-    "controller":"Blank",
+    "controller":"DualShock 3",
     "axes_bindings":{
     },
     "bindings": {

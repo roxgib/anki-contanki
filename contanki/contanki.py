@@ -54,7 +54,8 @@ class Contanki(AnkiWebView):
         self.controlsOverlay = ControlsOverlay(mw, addon_path, self.profile)
 
     def on_disconnect(self, *args) -> None:
-        self.controlsOverlay.disappear()
+        if self.controlsOverlay:
+            self.controlsOverlay.disappear()
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
         mw.form.menuTools.removeAction(self.menuItem)
         tooltip('Controller Disconnected')
