@@ -30,8 +30,10 @@ class Profile:
     def buildActions(self) -> dict:
         bindings = self.getInheritedBindings()
         bindings['NoFocus'] = {0: {0:'Focus Main Window'}}
+        bindings['transition'] = {0: {}}
         for i in range(len(self.mods)):
             bindings['NoFocus'][i + 1] = dict()
+            bindings['transition'][i + 1] = dict()
         self.actions = dict()
         self.releaseActions = dict()
         for state, a in bindings.items():

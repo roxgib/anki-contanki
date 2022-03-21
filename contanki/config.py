@@ -15,6 +15,7 @@ from .svg import buildSVG, CONTROLLER_IMAGE_MAPS
 from .profile import createProfile, getControllerList, getProfile, getProfileList, Profile, user_files_path, updateControllers, addon_path
 from .actions import button_actions, state_actions
 from .overlay import ControlsOverlay
+from .components import ControlButton
 
 
 class ContankiConfig(QDialog):
@@ -32,7 +33,8 @@ class ContankiConfig(QDialog):
         self.tabBar = QTabWidget()
         self.tabs = dict()
         self.setupOptions()
-        self.setupBindings()
+        # self.setupBindings()
+        self.setup_bindings()
         
         self.saveButton = QPushButton(self)
         self.cancelButton = QPushButton(self)
@@ -106,8 +108,9 @@ class ContankiConfig(QDialog):
         for state in states:
             for mod, title in mods.items():
                 for button in range(self.profile.len_buttons):
-                    if button in self.profile.mods:
+                    if button in self.profile.mods or button not in controls.stateTabs[state].modTabs[mod].controls:
                         continue
+
                     action = controls.stateTabs[state].modTabs[mod].controls[button].currentText()
                     if 'inherit' in action:
                         action = ""
@@ -115,8 +118,7 @@ class ContankiConfig(QDialog):
 
         self.profile.buildActions()
         self.profile.controller = self.corner.currentText()
-        mw.controller.profile = self.profile
-        mw.controller.controlsOverlay = ControlsOverlay(mw, addon_path, self.profile)
+        mw.controller.update_profile(self.profile)
         updateControllers(self.controller, self.profile.name)
         self.profile.save()
         self.close()
@@ -347,11 +349,76 @@ class ContankiConfig(QDialog):
         self.updateInheritence()
         self.tabBar.addTab(tab, "Controls")
 
-    
+
+    def setup_bindings(self):
+        tab = self.tabs['bindings'] = QTabWidget()
+        
+        corner = self.corner = QComboBox()
+        controllers = getControllerList()
+        for controller in controllers:
+            corner.addItem(controller)
+        controller = self.profile.controller
+        corner.setCurrentIndex(controllers.index(controller))
+        self.controller = controller = corner.currentText()
+        corner.currentIndexChanged.connect(self.refresh_bindings)
+        self.tabs['bindings'].setCornerWidget(corner)
+
+        states = {
+            "all": "Default",
+            "deckBrowser": "Deck Browser", 
+            "overview": "Deck Overview", 
+            "review": "Review",
+            "question": "Question", 
+            "answer": "Answer",
+            "dialog": "Dialogs",
+        }
+
+        mods = {0:"Default"}
+        if controller in BUTTON_NAMES:
+            for i, mod in enumerate(self.profile.mods):
+                mods[i+1] = BUTTON_NAMES[controller][mod]
+        else:
+            for i, mod in enumerate(self.profile.mods):
+                mods[i+1] = f"Modifier {i+1}"
+
+        tab.stateTabs = dict()
+        for state, title in states.items():
+            tab.stateTabs[state] = (QTabWidget())
+            tab.stateTabs[state].setObjectName(state)
+            tab.stateTabs[state].modTabs = dict()
+            for mod, mTitle in mods.items():
+                tab.stateTabs[state].modTabs[mod] = QWidget()
+                tab.stateTabs[state].modTabs[mod].setObjectName(str(mod))
+                tab.stateTabs[state].modTabs[mod].layout = QGridLayout()
+                tab.stateTabs[state].modTabs[mod].controls = {
+                    control: ControlButton(button, self.profile.controller, actions = state_actions[state])
+                    for control, button 
+                    in BUTTON_NAMES[self.profile.controller].items()
+                }
+                row = col = 0
+                for i, control in tab.stateTabs[state].modTabs[mod].controls.items():
+                    tab.stateTabs[state].modTabs[mod].layout.addWidget(control, row, col)
+                    if row == 5:
+                        col += 1
+                        row = 0
+                    else:
+                        row += 1
+                tab.stateTabs[state].modTabs[mod].setLayout(tab.stateTabs[state].modTabs[mod].layout)
+                tab.stateTabs[state].addTab(tab.stateTabs[state].modTabs[mod], mTitle)
+            tab.stateTabs[state].setTabPosition(QTabWidget.TabPosition.South)
+            tab.addTab(tab.stateTabs[state], title)
+        # self.updateInheritence()
+        self.tabBar.addTab(tab, "Controls")
+
+    def refresh_bindings(self) -> None:
+        self.controller = self.profile.controller = self.corner.currentText()
+        self.tabBar.removeTab(1)
+        self.setup_bindings()
+        self.tabBar.setCurrentIndex(1)
+
     def updateBinding(self, state, mod, button):
         action = self.tabs['bindings'].stateTabs[state].modTabs[mod].controls[button].currentText()
         self.profile.updateBinding(state, mod, button, action)
-
 
     def updateInheritence(self):
         states = [
@@ -369,12 +436,11 @@ class ContankiConfig(QDialog):
                 for button in range(self.profile.len_buttons):
                     if button in self.profile.mods:
                         continue
-                    m = self.tabs['bindings'].stateTabs[state].modTabs[mod]
-                    combo = self.tabs['bindings'].stateTabs[state].modTabs[mod].controls[button]
+                    combo = self.tabs['bindings'].stateTabs[state].modTabs[mod].controls[button].action
                     inherited = None
                     if state != 'all' and button in (b := self.profile.bindings["all"][mod]):
                         inherited = b[button]
-                    if (state == "question" or state == "answer") and button in (b := self.profile.bindings["review"][mod]):
+                    if (state == "question" or state == "answer") and button in self.profile.bindings["review"][mod]:
                         if action := self.profile.bindings["review"][mod][button]:
                             inherited = action
                     if inherited:

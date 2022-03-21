@@ -10,6 +10,7 @@ from .svg import *
 from .CONSTS import *
 from .profile import Profile
 
+
 class ControlsOverlay(AnkiWebView):
     def __init__(self, parent, path: str, profile: Profile):
         super().__init__(parent=parent)

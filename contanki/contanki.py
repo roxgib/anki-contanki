@@ -6,10 +6,11 @@ from aqt.utils import tooltip
 from aqt.webview import AnkiWebView
 
 from .actions import *
-from .config_new import *
+from .config import *
 from .CONSTS import *
 from .funcs import *
 from .overlay import *
+from .overlay_new import *
 from .profile import *
 
 
@@ -51,7 +52,7 @@ class Contanki(AnkiWebView):
         self.menuItem = menuItem = QAction(f"Controller Options", mw)
         qconnect(menuItem.triggered, self.on_config)
         mw.form.menuTools.addAction(menuItem)
-        self.controlsOverlay = ControlsOverlay(mw, addon_path, self.profile)
+        self.controlsOverlay = ControlsOverlayNew(self.profile)
 
     def on_disconnect(self, *args) -> None:
         if self.controlsOverlay:
@@ -74,6 +75,11 @@ class Contanki(AnkiWebView):
             
     def on_config(self) -> None:
         ContankiConfig(mw, self.profile)
+
+    def update_profile(self, profile: Profile) -> None:
+        if self.profile:
+            self.profile = profile
+            self.controlsOverlay = ControlsOverlayNew(profile)
 
     def poll(self, buttons, axes):
         buttons = [True if button == 'true' else False for button in buttons.split(',')]
