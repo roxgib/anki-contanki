@@ -60,7 +60,7 @@ BUTTON_NAMES = {
         17: 'Pad',
     },
 
-    "Xbox One Controller": {
+    "Xbox One": {
         0: 'A',
         1: 'B',
         2: 'X',
@@ -80,7 +80,7 @@ BUTTON_NAMES = {
         16: 'Xbox',
     },
 
-    "Xbox Series Controller": {
+    "Xbox Series": {
         0: 'A',
         1: 'B',
         2: 'X',
@@ -101,7 +101,7 @@ BUTTON_NAMES = {
         17: 'Share',
     },
 
-    "Xbox 360 Controller": {
+    "Xbox 360": {
         0: 'A',
         1: 'B',
         2: 'X',
@@ -121,7 +121,7 @@ BUTTON_NAMES = {
         16: 'Xbox',
     },
 
-    "Switch Pro Controller": {
+    "Switch Pro": {
         0: 'A',
         1: 'B',
         2: 'X',
@@ -179,55 +179,59 @@ BUTTON_NAMES = {
         7: 'Z'
     },
 
-    "Wii Nunchuck": {
-        0: 'A',
-        1: 'B',
-        2: 'C',
-        3: 'Z',
-        4: 'X',
-        5: 'Y',
-        6: 'Plus',
-        7: 'Minus',
-        8: 'Home',
-        9: 'Nuchuck Stick?',
-        10: '',
-        11: '',
-        12: '',
-        13: 'D-Pad Up',
-        14: 'D-Pad Down',
-        15: 'D-Pad Left',
-        16: 'D-Pad Right',
-    },
+    # "Wii Nunchuck": {
+    #     0: 'A',
+    #     1: 'B',
+    #     2: 'C',
+    #     3: 'Z',
+    #     4: 'X',
+    #     5: 'Y',
+    #     6: 'Plus',
+    #     7: 'Minus',
+    #     8: 'Home',
+    #     9: 'Nuchuck Stick?',
+    #     10: '',
+    #     11: '',
+    #     12: '',
+    #     13: 'D-Pad Up',
+    #     14: 'D-Pad Down',
+    #     15: 'D-Pad Left',
+    #     16: 'D-Pad Right',
+    # },
 
-    "Joycon Right": {
+    "Joy-Con Right": {
         0: 'A',
         1: 'X',
         2: 'B',
         3: 'Y',
-        4: 'Side Shoulder Left',
-        5: 'Side Shoulder Right',
-        9: 'Plus',
-        11: 'Right Stick',
-        12: 'Home',
-        14: 'Right Shoulder',
-        15: 'Right Trigger',
+        4: 'Left Shoulder',
+        5: 'Right Shoulder',
+        6: 'Plus',
+        7: 'Right Stick',
+        8: 'Home',
+        9: 'D-Pad Up',
+        10: 'D-Pad Down',
+        11: 'D-Pad Left',
+        12: 'D-Pad Right',
     },
 
-    "Joycon Left": {
+    "Joy-Con Left": {
         0: 'Left',
         1: 'Down',
         2: 'Up',
         3: 'Right',
-        4: 'Side Shoulder Left',
-        5: 'Side Shoulder Right',
-        9: 'Minus',
-        11: 'Left Stick',
-        12: 'Capture',
-        14: 'Left Shoulder',
-        15: 'Left Trigger' 
+        4: 'Left Shoulder',
+        5: 'Right Shoulder',
+        6: 'Minus',
+        7: 'Left Stick',
+        8: 'Capture',
+        9: 'D-Pad Up',
+        10: 'D-Pad Down',
+        11: 'D-Pad Left',
+        12: 'D-Pad Right',        
     },
 
-    "Super Nintendo Controller": {
+    "Super Nintendo": {
         0: 'B',
         1: 'X',
         2: 'A',

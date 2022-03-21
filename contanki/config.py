@@ -1,15 +1,17 @@
 import os
 import json
 
-from aqt import mw 
+from aqt import QIcon, QTabBar, mw, qconnect 
 from aqt import QComboBox, QFormLayout, QHeaderView, QKeySequence, QLayout, QPoint, QShortcut
 from aqt import QTableWidget, QTableWidgetItem
 from aqt.qt import QAction, QDialog, QWidget, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QTabWidget
 from aqt.qt import QKeySequenceEdit, QSpinBox, QLabel, QGridLayout, QGroupBox, QFont
 from aqt.webview import AnkiWebView
 from aqt.theme import theme_manager
-from aqt.utils import showInfo
+from aqt.utils import showInfo, tooltip
+from waitress import profile
 
+from .funcs import get_button_icon
 from .CONSTS import BUTTON_NAMES
 from .svg import buildSVG, CONTROLLER_IMAGE_MAPS
 from .profile import createProfile, getControllerList, getProfile, getProfileList, Profile, user_files_path, updateControllers, addon_path
@@ -19,6 +21,7 @@ from .components import ControlButton
 
 
 class ContankiConfig(QDialog):
+    
     def __init__(self, parent: QWidget, profile: Profile) -> None:
         if not profile:
             showInfo("Controller not detected. Connect using Bluetooth or USB, and press any button to initialise.")
@@ -33,7 +36,6 @@ class ContankiConfig(QDialog):
         self.tabBar = QTabWidget()
         self.tabs = dict()
         self.setupOptions()
-        # self.setupBindings()
         self.setup_bindings()
         
         self.saveButton = QPushButton(self)
@@ -92,13 +94,12 @@ class ContankiConfig(QDialog):
             "dialog",
         ]
 
-        mods = {0:"Default"}
-        if self.controller in BUTTON_NAMES:
-            for i, mod in enumerate(self.profile.mods):
+        mods = {0:"No Modifier"}
+        for i, mod in enumerate(self.profile.mods):
+            if mod in BUTTON_NAMES[self.controller]:
                 mods[i+1] = BUTTON_NAMES[self.controller][mod]
-        else:
-            for i, mod in enumerate(self.profile.mods):
-                mods[i+1] = f"Modifier {i+1}"
+            else:
+                mods[i+1] = "Modifier Unassigned"
 
         controls = self.tabs['bindings']
 
@@ -264,92 +265,6 @@ class ContankiConfig(QDialog):
         tab.setLayout(tab.layout)
         self.tabBar.addTab(tab, "Options")
 
-
-    def setupBindings(self) -> None:
-        tab = self.tabs['bindings'] = QTabWidget()
-        
-        corner = self.corner = QComboBox()
-        controllers = getControllerList()
-        for controller in controllers:
-            corner.addItem(controller)
-        controller = self.profile.controller
-        if controller:
-            corner.setCurrentIndex(controllers.index(controller))
-        else:
-            corner.setCurrentIndex(0)
-        self.controller = controller = corner.currentText()
-        corner.currentIndexChanged.connect(self.repositionButtons)
-        self.tabs['bindings'].setCornerWidget(corner)
-
-        states = {
-            "all": "Default",
-            "deckBrowser": "Deck Browser", 
-            "overview": "Deck Overview", 
-            "review": "Review",
-            "question": "Question", 
-            "answer": "Answer",
-            "dialog": "Dialogs",
-        }
-
-        mods = {0:"Default"}
-        if controller in BUTTON_NAMES:
-            for i, mod in enumerate(self.profile.mods):
-                mods[i+1] = BUTTON_NAMES[controller][mod]
-        else:
-            for i, mod in enumerate(self.profile.mods):
-                mods[i+1] = f"Modifier {i+1}"
-
-        def addButtons(widget, state, mod, button, loc) -> None:
-            if button > self.profile.len_buttons:
-                if button - self.profile.len_buttons > self.profile.len_axes:
-                    if self.profile.axes_bindings[button - self.profile.len_buttons - self.profile.len_axes] != "Buttons":
-                        return 
-                else:
-                    if self.profile.axes_bindings[button - self.profile.len_buttons]:
-                        return
-            x, y = loc[2] * 4.58, loc[3] * 4.8
-            x += (x - 375) * 0.12
-            if button in self.profile.mods:
-                y -= 5
-                combo = QLabel(f'<b>{mods[self.profile.mods.index(button) + 1]}</b>' if mod == self.profile.mods.index(button) + 1 else mods[self.profile.mods.index(button) + 1], widget)
-                combo.setFont(QFont("Helvetica", 15))
-            else:
-                x -= loc[4] * 40
-                combo = QComboBox(widget)
-                combo.addItems(state_actions[state])
-                if button in self.profile.bindings[state][mod] and (action := self.profile.bindings[state][mod][button]):
-                    combo.setCurrentIndex(state_actions[state].index(action))
-                combo.currentIndexChanged.connect(lambda: self.updateBinding(state, mod, button))
-                if state == 'all' or state == 'review':
-                    combo.currentIndexChanged.connect(self.updateInheritence)
-                combo.setFixedWidth(150)
-            combo.setObjectName(str(button))
-            widget.controls.append(combo)
-            combo.move(QPoint(x, y))
-
-        tab.stateTabs = dict()
-        for state, title in states.items():
-            tab.stateTabs[state] = (QTabWidget())
-            tab.stateTabs[state].setObjectName(state)
-            tab.stateTabs[state].modTabs = dict()
-            for mod, mTitle in mods.items():
-                tab.stateTabs[state].modTabs[mod] = QWidget()
-                tab.stateTabs[state].modTabs[mod].setObjectName(str(mod))
-                tab.stateTabs[state].modTabs[mod].layout = QVBoxLayout()
-                tab.stateTabs[state].modTabs[mod].web = AnkiWebView(tab.stateTabs[state].modTabs[mod])
-                tab.stateTabs[state].modTabs[mod].web.setHtml(self.build_html(controller))
-                tab.stateTabs[state].modTabs[mod].layout.addWidget(tab.stateTabs[state].modTabs[mod].web)
-                tab.stateTabs[state].modTabs[mod].setLayout(tab.stateTabs[state].modTabs[mod].layout)
-                tab.stateTabs[state].modTabs[mod].controls = list()
-                for control, loc in CONTROLLER_IMAGE_MAPS[controller].items():
-                    addButtons(tab.stateTabs[state].modTabs[mod], state, mod, control, loc)
-                tab.stateTabs[state].addTab(tab.stateTabs[state].modTabs[mod], mTitle)
-            tab.stateTabs[state].setTabPosition(QTabWidget.TabPosition.South)
-            tab.addTab(tab.stateTabs[state], title)
-        self.updateInheritence()
-        self.tabBar.addTab(tab, "Controls")
-
-
     def setup_bindings(self):
         tab = self.tabs['bindings'] = QTabWidget()
         
@@ -363,51 +278,51 @@ class ContankiConfig(QDialog):
         corner.currentIndexChanged.connect(self.refresh_bindings)
         self.tabs['bindings'].setCornerWidget(corner)
 
-        states = {
-            "all": "Default",
-            "deckBrowser": "Deck Browser", 
-            "overview": "Deck Overview", 
-            "review": "Review",
-            "question": "Question", 
-            "answer": "Answer",
-            "dialog": "Dialogs",
-        }
-
         mods = {0:"Default"}
-        if controller in BUTTON_NAMES:
-            for i, mod in enumerate(self.profile.mods):
-                mods[i+1] = BUTTON_NAMES[controller][mod]
-        else:
-            for i, mod in enumerate(self.profile.mods):
-                mods[i+1] = f"Modifier {i+1}"
+        for i, mod in enumerate(self.profile.mods):
+            if mod in BUTTON_NAMES[self.controller]:
+                mods[i+1] = BUTTON_NAMES[self.controller][mod]
+            else:
+                mods[i+1] = "Modifier Unassigned"
 
         tab.stateTabs = dict()
         for state, title in states.items():
-            tab.stateTabs[state] = (QTabWidget())
+            tab.stateTabs[state] = QTabWidget()
             tab.stateTabs[state].setObjectName(state)
             tab.stateTabs[state].modTabs = dict()
             for mod, mTitle in mods.items():
-                tab.stateTabs[state].modTabs[mod] = QWidget()
-                tab.stateTabs[state].modTabs[mod].setObjectName(str(mod))
-                tab.stateTabs[state].modTabs[mod].layout = QGridLayout()
-                tab.stateTabs[state].modTabs[mod].controls = {
+                tab.stateTabs[state].modTabs[mod] = widget = QWidget()
+                widget.setObjectName(str(mod))
+                widget.layout = QGridLayout()
+                widget.controls = {
                     control: ControlButton(button, self.profile.controller, actions = state_actions[state])
                     for control, button 
                     in BUTTON_NAMES[self.profile.controller].items()
                 }
+                for button, control in widget.controls.items():
+                    control.action.addItems(state_actions[state])
+                    if button in self.profile.bindings[state][mod]:
+                        control.action.setCurrentIndex(
+                            state_actions[state].index(self.profile.bindings[state][mod][button])
+                            )
+                        qconnect(control.action.currentIndexChanged, self.updateInheritence) 
+                        qconnect(control.action.currentIndexChanged, lambda: self.updateBinding(state, mod, button))
                 row = col = 0
-                for i, control in tab.stateTabs[state].modTabs[mod].controls.items():
-                    tab.stateTabs[state].modTabs[mod].layout.addWidget(control, row, col)
-                    if row == 5:
-                        col += 1
-                        row = 0
-                    else:
+                for i, control in widget.controls.items():
+                    widget.layout.addWidget(control, row, col)
+                    if col == 2:
                         row += 1
-                tab.stateTabs[state].modTabs[mod].setLayout(tab.stateTabs[state].modTabs[mod].layout)
-                tab.stateTabs[state].addTab(tab.stateTabs[state].modTabs[mod], mTitle)
+                        col = 0
+                    else:
+                        col += 1
+                widget.setLayout(widget.layout)
+                if mod == 0:
+                    tab.stateTabs[state].addTab(widget, "No Modifier")
+                else:
+                    tab.stateTabs[state].addTab(widget, QIcon(get_button_icon(controller, mods[mod])), mTitle)
             tab.stateTabs[state].setTabPosition(QTabWidget.TabPosition.South)
             tab.addTab(tab.stateTabs[state], title)
-        # self.updateInheritence()
+        self.updateInheritence()
         self.tabBar.addTab(tab, "Controls")
 
     def refresh_bindings(self) -> None:
@@ -417,26 +332,16 @@ class ContankiConfig(QDialog):
         self.tabBar.setCurrentIndex(1)
 
     def updateBinding(self, state, mod, button):
+        tooltip(f"Updated Binding {state} {mod} {button}")
         action = self.tabs['bindings'].stateTabs[state].modTabs[mod].controls[button].currentText()
         self.profile.updateBinding(state, mod, button, action)
 
     def updateInheritence(self):
-        states = [
-            "all",
-            "deckBrowser",
-            "overview",
-            "review",
-            "question",
-            "answer",
-            "dialog",
-        ]
-
         for state in states:
             for mod in range(len(self.profile.mods) + 1):
-                for button in range(self.profile.len_buttons):
+                for button, control in self.tabs['bindings'].stateTabs[state].modTabs[mod].controls.items():
                     if button in self.profile.mods:
                         continue
-                    combo = self.tabs['bindings'].stateTabs[state].modTabs[mod].controls[button].action
                     inherited = None
                     if state != 'all' and button in (b := self.profile.bindings["all"][mod]):
                         inherited = b[button]
@@ -444,40 +349,17 @@ class ContankiConfig(QDialog):
                         if action := self.profile.bindings["review"][mod][button]:
                             inherited = action
                     if inherited:
-                        combo.setItemText(0, inherited + " (inherit)")
+                        control.action.setItemText(0, inherited + " (inherit)")
                     else:
-                        combo.setItemText(0, "")
-                        
-    def repositionButtons(self) -> None:
-        tab = self.tabs['bindings']
-        corner = self.corner
-        controller = getControllerList()[corner.currentIndex()]
-        for state, d in tab.stateTabs.items():
-            for widget, e in d.modTabs.items():
-                e.web.setHtml(self.build_html(controller))
-                for button in e.controls:
-                    index = int(button.objectName())
-                    try:
-                        loc = CONTROLLER_IMAGE_MAPS[controller][index]
-                        x, y = loc[2] * 4.58, loc[3] * 4.8
-                        x += (x - 375) * 0.12
-                        x -= loc[4] * 40
-                        button.move(QPoint(x, y))
-                    except KeyError:
-                        x, y = 1000, 1000
-                    button.move(QPoint(x, y))
-        self.controller = corner.currentData()
+                        control.action.setItemText(0, "")
 
 
-    def build_html(self, controller: str) -> str:
-        html = f"""<html width="100%" background-color="#{mw.app.palette().base().color().name()}">
-            <body width="100%"
-            {buildSVG(controller).replace(
-                "dark", 
-                f'fill="{mw.app.palette().text().color().name()}" stroke="{mw.app.palette().text().color().name()}"')
-                }
-        </div>
-    </body>
-</head>
-"""
-        return html
+states = {
+    "all": "Default",
+    "deckBrowser": "Deck Browser", 
+    "overview": "Deck Overview", 
+    "review": "Review",
+    "question": "Question", 
+    "answer": "Answer",
+    "dialog": "Dialogs",
+}

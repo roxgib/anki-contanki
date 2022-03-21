@@ -7,6 +7,7 @@ import json
 from aqt.utils import showInfo, tooltip
 from aqt.qt import QMessageBox, QInputDialog
 
+from .CONSTS import BUTTON_NAMES
 from .actions import *
 from .svg import CONTROLLER_IMAGE_MAPS
 
@@ -215,7 +216,7 @@ def identifyController(id: str, len_buttons: int, len_axes: int) -> str:
 
 
 def getControllerList():
-    return list(CONTROLLER_IMAGE_MAPS.keys())
+    return list(BUTTON_NAMES.keys())
 
 
 def getProfileList(compatibility: Optional[str] = None, include_defaults: bool = True) -> List[str]:

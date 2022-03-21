@@ -1,14 +1,17 @@
 import re
 from typing import Callable
 import subprocess
+from os import listdir
 
 from anki.decks import DeckId
-from aqt import mw
+from aqt import QIcon, mw
 from aqt.deckoptions import display_options_for_deck_id
-from aqt.qt import QCoreApplication, QEvent, QMouseEvent, QPoint, QPointF, Qt
+from aqt.qt import QCoreApplication, QEvent, QMouseEvent, QPoint, QPointF, Qt, QPixmap
 from aqt.qt import QKeyEvent as QKE
 from aqt.utils import current_window
 from os.path import dirname, abspath, join, exists
+
+addon_path = dirname(abspath(__file__))
 
 # Internal
 
@@ -88,21 +91,21 @@ def _get_dark_mode() -> Callable:
 get_dark_mode = _get_dark_mode()
 
 
-def get_file(file: str) -> str:
-    addon_path = dirname(abspath(__file__))
+def get_button_icon(controller: str, button: str) -> QPixmap:
+    return QPixmap(join(addon_path, 'buttons', controller, button))
 
+
+def get_file(file: str) -> str:
     paths = [
         addon_path,
         join(addon_path, 'user_files'), 
         join(addon_path, 'profiles'), 
         join(addon_path, 'user_files', 'profiles'), 
     ]
-
     for path in paths:
         if exists(join(path, file)):
-            with open(join(addon_path, file)) as f:
+            with open(join(path, file)) as f:
                 return f.read()
-
 
 # Common
 

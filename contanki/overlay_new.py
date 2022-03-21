@@ -46,8 +46,9 @@ class ControlsOverlayNew():
         self.right.layout = QVBoxLayout()
         self.left.layout.setSpacing(2)
         self.right.layout.setSpacing(2)
-        self.right.layout.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.left.layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.left.layout.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
+        self.right.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.left.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         lcount = rcount = 0
         for i, control in sorted(self.controls.items(), key = lambda control: BUTTON_ORDER.index(control[1].button)):
@@ -74,14 +75,14 @@ class ControlsOverlayNew():
         lcount, rcount = self.counts
         geometry_left = mw.geometry()
         geometry_left.setBottom(min(lcount * 80, mw.height()))
-        geometry_left.setTop(10)
+        geometry_left.setTop(20)
         geometry_left.setLeft(0)
         geometry_left.setRight(mw.width() // 2)
         self.left.setGeometry(geometry_left)
 
         geometry_right = mw.geometry()
         geometry_right.setBottom(min(rcount * 80, mw.height()))
-        geometry_right.setTop(10)
+        geometry_right.setTop(20)
         geometry_right.setLeft(mw.width() // 2)
         geometry_right.setRight(mw.width())
         self.right.setGeometry(geometry_right)
@@ -90,9 +91,17 @@ class ControlsOverlayNew():
 
         for i, control in self.controls.items():
             if i in self.actions[state][mod]:
-                control.action.setText(self.actions[state][mod][i].replace(" ", "\n"))
+                if control.action.height() > ((text := self.actions[state][mod][i]).count(' ') * 25):
+                    control.action.setText(text.replace(' ', '\n'))
+                else:
+                    control.action.setText(text)
             else:
                 control.action.setText("")
+            
+            if control.action.text() == '':
+                control.hide()
+            else:
+                control.show()
 
         self.left.show()
         self.right.show()
@@ -115,8 +124,6 @@ BUTTON_ORDER = [
         'D-Pad Down',
         'D-Pad Left',
         'D-Pad Right',
-        'Left Stick',
-        'Right Stick',
         'Z',
         'LZ',
         'RZ',
