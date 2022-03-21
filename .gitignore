@@ -9,6 +9,8 @@ contanki.ankiaddon
 *.DS_Store
 */.DS_Store
 test.sh
+contanki/.DS_Store
+deploy.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -139,8 +141,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-.DS_Store
-.DS_Store
-deloy.sh
-contanki/.DS_Store
-contanki/.DS_Store
