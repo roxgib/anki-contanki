@@ -40,11 +40,12 @@ function on_controller_disconnect(e) {
     bridgeCommand(`contanki::on_disconnect::arg`);
     window.clearInterval(polling);
     index = null;
-    on_controller_connect();
 }
 
 
 function poll() {
+    if (index == null) {on_controller_disconnect()}
+    
     let _controller = window.navigator.getGamepads()[index];
 
     try{

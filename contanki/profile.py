@@ -9,7 +9,6 @@ from aqt.qt import QMessageBox, QInputDialog
 
 from .consts import BUTTON_NAMES
 from .actions import *
-from .svg import CONTROLLER_IMAGE_MAPS
 
 addon_path = os.path.dirname(os.path.abspath(__file__))
 user_files_path = os.path.join(addon_path, 'user_files')
@@ -326,7 +325,7 @@ def findProfile(controller: str, len_buttons: int, len_axes: int) -> Profile:
     copyProfile(profile_to_copy, controller)
     updateControllers(controller, controller)
     profile = getProfile(controller)
-    if controller in CONTROLLER_IMAGE_MAPS:
+    if controller in BUTTON_NAMES:
         profile.controller = controller
         profile.save()
     return profile

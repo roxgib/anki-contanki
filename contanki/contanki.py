@@ -17,7 +17,6 @@ class Contanki(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
         self.profile = None
-        self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
 
         self.funcs = {
             'on_connect':               self.on_connect,
@@ -29,16 +28,12 @@ class Contanki(AnkiWebView):
         mw.addonManager.setConfigAction(__name__, self.on_config)
         # dialogs.register_dialog('ControllerConfigEditor', )
         self.setFixedSize(0,0)
-        self.show()
+        
+        self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
 
     def on_connect(self, buttons: str, axes:str, *con: List[str]) -> None:
         buttons, axes, con = int(buttons), int(axes), '::'.join(con)
         controller = identifyController(con, buttons, axes)
-
-        self.buttons = [False] * buttons
-        self.axes = [False] * axes
-        self.len_buttons = buttons
-        self.len_axes = axes
         
         if controller:
             self.profile = findProfile(controller, buttons, axes)
@@ -47,10 +42,15 @@ class Contanki(AnkiWebView):
             self.profile = findProfile(con, buttons, axes)
             tooltip('Unknown Controller Connected | ' + con)
 
+        self.buttons = [False] * buttons
+        self.axes = [False] * axes
+        self.len_buttons = buttons
+        self.len_axes = axes
+
         self.mods = [False] * len(self.profile.mods)
-        self.menuItem = menuItem = QAction(f"Controller Options", mw)
-        qconnect(menuItem.triggered, self.on_config)
-        mw.form.menuTools.addAction(menuItem)
+        self.menuItem = QAction(f"Controller Options", mw)
+        qconnect(self.menuItem.triggered, self.on_config)
+        mw.form.menuTools.addAction(self.menuItem)
         self.controlsOverlay = ControlsOverlay(self.profile)
 
     def on_disconnect(self, *args) -> None:
@@ -59,6 +59,7 @@ class Contanki(AnkiWebView):
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
         mw.form.menuTools.removeAction(self.menuItem)
         tooltip('Controller Disconnected')
+        self.reload()
 
     def on_receive_message(self, handled: tuple, message: str, context: str) -> tuple:
         if message[:8] == 'contanki':
