@@ -9,7 +9,7 @@ from aqt.theme import theme_manager
 from aqt.utils import showInfo, tooltip
 
 from .funcs import get_button_icon
-from .CONSTS import BUTTON_NAMES, AXES_NAMES
+from .consts import BUTTON_NAMES, AXES_NAMES
 from .profile import createProfile, getControllerList, getProfile, getProfileList, Profile, user_files_path, updateControllers, addon_path
 from .actions import state_actions
 from .components import ControlButton

@@ -7,7 +7,7 @@ from aqt.webview import AnkiWebView
 
 from .actions import *
 from .config import *
-from .CONSTS import *
+from .consts import *
 from .funcs import *
 from .overlay import *
 from .profile import *

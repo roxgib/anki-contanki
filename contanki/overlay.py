@@ -5,7 +5,7 @@ from os import path
 from aqt import QFont, QHBoxLayout, QLabel, QLayout, QPixmap, QSizePolicy, QVBoxLayout, QWidget, Qt, mw, QImage
 from aqt.webview import AnkiWebView
 
-from .CONSTS import BUTTON_NAMES
+from .consts import BUTTON_NAMES
 
 from .funcs import get_state
 from .funcs import get_dark_mode

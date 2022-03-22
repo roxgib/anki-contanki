@@ -7,7 +7,7 @@ import json
 from aqt.utils import showInfo, tooltip
 from aqt.qt import QMessageBox, QInputDialog
 
-from .CONSTS import BUTTON_NAMES
+from .consts import BUTTON_NAMES
 from .actions import *
 from .svg import CONTROLLER_IMAGE_MAPS
 
