@@ -124,6 +124,7 @@ def get_custom_actions():
     return actions
 
 
+
 def get_file(file: str) -> str:
     paths = [
         addon_path,
@@ -241,6 +242,10 @@ def forward() -> None:
         mw.moveToState("overview")
     elif mw.state == "overview":
         mw.moveToState("review")
+
+
+def filter_deck() -> None:
+    pass
 
 
 def onOptions() -> None:

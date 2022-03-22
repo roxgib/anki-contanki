@@ -49,10 +49,10 @@ button_actions = {
     "Down":                 lambda: keyPress(Qt.Key.Key_Down),                  # Works
     "Up by 10":             lambda: keyPress(                                   # Works
                                 Qt.Key.Key_Up, 
-                                Qt.Key.Key_Control),
+                                Qt.KeyboardModifier.ControlModifier),
     "Down by 10":           lambda: keyPress(                                   # Works
                                 Qt.Key.Key_Down,
-                                Qt.Key.Key_Control),                  
+                                Qt.KeyboardModifier.ControlModifier),                  
     'Scroll Up':            lambda: scroll(0, -50),                             # Not Tested
     'Scroll Down':          lambda: scroll(0, 50),                              # Not Tested
     'Options':              onOptions,                                          # Works in some screens
@@ -65,8 +65,6 @@ button_actions = {
     "Previous Due Deck":    lambda: choose_deck(False, True),                   # Works
     "Collapse/Expand":      collapse_deck,                                      # Works
     "Filter":               mw.onCram,                                          # Works
-    "Rebuild":              lambda: mw.col.sched.rebuild_filtered_deck(cdid()), # Works
-    "Empty":                lambda: mw.col.sched.empty_filtered_deck(cdid()),   # Works
     "Check Database":       mw.onCheckDB,                                       # Works
     "Check Media":          mw.on_check_media_db,                               # Works
     "Empty Cards":          mw.onEmptyCards,                                    # Works
@@ -75,10 +73,10 @@ button_actions = {
     "Export":               mw.onExport,                                        # Not Tested
     "Import":               mw.onImport,                                        # Not Tested
     
-
     # Overview Functions
     "Custom Study":         lambda: keyPress(Qt.Key.Key_C),                     # Works but opens dialog
-    
+    "Rebuild":              mw.overview.rebuild_current_filtered_deck,          # Works
+    "Empty":                mw.overview.empty_current_filtered_deck,            # Works
 
     # Reviewer Functions
     "Again":                lambda: mw.reviewer._answerCard(1),                 # Works
@@ -103,7 +101,6 @@ button_actions = {
     "Flip Card":            mw.reviewer.onEnterKey,                             # Works
     "Flag":                 cycle_flag,                                         # Works
     "Set Due Date":         mw.reviewer.on_set_due,                             # Works
-    "Show Hint":            _pass,                                              # Not Implemented
 }
 
 
