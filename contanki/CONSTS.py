@@ -16,6 +16,15 @@ BUTTON_NAMES = {
         13: 'D-Pad Down',
         14: 'D-Pad Left',
         15: 'D-Pad Right',
+        100: 'Left Stick Left',
+        101: 'Left Stick Right',
+        102: 'Left Stick Up',
+        103: 'Left Stick Down',
+        104: 'Right Stick Left',
+        105: 'Right Stick Right',
+        106: 'Right Stick Up',
+        107: 'Right Stick Down',
+
     },
 
     "DualShock 4": {
@@ -37,6 +46,14 @@ BUTTON_NAMES = {
         15: 'D-Pad Right',
         16: 'PS',
         17: 'Pad',
+        100: 'Left Stick Left',
+        101: 'Left Stick Right',
+        102: 'Left Stick Up',
+        103: 'Left Stick Down',
+        104: 'Right Stick Left',
+        105: 'Right Stick Right',
+        106: 'Right Stick Up',
+        107: 'Right Stick Down',        
     },
 
     "DualSense": {
@@ -58,6 +75,14 @@ BUTTON_NAMES = {
         15: 'D-Pad Right',
         16: 'PS',
         17: 'Pad',
+        100: 'Left Stick Left',
+        101: 'Left Stick Right',
+        102: 'Left Stick Up',
+        103: 'Left Stick Down',
+        104: 'Right Stick Left',
+        105: 'Right Stick Right',
+        106: 'Right Stick Up',
+        107: 'Right Stick Down',
     },
 
     "Xbox One": {
@@ -78,6 +103,14 @@ BUTTON_NAMES = {
         14: 'D-Pad Left',
         15: 'D-Pad Right',
         16: 'Xbox',
+        100: 'Left Stick Left',
+        101: 'Left Stick Right',
+        102: 'Left Stick Up',
+        103: 'Left Stick Down',
+        104: 'Right Stick Left',
+        105: 'Right Stick Right',
+        106: 'Right Stick Up',
+        107: 'Right Stick Down',
     },
 
     "Xbox Series": {
@@ -99,6 +132,14 @@ BUTTON_NAMES = {
         15: 'D-Pad Right',
         16: 'Xbox',
         17: 'Share',
+        100: 'Left Stick Left',
+        101: 'Left Stick Right',
+        102: 'Left Stick Up',
+        103: 'Left Stick Down',
+        104: 'Right Stick Left',
+        105: 'Right Stick Right',
+        106: 'Right Stick Up',
+        107: 'Right Stick Down',
     },
 
     "Xbox 360": {
@@ -119,6 +160,14 @@ BUTTON_NAMES = {
         14: 'D-Pad Left',
         15: 'D-Pad Right',
         16: 'Xbox',
+        100: 'Left Stick Left',
+        101: 'Left Stick Right',
+        102: 'Left Stick Up',
+        103: 'Left Stick Down',
+        104: 'Right Stick Left',
+        105: 'Right Stick Right',
+        106: 'Right Stick Up',
+        107: 'Right Stick Down',
     },
 
     "Switch Pro": {
@@ -140,6 +189,14 @@ BUTTON_NAMES = {
         15: 'D-Pad Right',
         16: 'Minus',
         17: 'Plus',
+        100: 'Left Stick Left',
+        101: 'Left Stick Right',
+        102: 'Left Stick Up',
+        103: 'Left Stick Down',
+        104: 'Right Stick Left',
+        105: 'Right Stick Right',
+        106: 'Right Stick Up',
+        107: 'Right Stick Down',
     },
 
     "Steam Controller": {
@@ -165,6 +222,10 @@ BUTTON_NAMES = {
         19: 'Right Track Down',
         20: 'Right Track Left',
         21: 'Right Track Right',
+        100: 'Stick Left',
+        101: 'Stick Right',
+        102: 'Stick Up',
+        103: 'Stick Down',
         22: 'Steam',
     },
 
@@ -176,7 +237,9 @@ BUTTON_NAMES = {
         4: 'Plus',
         5: 'Minus',
         6: 'Home',
-        7: 'Z'
+        7: 'Z',
+        100: "Roll",
+        101: "Tilt"
     },
 
     # "Wii Nunchuck": {
@@ -213,6 +276,11 @@ BUTTON_NAMES = {
         10: 'D-Pad Down',
         11: 'D-Pad Left',
         12: 'D-Pad Right',
+        104: 'Right Stick Left',
+        105: 'Right Stick Right',
+        106: 'Right Stick Up',
+        107: 'Right Stick Down',
+
     },
 
     "Joy-Con Left": {
@@ -229,6 +297,10 @@ BUTTON_NAMES = {
         10: 'D-Pad Down',
         11: 'D-Pad Left',
         12: 'D-Pad Right',        
+        100: 'Left Stick Left',
+        101: 'Left Stick Right',
+        102: 'Left Stick Up',
+        103: 'Left Stick Down',
     },
 
     "Super Nintendo": {
@@ -238,11 +310,78 @@ BUTTON_NAMES = {
         3: 'Y',
         4: 'Left Shoulder',
         5: 'Right Shoulder',
-        6: 'Start',
-        7: 'Select',
-        8: 'D-Pad Up',
-        9: 'D-Pad Down',
-        10: 'D-Pad Left',
-        11: 'D-Pad Right',
+        8: 'Start',
+        9: 'Select',
+        100: 'D-Pad Up',
+        101: 'D-Pad Down',
+        102: 'D-Pad Left',
+        103: 'D-Pad Right',
     },
+}
+
+AXES_NAMES = {
+    "DualShock 3": {
+        0: 'Left Stick Horizontal',
+        1: 'Left Stick Vertical',
+        2: 'Right Stick Horizontal',
+        3: 'Right Stick Vertical',
+    },
+
+    "DualShock 4": {
+        0: 'Left Stick Horizontal',
+        1: 'Left Stick Vertical',
+        2: 'Right Stick Horizontal',
+        3: 'Right Stick Vertical',
+    },
+
+    "DualSense": {
+        0: 'Left Stick Horizontal',
+        1: 'Left Stick Vertical',
+        2: 'Right Stick Horizontal',
+        3: 'Right Stick Vertical',
+    },
+
+    "Xbox 360": {
+        0: 'Left Stick Horizontal',
+        1: 'Left Stick Vertical',
+        2: 'Right Stick Horizontal',
+        3: 'Right Stick Vertical',
+    },
+
+    "Xbox One": {
+        0: 'Left Stick Horizontal',
+        1: 'Left Stick Vertical',
+        2: 'Right Stick Horizontal',
+        3: 'Right Stick Vertical',
+    },
+
+    "Xbox Series": {
+        0: 'Left Stick Horizontal',
+        1: 'Left Stick Vertical',
+        2: 'Right Stick Horizontal',
+        3: 'Right Stick Vertical',
+    },
+
+    "Switch Pro": {
+        0: 'Left Stick Horizontal',
+        1: 'Left Stick Vertical',
+        2: 'Right Stick Horizontal',
+        3: 'Right Stick Vertical',
+    },
+
+    "Steam Controller": {
+        0: 'Stick Horizontal',
+        1: 'Stick Vertical',
+    },
+
+    "Joy-Con Left": {
+        0: 'Left Stick Horizontal',
+        1: 'Left Stick Vertical',
+    },
+
+    "Joy-Con Right": {
+        0: 'Right Stick Horizontal',
+        1: 'Right Stick Vertical',
+    },
+
 }

@@ -44,8 +44,8 @@ class ControlsOverlayNew():
 
         self.left.layout = QVBoxLayout()
         self.right.layout = QVBoxLayout()
-        self.left.layout.setSpacing(2)
-        self.right.layout.setSpacing(2)
+        self.left.layout.setSpacing(0) 
+        self.right.layout.setSpacing(0)
         self.left.layout.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
         self.right.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.left.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -142,6 +142,14 @@ BUTTON_ORDER = [
         'Options',
         'Left Stick',
         'Right Stick',
+        'Left Stick Up',
+        'Left Stick Down',
+        'Left Stick Left',
+        'Left Stick Right',
+        'Right Stick Up',
+        'Right Stick Down',
+        'Right Stick Left',
+        'Right Stick Right',
         'Pad',
         'PS',
 ]

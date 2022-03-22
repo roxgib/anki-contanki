@@ -4,7 +4,7 @@ import subprocess
 from os import listdir
 
 from anki.decks import DeckId
-from aqt import QIcon, mw
+from aqt import QIcon, QPainter, mw
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.qt import QCoreApplication, QEvent, QMouseEvent, QPoint, QPointF, Qt, QPixmap
 from aqt.qt import QKeyEvent as QKE
@@ -92,6 +92,16 @@ get_dark_mode = _get_dark_mode()
 
 
 def get_button_icon(controller: str, button: str) -> QPixmap:
+    if 'Stick' in button and button.split(' ')[-1] in ['Left','Right','Up','Down', 'Horizontal', 'Vertical']:
+        direction = button.split(' ')[-1]
+        button = ' '.join(button.split(' ')[:-1])
+        pixmap = QPixmap(join(addon_path, 'buttons', controller, button))
+        dpixmap = QPixmap(join(addon_path, 'buttons', 'Arrows', direction))
+        painter = QPainter()
+        painter.begin(pixmap)
+        painter.drawPixmap(pixmap.rect(), dpixmap, dpixmap.rect())
+        painter.end()
+        return pixmap
     return QPixmap(join(addon_path, 'buttons', controller, button))
 
 

@@ -1,7 +1,8 @@
 import os
 import json
+from functools import partial
 
-from aqt import QIcon, QTabBar, mw, qconnect 
+from aqt import QIcon, QTabBar, Qt, mw, qconnect 
 from aqt import QComboBox, QFormLayout, QHeaderView, QKeySequence, QLayout, QPoint, QShortcut
 from aqt import QTableWidget, QTableWidgetItem
 from aqt.qt import QAction, QDialog, QWidget, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QTabWidget
@@ -12,7 +13,7 @@ from aqt.utils import showInfo, tooltip
 from waitress import profile
 
 from .funcs import get_button_icon
-from .CONSTS import BUTTON_NAMES
+from .CONSTS import BUTTON_NAMES, AXES_NAMES
 from .svg import buildSVG, CONTROLLER_IMAGE_MAPS
 from .profile import createProfile, getControllerList, getProfile, getProfileList, Profile, user_files_path, updateControllers, addon_path
 from .actions import button_actions, state_actions
@@ -119,7 +120,7 @@ class ContankiConfig(QDialog):
 
         self.profile.buildActions()
         self.profile.controller = self.corner.currentText()
-        mw.controller.update_profile(self.profile)
+        mw.contanki.update_profile(self.profile)
         updateControllers(self.controller, self.profile.name)
         self.profile.save()
         self.close()
@@ -174,12 +175,14 @@ class ContankiConfig(QDialog):
         flags                   = QGroupBox('Flags', self.tabs['main'])
         form                    = QWidget()
         axes                    = QWidget()
+        axes_buttons            = QWidget()
 
         main.layout             = QVBoxLayout()
         mouse.layout            = QGridLayout()
         flags.layout            = QFormLayout()
         form.layout             = QFormLayout()
         axes.layout             = QFormLayout()
+        axes_buttons.layout     = QFormLayout()
         
         profileBar = QWidget()
         profileBar.layout = QHBoxLayout()
@@ -222,7 +225,7 @@ class ContankiConfig(QDialog):
                     self.options[key].setCellWidget(row, 1, QKeySequenceEdit(QKeySequence(_value)))
                 self.options[key].horizontalHeader().setSectionResizeMode(0,QHeaderView.ResizeMode.Stretch)
                 self.options[key].setColumnWidth(1, 70)
-                tab.layout.addWidget(self.options[key],1,2)
+                tab.layout.addWidget(self.options[key],1,2,2,1)
             elif key == "Flags":
                 self.options[key] = flags
                 for flag in mw.flags.all():
@@ -233,19 +236,20 @@ class ContankiConfig(QDialog):
                         check.setChecked(True)
                     flags.layout.addWidget(check)
                 flags.setLayout(flags.layout)
-                tab.layout.addWidget(self.options[key],1,1)
+                tab.layout.addWidget(self.options[key],2,1)
             else: continue
         form.setLayout(form.layout)
-        tab.layout.addWidget(form,1,0)
+        tab.layout.addWidget(form,1,0,2,1)
 
         # Axes
         
         self.axes_bindings = list()
+        self.axes_button_bindings = list()
         for axis, value in self.profile.axes_bindings.items():
             button = QComboBox()
             button.addItems([
                 "Unassigned", 
-                # "Buttons",
+                "Buttons",
                 "Cursor Horizontal",
                 "Cursor Vertical",
                 "Scroll Horizontal",
@@ -253,10 +257,14 @@ class ContankiConfig(QDialog):
             ])
             button.setCurrentText(value)
             self.axes_bindings.append(button)
-            axes.layout.addRow(f"Axis {axis}", button)
+            label = QLabel()
+            pixmap = get_button_icon(self.profile.controller, AXES_NAMES[self.profile.controller][axis])
+            label.setPixmap(pixmap.scaled(45, 45, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
+            qconnect(button.currentIndexChanged, self.refresh_bindings)
+            axes.layout.addRow(label, button)
 
         axes.setLayout(axes.layout)
-        tab.layout.addWidget(axes,2,0)
+        tab.layout.addWidget(axes,1,1)
 
         tab.layout.addWidget(profileBar,0,0,1,3)
         
@@ -264,6 +272,9 @@ class ContankiConfig(QDialog):
 
         tab.setLayout(tab.layout)
         self.tabBar.addTab(tab, "Options")
+
+    def update_axes_buttons(self):
+        pass
 
     def setup_bindings(self):
         tab = self.tabs['bindings'] = QTabWidget()
@@ -299,16 +310,18 @@ class ContankiConfig(QDialog):
                     for control, button 
                     in BUTTON_NAMES[self.profile.controller].items()
                 }
+                row = col = 0
                 for button, control in widget.controls.items():
-                    control.action.addItems(state_actions[state])
                     if button in self.profile.bindings[state][mod]:
                         control.action.setCurrentIndex(
                             state_actions[state].index(self.profile.bindings[state][mod][button])
                             )
-                        qconnect(control.action.currentIndexChanged, self.updateInheritence) 
-                        qconnect(control.action.currentIndexChanged, lambda: self.updateBinding(state, mod, button))
-                row = col = 0
-                for i, control in widget.controls.items():
+                    control.update = partial(self.updateBinding, state, mod, button)
+                    qconnect(control.action.currentIndexChanged, control.update)
+                    if button in self.profile.mods: continue
+                    if button >= 100:
+                        if self.axes_bindings[(button - 100) // 2].currentText() != "Buttons":
+                            continue
                     widget.layout.addWidget(control, row, col)
                     if col == 2:
                         row += 1
@@ -322,21 +335,22 @@ class ContankiConfig(QDialog):
                     tab.stateTabs[state].addTab(widget, QIcon(get_button_icon(controller, mods[mod])), mTitle)
             tab.stateTabs[state].setTabPosition(QTabWidget.TabPosition.South)
             tab.addTab(tab.stateTabs[state], title)
-        self.updateInheritence()
+        self.updateInheritance()
         self.tabBar.addTab(tab, "Controls")
 
     def refresh_bindings(self) -> None:
+        current_tab = self.tabBar.currentIndex()
         self.controller = self.profile.controller = self.corner.currentText()
         self.tabBar.removeTab(1)
         self.setup_bindings()
-        self.tabBar.setCurrentIndex(1)
+        self.tabBar.setCurrentIndex(current_tab)
 
     def updateBinding(self, state, mod, button):
-        tooltip(f"Updated Binding {state} {mod} {button}")
         action = self.tabs['bindings'].stateTabs[state].modTabs[mod].controls[button].currentText()
         self.profile.updateBinding(state, mod, button, action)
+        self.updateInheritance()
 
-    def updateInheritence(self):
+    def updateInheritance(self):
         for state in states:
             for mod in range(len(self.profile.mods) + 1):
                 for button, control in self.tabs['bindings'].stateTabs[state].modTabs[mod].controls.items():

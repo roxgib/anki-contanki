@@ -77,13 +77,19 @@ class Profile:
     def doAxesActions(self, state: str, mod: int, axes: List[float]) -> None:
         mx = my = sx = sy = 0
         for (axis, assignment), value in zip(self.axes_bindings.items(), axes):
-            if value == 0 or assignment == "Unassigned":
+            if assignment == "Unassigned":
                 continue
             elif assignment == "Buttons":
-                if value < 0:
-                    self.doAction(state, mod, axis + self.len_buttons)
-                if value > 0:
-                    self.doAction(state, mod, axis + self.len_buttons + self.len_axes)
+                if value < -0.3:
+                    if not mw.contanki.axes[axis]:
+                        self.doAction(state, mod, axis * 2 + 100)
+                        mw.contanki.axes[axis] = True
+                elif value > 0.3:
+                    if not mw.contanki.axes[axis]:
+                        self.doAction(state, mod, axis * 2 + 1 + 100)
+                        mw.contanki.axes[axis] = True
+                else:
+                    mw.contanki.axes[axis] = False
             elif assignment == "Scroll Horizontal":
                 sx = value
             elif assignment == "Scroll Vertical":
