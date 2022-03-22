@@ -29,14 +29,10 @@ If you encounter an issue, let me know what you were trying to do, what platform
 
 ## Known issues
  - Add-on doesn't function in the profile window
- - Clicking in the title bar or outside of Anki doesn't work 
- - A number of deck-related actions require opening the overview, and will operate on the wrong deck if you try them from the deck screen
+ - Clicking outside Anki or in the title bar doesn't work 
  - Interaction outside of the main window (e.g. browser) is only partially implemented
- - Custom modifier keys cannot yet be assigned
- - Custom actions cannot be yet created or assigned
- - Actions cannot yet be assigned to analog sticks in button mode
- - Not all controllers have default profiles yet
- - Some controllers still lack finished config screens
+ - Some controllers aren't fully mapped or lack default profiles
+ - A number of deck-related actions require opening the overview, and will operate on the wrong deck if you try them from the deck screen
  - Certain configuration options are not yet functional
  - A small number of actions don't yet work
 
@@ -47,6 +43,18 @@ If you encounter an issue, let me know what you were trying to do, what platform
  - Volume controls only work on Mac
 
 ## Development log
+
+### Alpha 6
+
+This release adds a number of features:
+ - Sticks can now be put in button mode, allowing actions to be assigned to directions on the stick
+ - Custom actions can now be created and assigned
+ - Custom modifiers can now be assigned
+ - Almost all supported controllers have fully functional config screens (although I still need to confirm the button layouts and set up default profiles on some of them)
+
+This release does away with the old overlay in favour of individual icons for each button. I did like the old overlays, but it proved to be impractical to support more than a handful of controllers, as well as making it hard to display the assignments of sticks in button mode. The new system is much better in a lot of ways.
+
+There's a few more issues to tidy up before a beta can be released, but it's close to feature complete so I'm mostly just tidying up at this point. Anki 2.1.50 now has a release candidate so hopefully we'll see a release in a few weeks.
 
 ### Alpha 5
 
@@ -66,7 +74,7 @@ I've made further progress on the dialogs issue, and it's likely that dialog acc
 
 With this release earlier versions of Anki now work, however a new issue has cropped up with certain controllers presenting themselves multiple times, which causes various issues. It's likely I'll have to add support for choosing which controller to use to resolve this.
 
-For the next release I'm aiming to add support for custom actions and modifers, finish the controls screens and default profiles for all supported controllers, and connect the remaining options. That should cover all the key features and once 2.1.50 releases I'll hopefully be ready release a beta.
+For the next release I'm aiming to add support for custom actions and modifiers, finish the controls screens and default profiles for all supported controllers, and connect the remaining options. That should cover all the key features and once 2.1.50 releases I'll hopefully be ready release a beta.
 
 ### Alpha 4
 

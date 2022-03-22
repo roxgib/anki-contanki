@@ -35,6 +35,9 @@ class Profile:
         for i in range(len(self.mods)):
             bindings['NoFocus'][i + 1] = dict()
             bindings['transition'][i + 1] = dict()
+        actions = dict()
+        actions.update(button_actions)
+        actions.update(get_custom_actions())
         self.actions = dict()
         self.releaseActions = dict()
         for state, a in bindings.items():
@@ -44,8 +47,8 @@ class Profile:
                 self.actions[state][mod] =  dict()
                 self.releaseActions[state][mod] = dict()
                 for button, action in b.items():
-                    if action in button_actions:
-                        self.actions[state][mod][button] = button_actions[action]
+                    if action in actions:
+                        self.actions[state][mod][button] = actions[action]
                     if action in release_actions:
                         self.releaseActions[state][mod][button] = release_actions[action]
         
@@ -124,10 +127,6 @@ class Profile:
     def changeMod(self, old_mod: int, new_mod: int) -> None:
         if old_mod in self.mods:
             self.mods[self.mods.index(old_mod)] = new_mod
-        for state in self.bindings:
-            for mod in state:
-                self.bindings[state][mod][old_mod] = ""
-                self.bindings[state][mod][new_mod] = "mod"
 
     def getCompatibility(self, controller):
         pass

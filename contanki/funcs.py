@@ -1,10 +1,11 @@
 import re
 from typing import Callable
 import subprocess
+from functools import partial
 from os import listdir
 
 from anki.decks import DeckId
-from aqt import QIcon, QPainter, mw
+from aqt import QIcon, QKeyEvent, QKeySequence, QPainter, mw
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.qt import QCoreApplication, QEvent, QMouseEvent, QPoint, QPointF, Qt, QPixmap
 from aqt.qt import QKeyEvent as QKE
@@ -105,6 +106,19 @@ def get_button_icon(controller: str, button: str) -> QPixmap:
     return QPixmap(join(addon_path, 'buttons', controller, button))
 
 
+def get_custom_actions():
+    config = mw.addonManager.getConfig(__name__)["Custom Actions"]
+    actions = dict()
+    for action in config.keys():
+        keys = QKeySequence(config[action])[0]
+        key = keys.key()
+        modifier = keys.keyboardModifiers()
+        func = partial(keyPress, key, modifier)
+        actions[action] = func
+
+    return actions
+
+
 def get_file(file: str) -> str:
     paths = [
         addon_path,
@@ -122,7 +136,6 @@ def get_file(file: str) -> str:
 def keyPress(key: Qt.Key, mod: Qt.KeyboardModifier = Qt.KeyboardModifier.NoModifier) -> None:
     QCoreApplication.sendEvent(mw.app.focusObject(), QKE(QKE.Type.KeyPress, key, mod))
     QCoreApplication.sendEvent(mw.app.focusObject(), QKE(QKE.Type.KeyRelease, key, mod))
-
 
 def select() -> None:
     mw.web.eval("document.activeElement.click()")

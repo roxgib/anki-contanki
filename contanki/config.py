@@ -1,28 +1,21 @@
-import os
-import json
 from functools import partial
 
-from aqt import QIcon, QTabBar, Qt, mw, qconnect 
-from aqt import QComboBox, QFormLayout, QHeaderView, QKeySequence, QLayout, QPoint, QShortcut
+from aqt import QIcon, Qt, mw, qconnect 
+from aqt import QComboBox, QFormLayout, QHeaderView, QKeySequence, QLayout, QShortcut
 from aqt import QTableWidget, QTableWidgetItem
 from aqt.qt import QAction, QDialog, QWidget, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QTabWidget
-from aqt.qt import QKeySequenceEdit, QSpinBox, QLabel, QGridLayout, QGroupBox, QFont
-from aqt.webview import AnkiWebView
+from aqt.qt import QKeySequenceEdit, QSpinBox, QLabel, QGridLayout, QGroupBox
 from aqt.theme import theme_manager
 from aqt.utils import showInfo, tooltip
-from waitress import profile
 
 from .funcs import get_button_icon
 from .CONSTS import BUTTON_NAMES, AXES_NAMES
-from .svg import buildSVG, CONTROLLER_IMAGE_MAPS
 from .profile import createProfile, getControllerList, getProfile, getProfileList, Profile, user_files_path, updateControllers, addon_path
-from .actions import button_actions, state_actions
-from .overlay import ControlsOverlay
+from .actions import state_actions
 from .components import ControlButton
 
 
 class ContankiConfig(QDialog):
-    
     def __init__(self, parent: QWidget, profile: Profile) -> None:
         if not profile:
             showInfo("Controller not detected. Connect using Bluetooth or USB, and press any button to initialise.")
@@ -67,16 +60,16 @@ class ContankiConfig(QDialog):
         self.setLayout(self.layout)
         self.open()
 
-
     def save(self) -> None:
         for key in self.options.keys():
+            if 'mod' in key:continue
             if type(self._options[key]) == int:
                 self._options[key] = self.options[key].value()
             elif type(self._options[key]) == bool:
                 self._options[key] = self.options[key].isChecked()
             elif key == "Custom Actions":
                 for row in range(self.options[key].rowCount()):
-                    self._options[self.options[key].item(row, 0).text()] = self.options[key].cellWidget(row, 1).keySequence().toString()
+                    self._options[key][self.options[key].item(row, 0).text()] = self.options[key].cellWidget(row, 1).keySequence().toString()
             elif key == "Flags":
                 self._options["Flags"] = []
                 for flag in self.options[key].findChildren(QCheckBox):
@@ -125,11 +118,9 @@ class ContankiConfig(QDialog):
         self.profile.save()
         self.close()
 
-
     def help(self) -> None:
         pass
 
-    
     def changeProfile(self, profile: Profile = None) -> None:
         if not profile:
             profile = getProfile(self._profile.currentText())
@@ -140,7 +131,6 @@ class ContankiConfig(QDialog):
         self.profile = profile
         self.tabBar.removeTab(1)
         self.setupBindings()
-
 
     def findCustomActions(self) -> None:
         shortcuts = [shortcut for name, shortcut in self._options["Custom Actions"].items()]
@@ -155,14 +145,12 @@ class ContankiConfig(QDialog):
             if scut.key().toString() != "":
                 self._options["Custom Actions"][scut.key().toString()] = scut.key().toString()
 
-
     def addProfile(self) -> None:
         new_profile = createProfile()
         if not new_profile: return
         self._profile.addItem(new_profile.name)
         self._profile.setCurrentIndex(-1)
         self.changeProfile(new_profile)
-
 
     def setupOptions(self) -> None:
         tab = QWidget()
@@ -201,7 +189,6 @@ class ContankiConfig(QDialog):
         profileBar.setLayout(profileBar.layout)
 
         self._options = mw.addonManager.getConfig(__name__)
-        self.findCustomActions()
         self.options = dict()
 
         flags.layout.setVerticalSpacing(20)
@@ -218,6 +205,9 @@ class ContankiConfig(QDialog):
                 self.options[key].setChecked(self._options[key])
                 form.layout.addRow(self.options[key])
             elif key == "Custom Actions":
+                container = QWidget()
+                container.layout = QGridLayout()
+                container.layout.addWidget(QLabel("Custom Actions"), 0, 0, 1, 2)
                 self.options[key] = QTableWidget(len(value),2,tab)
                 self.options[key].setHorizontalHeaderLabels(["Name", "Shortcut"])
                 for row, (_key, _value) in enumerate(value.items()):
@@ -225,7 +215,35 @@ class ContankiConfig(QDialog):
                     self.options[key].setCellWidget(row, 1, QKeySequenceEdit(QKeySequence(_value)))
                 self.options[key].horizontalHeader().setSectionResizeMode(0,QHeaderView.ResizeMode.Stretch)
                 self.options[key].setColumnWidth(1, 70)
-                tab.layout.addWidget(self.options[key],1,2,2,1)
+                container.layout.addWidget(self.options[key], 1, 0, 1, 2)
+                add_button = QPushButton("Add")
+                delete_button = QPushButton("Delete")
+                
+                def add_row():
+                    if self.options[key].selectedIndexes():
+                        current_row = self.options[key].currentRow() + 1
+                    else:
+                        current_row = self.options[key].rowCount()
+                    self.options[key].insertRow(current_row)
+                    self.options[key].setItem(current_row, 0, QTableWidgetItem("New Action",0))
+                    self.options[key].setCellWidget(current_row, 1, QKeySequenceEdit(QKeySequence("")))
+                    self.options[key].setCurrentCell(current_row, 0)
+
+                def remove_row():
+                    if self.options[key].selectedIndexes():
+                        current_row = self.options[key].currentRow()
+                    else:
+                        current_row = self.options[key].rowCount() - 1
+                    self.options[key].removeRow(current_row)
+
+                qconnect(add_button.pressed, add_row)
+                qconnect(delete_button.pressed, remove_row)
+                qconnect(self.options[key].itemChanged, self.refresh_bindings)
+
+                container.layout.addWidget(add_button, 2, 0)
+                container.layout.addWidget(delete_button, 2, 1)
+                container.setLayout(container.layout)
+                tab.layout.addWidget(container,1,2,2,1)
             elif key == "Flags":
                 self.options[key] = flags
                 for flag in mw.flags.all():
@@ -238,6 +256,27 @@ class ContankiConfig(QDialog):
                 flags.setLayout(flags.layout)
                 tab.layout.addWidget(self.options[key],2,1)
             else: continue
+
+        _, cbuttons = zip(*BUTTON_NAMES[self.profile.controller].items())
+
+        label = QLabel("Modifiers")
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        form.layout.setWidget(form.layout.rowCount(), QFormLayout.ItemRole.SpanningRole, label)
+
+        self.options['mod0'] = QComboBox()
+        for cbutton in cbuttons:
+            self.options['mod0'].addItem(QIcon(get_button_icon(self.profile.controller, cbutton)),cbutton)
+        self.options['mod0'].setCurrentIndex(self.profile.mods[0])
+        qconnect(self.options['mod0'].currentIndexChanged, self.update_modifiers)
+        form.layout.setWidget(form.layout.rowCount(), QFormLayout.ItemRole.SpanningRole, self.options['mod0'])
+
+        self.options['mod1'] = QComboBox()
+        for cbutton in cbuttons:
+            self.options['mod1'].addItem(QIcon(get_button_icon(self.profile.controller, cbutton)),cbutton)
+        self.options['mod1'].setCurrentIndex(self.profile.mods[1])
+        qconnect(self.options['mod1'].currentIndexChanged, self.update_modifiers)
+        form.layout.setWidget(form.layout.rowCount(), QFormLayout.ItemRole.SpanningRole, self.options['mod1'])
+
         form.setLayout(form.layout)
         tab.layout.addWidget(form,1,0,2,1)
 
@@ -259,22 +298,28 @@ class ContankiConfig(QDialog):
             self.axes_bindings.append(button)
             label = QLabel()
             pixmap = get_button_icon(self.profile.controller, AXES_NAMES[self.profile.controller][axis])
-            label.setPixmap(pixmap.scaled(45, 45, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
+            label.setPixmap(pixmap.scaled(40, 40, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
             qconnect(button.currentIndexChanged, self.refresh_bindings)
             axes.layout.addRow(label, button)
-
+            
         axes.setLayout(axes.layout)
         tab.layout.addWidget(axes,1,1)
 
-        tab.layout.addWidget(profileBar,0,0,1,3)
-        
         # Finish
 
+        tab.layout.addWidget(profileBar,0,0,1,3)
         tab.setLayout(tab.layout)
         self.tabBar.addTab(tab, "Options")
 
-    def update_axes_buttons(self):
-        pass
+    def get_custom_actions(self):
+        table = self.options["Custom Actions"]
+        return [table.item(row, 0).text() for row in range(table.rowCount())]
+
+    def update_modifiers(self) -> None:
+        _, cbuttons = zip(*BUTTON_NAMES[self.profile.controller].items())
+        self.profile.changeMod(self.profile.mods[0], self.options['mod0'].currentIndex())
+        self.profile.changeMod(self.profile.mods[1], self.options['mod1'].currentIndex())
+        self.refresh_bindings()
 
     def setup_bindings(self):
         tab = self.tabs['bindings'] = QTabWidget()
@@ -312,10 +357,10 @@ class ContankiConfig(QDialog):
                 }
                 row = col = 0
                 for button, control in widget.controls.items():
+                    control.action.addItems(self.get_custom_actions())
                     if button in self.profile.bindings[state][mod]:
-                        control.action.setCurrentIndex(
-                            state_actions[state].index(self.profile.bindings[state][mod][button])
-                            )
+                        if (text := self.profile.bindings[state][mod][button]):
+                            control.action.setCurrentText(text)
                     control.update = partial(self.updateBinding, state, mod, button)
                     qconnect(control.action.currentIndexChanged, control.update)
                     if button in self.profile.mods: continue
