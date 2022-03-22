@@ -3,24 +3,29 @@
 Contanki is an add-on for [Anki](apps.ankiweb.com) which allows users to control Anki using a gamepad or other controller device.
 
 Features:
- - Comfortably review your cards and much more using a gamepad
+ - Comfortably review your cards using a gamepad - no more sore hands, backs, or eyes!
  - Control almost any Anki feature without a keyboard or mouse
  - Pull up a helpful overlay to remind you of the control mapping
  - Cursor control for limited situations where the gamepad is insufficient
  - Fully customisable control bindings
+ - Much more!
 
 ## Usage Notes
 
-Since Anki has a lot of functions to map, Contanki uses the triggers (R2 and L2) as modifier keys, meaning that the other buttons will trigger different commands when they are held down. This is similar to Shift, Control, etc on a keyboard. Holding down the trigger keys will also pull up an overlay showing the control binding for the current context. To show the overlay for unmodified keys, hold down both triggers at once. 
+Connect your controller via USB or Bluetooth, install the add-on and restart Anki, and click and button to get started.
 
-Controls can be reassigned using the add-ons config dialog (this dialog is still in development, and should be improved soon). You can assign controls for each context, as well as global commands that are used if a control isn't assigned to a particular context. It is suggested that you try the default control bindings to begin with, and make changes as needed. You can remove any actions you don't need if the controls overlay is too cluttered. 
+Since Anki has a lot of functions to map, Contanki uses modifier buttons (by default, the triggers (R2 and L2) are used). This mean that the other buttons will trigger different commands according to whether a modifier button is held down, similar to shift, control, etc on a keyboard. Holding down the modifier buttons will also pull up an overlay showing the control binding for the current context. To show the overlay for the unmodified control, hold down both triggers at once. 
+
+Controls can be reassigned using the add-on's config dialog. You can assign controls for each context (review, deck browser, etc), as well as global settings that are used if a control isn't assigned to a particular context. It is suggested that you try the default control bindings to begin with, and make changes as needed. You can remove any actions you don't need if the controls overlay is too cluttered. 
 
 ### Analog Sticks
-The right stick is used to move and click the mouse, and you can use L2 + right stick for a secondary click. At this time it is only possible to click within Anki. The left stick is used to select items similar to using Tab and Shift + Tab to navigate, and is also used to scroll using R2 + left stick.
+By default the right stick is used to move and click the mouse, and you can use L2 + right stick for a secondary click. It is only possible to click within Anki. The left stick is used to scroll and to navigate between views. Sticks can be reassigned and can also be put in 'button mode', where actions can be assigned to the directions of a stick.
 
 ### Choosing a Controller
 
-I have been testing using a DualShock 4, which can be readily purchased secondhand at a reasonable price and otherwise makes a good choice, although cheaper options will probably work just as well.
+I have been testing using a DualShock 4, which  makes a good choice and can be readily purchased secondhand at a reasonable price. The cheapest option would be a knockoff SNES controller, which can be found for $10 or less.
+
+Currently it is only possible to use a single controller at a time. This may include Joy-Cons depending on your system, but support for using both Joy-Cons is planned.
 
 ## Testing
 I'm now looking for alpha testers - download the latest Alpha release and let me know how it goes. Please report all issues on the GitHub issue tracker. Reports about bugs on Windows or when using an Xbox controller are particularly welcome as I have been testing almost exclusively on Mac using a DualShock 4 up to now. 

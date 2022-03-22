@@ -25,21 +25,17 @@ class ControlButton(QWidget):
                 )
             )
         self.icon.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
-        self.installEventFilter(self)
 
         if on_left:
             self.configure_action(on_left, actions)
 
-    def eventFilter(self, source: QObject, event: QEvent) -> bool:
-        if (source is self):
-            self.icon.setPixmap(
-                self.pixmap.scaled(
-                    self.icon.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
-                    )
-            )
-            self.icon.setMaximumWidth(self.icon.height())
-            
-        return super().eventFilter(source, event)
+    def _resize(self):
+        self.icon.setMaximumWidth(self.icon.height())
+        self.icon.setPixmap(
+            self.pixmap.scaled(
+                self.icon.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+                )
+        )
 
     def configure_action(self, on_left: bool = False, actions: List[str] = None) -> None:
         font = QFont()

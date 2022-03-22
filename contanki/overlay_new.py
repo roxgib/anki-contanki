@@ -106,6 +106,17 @@ class ControlsOverlayNew():
         self.left.show()
         self.right.show()
 
+        for i in range(3):
+            self.left.hide()
+            self.right.hide()
+
+            for i, control in self.controls.items():
+                control._resize()
+
+            self.left.show()
+            self.right.show()
+
+
 
 BUTTON_ORDER = [
         'Left Shoulder',

@@ -110,9 +110,14 @@ def get_custom_actions():
     config = mw.addonManager.getConfig(__name__)["Custom Actions"]
     actions = dict()
     for action in config.keys():
-        keys = QKeySequence(config[action])[0]
-        key = keys.key()
-        modifier = keys.keyboardModifiers()
+        keys = QKeySequence(config[action])
+        try:
+            key = keys[0].key()
+            modifier = keys[0].keyboardModifiers()
+        except:
+            key = keys[0]
+            modifier = Qt.KeyboardModifier.NoModifier
+        
         func = partial(keyPress, key, modifier)
         actions[action] = func
 
