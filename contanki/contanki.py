@@ -110,6 +110,7 @@ class Contanki(AnkiWebView):
 
         for i, value in enumerate(buttons):
             if value == self.buttons[i]: continue
+            if i in self.profile.mods: continue
             self.buttons[i] = value
             if value:
                 self.profile.doAction(state, mod, i)
