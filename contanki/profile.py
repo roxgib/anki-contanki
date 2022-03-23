@@ -329,10 +329,14 @@ def findProfile(controller: str, len_buttons: int, len_axes: int) -> Profile:
         controllers = json.load(f)
     if controller in controllers:
         return getProfile(controllers[controller])
-    if (n := f'Standard Gamepad ({len_buttons} Buttons, {len_axes} Axes)') in os.listdir(default_profile_path):
+    default_profiles = os.listdir(default_profile_path)
+    if controller in default_profiles:
+        profile_to_copy = controller
+    if (n := f'Standard Gamepad ({len_buttons} Buttons, {len_axes} Axes)') in default_profiles:
         profile_to_copy = n
     else:
         profile_to_copy = 'Blank'
+        
     copyProfile(profile_to_copy, controller)
     updateControllers(controller, controller)
     profile = getProfile(controller)

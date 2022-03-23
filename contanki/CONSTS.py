@@ -271,6 +271,7 @@ BUTTON_NAMES = {
         12: 'Capture',
         14: 'Left Shoulder',
         15: 'Left Trigger' ,
+        
         16: 'A',
         17: 'X',
         18: 'B',
@@ -280,6 +281,7 @@ BUTTON_NAMES = {
         28: 'Home',
         30: 'Right Shoulder',
         31: 'Right Trigger',
+
         100: 'Left Stick Left',
         101: 'Left Stick Right',
         102: 'Left Stick Up',
