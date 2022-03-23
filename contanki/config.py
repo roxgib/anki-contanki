@@ -19,7 +19,7 @@ class ContankiConfig(QDialog):
     def __init__(self, parent: QWidget, profile: Profile) -> None:
         if not profile:
             showInfo("Controller not detected. Connect using Bluetooth or USB, and press any button to initialise.")
-        
+            return
         super().__init__(parent)
         self.setWindowTitle("Contanki Options")
         self.setFixedWidth(800)
