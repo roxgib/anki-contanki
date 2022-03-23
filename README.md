@@ -49,6 +49,12 @@ If you encounter an issue, let me know what you were trying to do, what platform
 
 ## Development log
 
+### Alpha 7
+
+Smaller hotfix release, mostly fixing controller compatibility issues.
+
+
+
 ### Alpha 6
 
 This release adds a number of features:
