@@ -51,7 +51,7 @@ If you encounter an issue, let me know what you were trying to do, what platform
 
 ### Alpha 7
 
-Smaller hotfix release, mostly fixing controller compatibility issues.
+Smaller hotfix release, mostly fixing controller compatibility and config dialog issues. The buttons in the config dialog now light up when you press the corresponding button on your controller.
 
 ### Alpha 6
 
