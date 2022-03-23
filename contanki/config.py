@@ -358,6 +358,7 @@ class ContankiConfig(QDialog):
                 row = col = 0
                 for button, control in widget.controls.items():
                     control.action.addItems(self.get_custom_actions())
+                    mw.contanki.register_icon(button, control.show_pressed, control.show_not_pressed)
                     if button in self.profile.bindings[state][mod]:
                         if (text := self.profile.bindings[state][mod][button]):
                             control.action.setCurrentText(text)

@@ -324,18 +324,18 @@ BUTTON_NAMES = {
     },
 
     "Super Nintendo": {
-        0: 'B',
-        1: 'X',
-        2: 'A',
+        0: 'X',
+        1: 'A',
+        2: 'B',
         3: 'Y',
         4: 'Left Shoulder',
         5: 'Right Shoulder',
         8: 'Start',
         9: 'Select',
-        100: 'D-Pad Up',
-        101: 'D-Pad Down',
-        102: 'D-Pad Left',
-        103: 'D-Pad Right',
+        100: 'D-Pad Left',
+        101: 'D-Pad Right',
+        102: 'D-Pad Up',
+        103: 'D-Pad Down',
     },
 }
 
@@ -394,14 +394,26 @@ AXES_NAMES = {
         1: 'Stick Vertical',
     },
 
-    "Joy-Con Left": {
+    "Joy-Con": {
         0: 'Left Stick Horizontal',
         1: 'Left Stick Vertical',
+        2: 'Right Stick Horizontal',
+        3: 'Right Stick Vertical',
+    },
+
+    "Joy-Con Left": {
+        0: 'Stick Horizontal',
+        1: 'Stick Vertical',
     },
 
     "Joy-Con Right": {
-        0: 'Right Stick Horizontal',
-        1: 'Right Stick Vertical',
+        0: 'Stick Horizontal',
+        1: 'Stick Vertical',
+    },
+
+    "Super Nintendo": {
+        0: 'D-Pad Horizontal',
+        1: 'D-Pad Vertical',
     },
 
 }

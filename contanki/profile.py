@@ -82,16 +82,27 @@ class Profile:
             if assignment == "Unassigned":
                 continue
             elif assignment == "Buttons":
-                if value < -0.3:
+                if value < -0.5:
                     if not mw.contanki.axes[axis]:
                         self.doAction(state, mod, axis * 2 + 100)
                         mw.contanki.axes[axis] = True
-                elif value > 0.3:
+                    if axis + 100 in mw.contanki.icons:
+                        for f in mw.contanki.icons[100 + axis*2]:
+                            f[0]()
+                elif value > 0.5:
                     if not mw.contanki.axes[axis]:
                         self.doAction(state, mod, axis * 2 + 1 + 100)
                         mw.contanki.axes[axis] = True
+                        if axis + 100 in mw.contanki.icons:
+                            for f in mw.contanki.icons[100 + axis*2 + 1]:
+                                f[0]()
                 else:
                     mw.contanki.axes[axis] = False
+                    if axis + 100 in mw.contanki.icons:
+                        for f in mw.contanki.icons[100 + axis*2]:
+                            f[1]()
+                        for f in mw.contanki.icons[100 + axis*2 + 1]:
+                            f[1]()
             elif assignment == "Scroll Horizontal":
                 sx = value
             elif assignment == "Scroll Vertical":
@@ -167,45 +178,45 @@ def identifyController(id: str, len_buttons: int, len_axes: int) -> str:
             return "PlayStation Controller"
         elif len_buttons == 17:
             return 'DualShock 3'
-        elif len_buttons == 18:
-            return 'DualShock 4'
         elif 'DualSense' in id or len_buttons == 19:
             return 'DualSense'
+        elif len_buttons == 18:
+            return 'DualShock 4'
 
     if 'xbox' in id:
         if '360' in id:
-            return 'Xbox 360 Controller'
+            return 'Xbox 360'
         elif 'one' in id:
-            return 'Xbox One Controller'
+            return 'Xbox One'
         elif 'elite' in id:
-            return 'Xbox Elite Controller'
+            return 'Xbox Series'
         elif 'series' in id:
-            return 'Xbox Series Controller'
+            return 'Xbox Series'
         elif 'adaptive' in id:
-            return 'Xbox Adaptive Controller'
+            return 'Xbox 360'
         elif len_buttons == 16:
-            return 'Xbox 360 Controller'
+            return 'Xbox 360'
         elif len_buttons == 17:
-            return 'Xbox Series Controller'
+            return 'Xbox Series'
 
     if 'joycon' in id or 'joy-con' in id:
         if 'left' in id:
-            return 'JoyCon Left'
+            return 'Joy-Con Left'
         if 'right' in id:
-            return 'JoyCon Right'
+            return 'Joy-Con Right'
         else:
-            return 'JoyCon'
+            return 'Joy-Con'
 
     if 'switch' in id:
         if 'pro' in id:
             return 'Switch Pro Controller'
         else:
             if 'left' in id:
-                return 'JoyConLeft'
+                return 'Joy-Con Left'
             if 'right' in id:
-                return 'JoyConRight'
+                return 'Joy-Con Right'
             else:
-                return 'JoyCon'
+                return 'Joy-Con'
 
     if 'wii' in id:
         if 'nunchuck' in id:

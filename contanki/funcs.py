@@ -92,8 +92,8 @@ def _get_dark_mode() -> Callable:
 get_dark_mode = _get_dark_mode()
 
 
-def get_button_icon(controller: str, button: str) -> QPixmap:
-    if 'Stick' in button and button.split(' ')[-1] in ['Left','Right','Up','Down', 'Horizontal', 'Vertical']:
+def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap:
+    if 'Stick' in button and button.split(' ')[-1] in ['Left','Right','Up','Down','Horizontal','Vertical']:
         direction = button.split(' ')[-1]
         button = ' '.join(button.split(' ')[:-1])
         pixmap = QPixmap(join(addon_path, 'buttons', controller, button))
@@ -102,8 +102,17 @@ def get_button_icon(controller: str, button: str) -> QPixmap:
         painter.begin(pixmap)
         painter.drawPixmap(pixmap.rect(), dpixmap, dpixmap.rect())
         painter.end()
-        return pixmap
-    return QPixmap(join(addon_path, 'buttons', controller, button))
+    else:
+        pixmap = QPixmap(join(addon_path, 'buttons', controller, button))
+
+    if glow:
+        gpixmap = QPixmap(join(addon_path, 'buttons', 'Other', 'glow'))
+        painter = QPainter()
+        painter.begin(pixmap)
+        painter.drawPixmap(pixmap.rect(), gpixmap, gpixmap.rect())
+        painter.end()
+
+    return pixmap
 
 
 def get_custom_actions():

@@ -1,7 +1,8 @@
+from copy import copy
 from os import path
 from re import S
 from typing import List
-from aqt import QComboBox, QEvent, QFont, QHBoxLayout, QLabel, QLayout, QObject, QPixmap, QSizePolicy, QWidget, Qt
+from aqt import QComboBox, QEvent, QFont, QHBoxLayout, QLabel, QLayout, QObject, QPixmap, QSizePolicy, QWidget, Qt, mw
 
 from .funcs import get_button_icon
 
@@ -16,6 +17,7 @@ class ControlButton(QWidget):
         self.layout.setContentsMargins(1,1,1,1)
         self.icon = QLabel()
         self.pixmap = get_button_icon(controller, button)
+        self.pixmap_glow = get_button_icon(controller, button, glow=True)
         self.icon.setPixmap(self.pixmap)
         self.icon.setMaximumHeight(60)
         self.icon.setMaximumWidth(60)
@@ -29,10 +31,14 @@ class ControlButton(QWidget):
         if on_left:
             self.configure_action(on_left, actions)
 
-    def _resize(self):
+    def refresh_icon(self, on=False):
         self.icon.setMaximumWidth(self.icon.height())
+        if on:
+            pixmap = self.pixmap_glow
+        else:
+            pixmap = self.pixmap
         self.icon.setPixmap(
-            self.pixmap.scaled(
+            pixmap.scaled(
                 self.icon.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
                 )
         )
@@ -63,3 +69,9 @@ class ControlButton(QWidget):
 
     def currentText(self):
         return self.action.currentText()
+
+    def show_pressed(self):
+        self.refresh_icon(True)
+
+    def show_not_pressed(self):
+        self.refresh_icon()

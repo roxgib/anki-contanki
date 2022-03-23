@@ -1,3 +1,4 @@
+from ast import Call
 from time import time
 
 from aqt import QMenu, gui_hooks, mw
@@ -24,12 +25,17 @@ class Contanki(AnkiWebView):
             'poll':                     self.poll,
         }
 
+        self.icons = defaultdict(list)
+
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         mw.addonManager.setConfigAction(__name__, self.on_config)
         # dialogs.register_dialog('ControllerConfigEditor', )
         self.setFixedSize(0,0)
         
         self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
+
+    def register_icon(self, index: int, on_func: Callable, off_func: Callable) -> None:
+        self.icons[index].append((on_func, off_func))
 
     def on_connect(self, buttons: str, axes:str, *con: List[str]) -> None:
         buttons, axes, con = int(buttons), int(axes), '::'.join(con)
@@ -107,8 +113,14 @@ class Contanki(AnkiWebView):
             self.buttons[i] = value
             if value:
                 self.profile.doAction(state, mod, i)
+                if i in self.icons:
+                    for f in self.icons[i]:
+                        f[0]()
             else:
                 self.profile.doReleaseAction(state, mod, i)
+                if i in self.icons:
+                    for f in self.icons[i]:
+                        f[1]()
 
         if any(axes):
             self.profile.doAxesActions(state, mod, axes)

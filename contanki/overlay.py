@@ -110,11 +110,10 @@ class ControlsOverlay():
             self.right.hide()
 
             for i, control in self.controls.items():
-                control._resize()
+                control.refresh_icon()
 
             self.left.show()
             self.right.show()
-
 
 
 BUTTON_ORDER = [
