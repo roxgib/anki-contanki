@@ -21,12 +21,8 @@ class ControlButton(QWidget):
         self.icon.setPixmap(self.pixmap)
         self.icon.setMaximumHeight(60)
         self.icon.setMaximumWidth(60)
-        self.icon.setPixmap(
-            self.pixmap.scaled(
-                self.icon.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
-                )
-            )
         self.icon.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
+        self.refresh_icon()
 
         if on_left:
             self.configure_action(on_left, actions)
@@ -75,3 +71,8 @@ class ControlButton(QWidget):
 
     def show_not_pressed(self):
         self.refresh_icon()
+    
+    def show(self):
+        super().show()
+        self.refresh_icon()
+        super().show()

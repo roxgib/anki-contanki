@@ -23,10 +23,11 @@ class ContankiConfig(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Contanki Options")
         self.setFixedWidth(800)
-        self.setFixedHeight(660)
+        self.setMinimumHeight(660)
 
         self.profile = profile
         self.layout = QVBoxLayout(self)
+        self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.tabBar = QTabWidget()
         self.tabs = dict()
         self.setupOptions()
@@ -174,6 +175,7 @@ class ContankiConfig(QDialog):
         
         profileBar = QWidget()
         profileBar.layout = QHBoxLayout()
+        profileBar.layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self._profile = profileCombo = QComboBox(tab)
         profileCombo.addItems(p_list := getProfileList(include_defaults=False))
         profileCombo.setCurrentIndex(p_list.index(self.profile.name))
@@ -366,6 +368,8 @@ class ContankiConfig(QDialog):
                     qconnect(control.action.currentIndexChanged, control.update)
                     if button in self.profile.mods: continue
                     if button >= 100:
+                        if not ((button - 100) // 2) < len(self.axes_bindings):
+                            continue
                         if self.axes_bindings[(button - 100) // 2].currentText() != "Buttons":
                             continue
                     widget.layout.addWidget(control, row, col)
@@ -390,6 +394,7 @@ class ContankiConfig(QDialog):
         self.tabBar.removeTab(1)
         self.setup_bindings()
         self.tabBar.setCurrentIndex(current_tab)
+        self.resize(self.sizeHint())
 
     def updateBinding(self, state, mod, button):
         action = self.tabs['bindings'].stateTabs[state].modTabs[mod].controls[button].currentText()
