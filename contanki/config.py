@@ -6,11 +6,11 @@ from aqt import QTableWidget, QTableWidgetItem
 from aqt.qt import QAction, QDialog, QWidget, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QTabWidget
 from aqt.qt import QKeySequenceEdit, QSpinBox, QLabel, QGridLayout, QGroupBox
 from aqt.theme import theme_manager
-from aqt.utils import showInfo, tooltip
+from aqt.utils import showInfo, tooltip, getText
 
 from .funcs import get_button_icon
 from .consts import BUTTON_NAMES, AXES_NAMES
-from .profile import createProfile, getControllerList, getProfile, getProfileList, Profile, user_files_path, updateControllers, addon_path
+from .profile import *
 from .actions import state_actions
 from .components import ControlButton
 
@@ -25,7 +25,7 @@ class ContankiConfig(QDialog):
         self.setFixedWidth(800)
         self.setMinimumHeight(660)
 
-        self.profile = profile
+        self.profile = profile.copy()
         self.layout = QVBoxLayout(self)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.tabBar = QTabWidget()
@@ -58,6 +58,8 @@ class ContankiConfig(QDialog):
         self.layout.addWidget(self.tabBar)
         self.layout.addWidget(self.buttons)
 
+        self.to_delete = list()
+
         self.setLayout(self.layout)
         self.open()
 
@@ -78,6 +80,9 @@ class ContankiConfig(QDialog):
                         self._options["Flags"].append(int(flag.objectName()))
 
         mw.addonManager.writeConfig(__name__, self._options)
+
+        for profile in self.to_delete:
+            deleteProfile(profile, False)
 
         states = [
             "all",
@@ -123,15 +128,36 @@ class ContankiConfig(QDialog):
         pass
 
     def changeProfile(self, profile: Profile = None) -> None:
-        if not profile:
-            profile = getProfile(self._profile.currentText())
-        elif type(profile) == str:
+        if type(profile) == str:
             profile = getProfile(profile)
+        elif not profile or type(profile) != Profile:
+            profile = getProfile(self._profile.currentText())
         if not profile:
             return
-        self.profile = profile
-        self.tabBar.removeTab(1)
-        self.setupBindings()
+        self.profile = profile.copy()
+        self.refresh_bindings()
+
+    def addProfile(self) -> None:
+        new_profile = createProfile()
+        if not new_profile: return
+        self._profile.addItem(new_profile.name)
+        self._profile.setCurrentText(new_profile.name)
+
+    def delete_profile(self) -> None:
+        if len(self._profile) == 1:
+            showInfo("You can't delete the last profile")
+            return
+        self.to_delete.append(self.profile.name)
+        self._profile.removeItem(self._profile.currentIndex())
+
+    def rename_profile(self) -> None:
+        old_name = self.profile.name
+        new_name, success = getText("Please enter a new profile name", self, title = "New Name")
+        if not success:
+            return
+        self._profile.setItemText(self._profile.currentIndex(), new_name)
+        self.profile.name = new_name
+        self.to_delete.append(old_name)
 
     def findCustomActions(self) -> None:
         shortcuts = [shortcut for name, shortcut in self._options["Custom Actions"].items()]
@@ -146,12 +172,6 @@ class ContankiConfig(QDialog):
             if scut.key().toString() != "":
                 self._options["Custom Actions"][scut.key().toString()] = scut.key().toString()
 
-    def addProfile(self) -> None:
-        new_profile = createProfile()
-        if not new_profile: return
-        self._profile.addItem(new_profile.name)
-        self._profile.setCurrentIndex(-1)
-        self.changeProfile(new_profile)
 
     def setupOptions(self) -> None:
         tab = QWidget()
@@ -179,15 +199,22 @@ class ContankiConfig(QDialog):
         self._profile = profileCombo = QComboBox(tab)
         profileCombo.addItems(p_list := getProfileList(include_defaults=False))
         profileCombo.setCurrentIndex(p_list.index(self.profile.name))
-        profileCombo.currentTextChanged.connect(self.changeProfile)
+        profileCombo.currentIndexChanged.connect(self.changeProfile)
         profileBar.layout.addWidget(QLabel("Profile", tab))
         profileBar.layout.addWidget(profileCombo)
         
-        addButton = QPushButton('Add Profile', tab)
-        addButton.clicked.connect(self.addProfile)
-        profileBar.layout.addWidget(addButton)
-        profileBar.layout.addWidget(QPushButton('Delete Profile', tab))
-        profileBar.layout.addWidget(QPushButton('Rename Profile', tab))
+        add_button = QPushButton('Add Profile', tab)
+        delete_button = QPushButton('Delete Profile', tab)
+        rename_button = QPushButton('Rename Profile', tab)
+        
+        add_button.clicked.connect(self.addProfile)
+        delete_button.clicked.connect(self.delete_profile)
+        rename_button.clicked.connect(self.rename_profile)
+        
+        profileBar.layout.addWidget(add_button)
+        profileBar.layout.addWidget(delete_button)
+        profileBar.layout.addWidget(rename_button)
+        
         profileBar.setLayout(profileBar.layout)
 
         self._options = mw.addonManager.getConfig(__name__)

@@ -149,12 +149,25 @@ class Profile:
         'size'             : self.size,
         'mods'             : self.mods,
         'bindings'         : self.bindings,
-        'controller'         : self.controller,
+        'controller'       : self.controller,
         'axes_bindings'    : self.axes_bindings,
         }
 
         with open(path, 'w') as f:
                 json.dump(output, f)
+
+    def copy(self):
+        new_profile =  {
+            'name'             : deepcopy(self.name),
+            'size'             : deepcopy(self.size),
+            'mods'             : deepcopy(self.mods),
+            'bindings'         : deepcopy(self.bindings),
+            'controller'       : deepcopy(self.controller),
+            'axes_bindings'    : deepcopy(self.axes_bindings),
+            }
+
+        return Profile(new_profile)
+
 
 
 def identifyController(id: str, len_buttons: int, len_axes: int) -> str:
@@ -280,9 +293,9 @@ def createProfile(controller: str = None) -> Profile:
         getProfileList(),
         editable = False,
     )
-    if not okay1 or not old: return
+    if not (okay1 and old): return
     name, okay2 = QInputDialog().getText(mw, 'Create New Profile', 'Enter the new profile name:')
-    if not name or not okay2: return
+    if not (name and okay2): return
 
     if os.path.exists(os.path.join(user_profile_path, name)):
         showInfo(f"Error: Profile name '{name}' already in use")
@@ -291,36 +304,41 @@ def createProfile(controller: str = None) -> Profile:
         showInfo(f"Error: Profile name '{name}' already in use")
         return
 
-    copyProfile(old, name)
-    return getProfile(name)
+    return copyProfile(old, name)
 
 
-def deleteProfile(name: str) -> None:
+def deleteProfile(name: str, confirm: bool = True) -> None:
     path = os.path.join(default_profile_path, name)
     if os.path.exists(path):
-        tooltip('Cannot delete built-in profiles.')
+        raise ValueError('Tried to delete built-in profile')
 
     path = os.path.join(user_profile_path, name)
+
     def delete():
         os.remove(path)
     
     if os.path.exists(path):
-        confirm = QMessageBox()
-        confirm.setText(f"This will delete the profile '{name}'.")
-        confirm.setWindowTitle("Overwrite Profile")
-        confirm.buttonClicked.connect(delete)
-        confirm.open()
+        if confirm:
+            confirm_dialog = QMessageBox()
+            confirm_dialog.setText(f"This will delete the profile '{name}'.")
+            confirm_dialog.setWindowTitle("Overwrite Profile")
+            confirm_dialog.clickedButton.connect(delete)
+            confirm_dialog.open()
+        else:
+            delete()
+
 
 
 def copyProfile(name: str, new_name: str) -> None:
     if not os.path.exists(os.path.join(default_profile_path, name)):
         if not os.path.exists(os.path.join(user_profile_path, name)):
-            tooltip(f"Error: profile '{name}' does not exist")
-            return
+            raise FileNotFoundError
 
-    profile = getProfile(name)
+    profile = getProfile(name).copy()
     profile.name = new_name
     profile.save()
+
+    return profile
 
 
 def findProfile(controller: str, len_buttons: int, len_axes: int) -> Profile:
@@ -334,7 +352,7 @@ def findProfile(controller: str, len_buttons: int, len_axes: int) -> Profile:
     if (n := f'Standard Gamepad ({len_buttons} Buttons, {len_axes} Axes)') in default_profiles:
         profile_to_copy = n
     else:
-        profile_to_copy = 'Blank'
+        profile_to_copy = 'Standard Gamepad (16 Buttons, 4 Axes)'
 
     copyProfile(profile_to_copy, controller)
     updateControllers(controller, controller)
