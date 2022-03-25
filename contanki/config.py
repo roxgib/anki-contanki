@@ -80,6 +80,8 @@ class ContankiConfig(QDialog):
                         self._options["Flags"].append(int(flag.objectName()))
 
         mw.addonManager.writeConfig(__name__, self._options)
+        self.profile.move_mouse = move_mouse_build()
+        self.profile.scroll = scroll_build()
 
         for profile in self.to_delete:
             deleteProfile(profile, False)
@@ -229,6 +231,7 @@ class ContankiConfig(QDialog):
                 self.options[key].setMinimumWidth(70)
                 self.options[key].setValue(value)
                 form.layout.addRow(key, self.options[key])
+
             elif type(value) == bool:
                 self.options[key] = QCheckBox(key, tab)
                 self.options[key].setChecked(self._options[key])

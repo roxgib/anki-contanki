@@ -7,12 +7,13 @@ from aqt import QComboBox, QEvent, QFont, QHBoxLayout, QLabel, QLayout, QObject,
 from .funcs import get_button_icon
 
 class ControlButton(QWidget):
-    def __init__(self, button: str, controller: str, on_left: bool = True, actions: List[str] = None) -> None:
+    def __init__(self, button: str, controller: str, on_left: bool = True, actions: List[str] = None, is_large: bool = False) -> None:
         super().__init__()
         self.button = button
+        self.is_large = is_large
         self.layout = QHBoxLayout()
         self.layout.setSpacing(15)
-        self.setMaximumHeight(80)
+        self.setMaximumHeight(120 if is_large else 80)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
         self.layout.setContentsMargins(1,1,1,1)
         self.icon = QLabel()
@@ -42,6 +43,8 @@ class ControlButton(QWidget):
     def configure_action(self, on_left: bool = False, actions: List[str] = None) -> None:
         font = QFont()
         font.setBold(True)
+        if self.is_large:
+            font.setPointSize(20)
         
         if actions:
             self.action = QComboBox()

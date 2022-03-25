@@ -1,18 +1,13 @@
 {
     "Flags": [1, 2, 3, 4, 5, 6, 7],
     "Enable Overlays": true,
-    "Enable Tooltips": false,
-    "Enable Dialog Access": true,
-    "Enable Incompatible Controllers": false,
-    "Scroll Speed": 50,
-    "Cursor Speed": 50,
-    "Cursor Acceleration": 50,
+    "Large Overlays": false,
+    "Scroll Speed": 10,
+    "Cursor Speed": 10,
+    "Cursor Acceleration": 10,
     
     "Custom Actions": {
-        "Show Hint": "H",
         "AwesomeTTS": "Ctrl+T"
     }
      
 }
-
-    

@@ -28,14 +28,14 @@ def get_left_right_centre(button: str) -> int:
 
 
 class ControlsOverlay():
-    def __init__(self, profile: Profile):
+    def __init__(self, profile: Profile, is_large: bool = False):
         self.profile = profile
         self.actions = profile.getInheritedBindings()
         self.left = QWidget(mw)
         self.right = QWidget(mw)
         
         self.controls = {
-            control: ControlButton(button, self.profile.controller, on_left=False)
+            control: ControlButton(button, self.profile.controller, on_left=False, is_large=is_large)
             for control, button 
             in BUTTON_NAMES[self.profile.controller].items()
             # if control not in self.profile.mods

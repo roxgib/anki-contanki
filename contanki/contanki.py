@@ -29,8 +29,8 @@ class Contanki(AnkiWebView):
 
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         mw.addonManager.setConfigAction(__name__, self.on_config)
-        # dialogs.register_dialog('ControllerConfigEditor', )
         self.setFixedSize(0,0)
+        self.config = mw.addonManager.getConfig(__name__)
         
         self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
 
@@ -57,7 +57,7 @@ class Contanki(AnkiWebView):
         self.menuItem = QAction(f"Controller Options", mw)
         qconnect(self.menuItem.triggered, self.on_config)
         mw.form.menuTools.addAction(self.menuItem)
-        self.controlsOverlay = ControlsOverlay(self.profile)
+        self.controlsOverlay = ControlsOverlay(self.profile, is_large=self.config['Large Overlays'])
 
     def on_disconnect(self, *args) -> None:
         if self.controlsOverlay:
@@ -85,7 +85,8 @@ class Contanki(AnkiWebView):
     def update_profile(self, profile: Profile) -> None:
         if self.profile:
             self.profile = profile
-            self.controlsOverlay = ControlsOverlay(profile)
+            self.config = mw.addonManager.getConfig(__name__)
+            self.controlsOverlay = ControlsOverlay(profile, self.config['Large Overlays'])
 
     def poll(self, buttons, axes):
         buttons = [True if button == 'true' else False for button in buttons.split(',')]
@@ -98,13 +99,14 @@ class Contanki(AnkiWebView):
             for mod in self.profile.mods
         )
 
-        if mods != self.mods:
-            if any(mods):    
-                self.controlsOverlay.appear(mods)
-            else:
-                self.controlsOverlay.disappear()
+        if self.config['Enable Overlays']:
+            if mods != self.mods:
+                if any(mods):    
+                    self.controlsOverlay.appear(mods)
+                else:
+                    self.controlsOverlay.disappear()
 
-        self.mods = mods
+            self.mods = mods
 
         mod = mods.index(True) + 1 if any(mods) else 0
 

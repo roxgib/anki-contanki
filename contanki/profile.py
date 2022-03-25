@@ -8,6 +8,7 @@ from aqt.utils import showInfo, tooltip
 from aqt.qt import QMessageBox, QInputDialog
 
 from .consts import BUTTON_NAMES
+from .funcs import quadCurve
 from .actions import *
 
 addon_path = os.path.dirname(os.path.abspath(__file__))
@@ -25,6 +26,8 @@ class Profile:
         self.len_buttons, self.len_axes = self.size = profile['size']
         self.controller = profile['controller']
         self.axes_bindings = profile['axes_bindings']
+        self.move_mouse = move_mouse_build()
+        self.scroll = scroll_build()
         self.buildActions()
 
     def buildActions(self) -> dict:
@@ -112,9 +115,10 @@ class Profile:
             elif assignment == "Cursor Vertical":
                 my = value
         if mx or my:
-            moveMouse(mx, my)
+            self.move_mouse(mx, my)
         if sx or sy:
-            scroll(sx, sy)
+            self.scroll(sx, sy)
+
 
     def updateBinding(
         self, 

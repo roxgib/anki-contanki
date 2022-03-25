@@ -152,12 +152,9 @@ def keyPress(key: Qt.Key, mod: Qt.KeyboardModifier = Qt.KeyboardModifier.NoModif
     QCoreApplication.sendEvent(mw.app.focusObject(), QKE(QKE.Type.KeyPress, key, mod))
     QCoreApplication.sendEvent(mw.app.focusObject(), QKE(QKE.Type.KeyRelease, key, mod))
 
+
 def select() -> None:
     mw.web.eval("document.activeElement.click()")
-
-
-def scroll(x: float, y: float) -> None:
-        mw.web.eval(f'window.scrollBy({quadCurve(x)}, {quadCurve(y)})')
 
 
 def tab(value: float):
@@ -167,25 +164,27 @@ def tab(value: float):
         keyPress(Qt.Key.Key_Tab)
 
 
-def hideCursor() -> None:
-    mw.cursor().setPos(
-        QPoint(
-            mw.app.primaryScreen().size().width(), 
-            mw.app.primaryScreen().size().height()
-        )
-    ),
+def scroll_build() -> Callable:
+    config = mw.addonManager.getConfig(__name__)
+    speed = config['Scroll Speed'] / 10
+    def scroll (x: float, y: float) -> None:
+        mw.web.eval(f'window.scrollBy({quadCurve(x*speed)}, {quadCurve(y*speed)})')
 
+    return scroll
 
-def _moveMouse() -> None:
-    scale = mw.screen().geometry().width() / 400
-    def moveMouse(x: float, y: float) -> None:
+def move_mouse_build() -> Callable:
+    config = mw.addonManager.getConfig(__name__)
+    speed = config['Cursor Speed'] / 2
+    accel = config['Cursor Acceleration'] / 5
+    
+    def move_mouse(x: float, y: float) -> None:
         if abs(x) + abs(y) < 0.05: return
         cursor = mw.cursor()
         pos = cursor.pos()
         geom = mw.screen().geometry()
 
-        x = pos.x() + ((x * scale)**2) * x
-        y = pos.y() + ((y * scale)**2) * y
+        y = pos.y() + ((abs(y)*speed)**(accel+1))*y
+        x = pos.x() + ((abs(x)*speed)**(accel+1))*x
         x, y = max(x, geom.x()), max(y, geom.y())
         x, y = min(x, geom.width()), min(y, geom.height())
         
@@ -193,9 +192,15 @@ def _moveMouse() -> None:
         pos.setY(y)
         cursor.setPos(pos)
     
-    return moveMouse
+    return move_mouse
 
-moveMouse = _moveMouse()
+def hideCursor() -> None:
+    mw.cursor().setPos(
+        QPoint(
+            mw.app.primaryScreen().size().width(), 
+            mw.app.primaryScreen().size().height()
+        )
+    )
 
 
 def click(
@@ -233,10 +238,6 @@ def on_enter() -> None:
         select()
     elif mw.state == "overview":
         select()
-
-
-def scroll(x, y) -> None:
-    mw.web.eval(f'window.scrollBy({x}, {y})')
 
 
 def back() -> None:
