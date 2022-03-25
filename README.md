@@ -37,14 +37,11 @@ If you encounter an issue, let me know what you were trying to do, what platform
  - Clicking outside Anki or in the title bar doesn't work 
  - Interaction outside of the main window (e.g. browser) is only partially implemented
  - Some controllers aren't fully mapped or lack default profiles
- - A number of deck-related actions require opening the overview, and will operate on the wrong deck if you try them from the deck screen
- - Certain configuration options are not yet functional
- - A small number of actions don't yet work
 
- Version Specific:
+Version Specific:
  - on Anki 2.1.49 and below, opening certain menus or dialogs prevents any actions from firing, until it's closed and they fire all at once
 
- Platform Specific
+Platform Specific
  - Volume controls only work on Mac
 
 ## Development log

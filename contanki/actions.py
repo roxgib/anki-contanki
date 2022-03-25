@@ -156,9 +156,9 @@ state_actions = {
 
         # Deck Browser Functions    
         "Next Deck",            "Previous Deck",        "Next Due Deck",        "Previous Due Deck",
-        "Collapse/Expand",      "Filter",               "Rebuild",              "Empty",
-        "Check Database",       "Check Media",          "Empty Cards",          "Manage Note Types",
-        "Study Deck",
+        "Collapse/Expand",      "Study Deck",           "Empty Cards",          "Manage Note Types",
+        "Check Database",       "Check Media",
+        
     ],      
 
     "overview": [       
@@ -168,8 +168,8 @@ state_actions = {
         "Sync",                 "Overview",             "Browser",              "Statistics",
         "Main Screen",          "Review",               "Undo",                 "Redo",
         "Back",                 "Forward",              "Enter",                "Fullscreen",
-        "Volume Up",            "Volume Down",          "Menubar",              "Add",
-        "Preferences",          "Quit",                 "Hide Cursor",
+        "Volume Up",            "Volume Down",          "Add",                  "Hide Cursor",
+        "Preferences",          "Quit",                 
 
         # UI Functions      
         "Click",                "Secondary Click",      "Select Next",          "Select Previous",
@@ -178,8 +178,6 @@ state_actions = {
         # Deck Browser Functions    
         "Next Deck",            "Previous Deck",        "Next Due Deck",        "Previous Due Deck",
         "Collapse/Expand",      "Filter",               "Rebuild",              "Empty",
-        "Check Database",       "Check Media",          "Empty Cards",          "Manage Note Types",
-        "Study Deck",
 
         # Overview Functions        
         "Custom Study",     
