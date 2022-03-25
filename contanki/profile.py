@@ -158,17 +158,16 @@ class Profile:
 
 
 def identifyController(id: str, len_buttons: int, len_axes: int) -> str:
-    vendor_id = search(r'Vendor:\s([0-9a-fA-F]{4}?)', id)
-    device_id = search(r'Product:\s([0-9a-fA-F]{4}?)', id)
+    vendor_id = search(r'Vendor: (\w{4})', id).group(1)
+    device_id = search(r'Product: (\w{4})', id).group(1)
 
-    controllers = json.loads(get_file('controllerIDs.json'))
+    controller_ids = json.loads(get_file('controllerIDs.json'))
 
-    if vendor_id in controllers['vendors']:
-        vendor_name = controllers['vendors'][vendor_id]
-        if device_id in controllers['devices'][vendor_id]:
-            device_name = controllers['vendors'][vendor_id][device_id]
-            controllers = getControllerList()
-            if device_name in controllers:
+    if vendor_id in controller_ids['vendors']:
+        vendor_name = controller_ids['vendors'][vendor_id]
+        if device_id in controller_ids['devices'][vendor_id]:
+            device_name = controller_ids['devices'][vendor_id][device_id]
+            if device_name in BUTTON_NAMES:
                 return device_name
 
     id = id.lower()
@@ -178,7 +177,7 @@ def identifyController(id: str, len_buttons: int, len_axes: int) -> str:
             return "PlayStation Controller"
         elif len_buttons == 17:
             return 'DualShock 3'
-        elif 'DualSense' in id or len_buttons == 19:
+        elif 'DualSense' in id:
             return 'DualSense'
         elif len_buttons == 18:
             return 'DualShock 4'
@@ -209,7 +208,7 @@ def identifyController(id: str, len_buttons: int, len_axes: int) -> str:
 
     if 'switch' in id:
         if 'pro' in id:
-            return 'Switch Pro Controller'
+            return 'Switch Pro'
         else:
             if 'left' in id:
                 return 'Joy-Con Left'
@@ -336,7 +335,7 @@ def findProfile(controller: str, len_buttons: int, len_axes: int) -> Profile:
         profile_to_copy = n
     else:
         profile_to_copy = 'Blank'
-        
+
     copyProfile(profile_to_copy, controller)
     updateControllers(controller, controller)
     profile = getProfile(controller)
