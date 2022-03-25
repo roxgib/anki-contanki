@@ -49,6 +49,15 @@ If you encounter an issue, let me know what you were trying to do, what platform
 
 ## Development log
 
+### Alpha 8
+
+- Profile buttons are now functional, allowing you to add, delete, and rename profiles. 
+- Mouse and scroll behaviour can now be customised. 
+- Added option to disable or use large overlays. 
+- Various fixes.
+
+I need to create default profiles for some remaining controllers, and if I don't find any more bugs I'll release a beta.
+
 ### Alpha 7
 
 Smaller hotfix release, mostly fixing controller compatibility and config dialog issues. The buttons in the config dialog now light up when you press the corresponding button on your controller.
