@@ -25,7 +25,7 @@ class ContankiConfig(QDialog):
         self.setFixedWidth(800)
         self.setMinimumHeight(660)
 
-        self.profile = profile.copy()
+        self.profile = profile
         self.layout = QVBoxLayout(self)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.tabBar = QTabWidget()

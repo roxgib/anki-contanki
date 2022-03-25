@@ -1,14 +1,8 @@
-from collections import defaultdict
-from typing import Any, Dict, Optional
-from os import path
+from aqt.qt import QLayout, QVBoxLayout, QWidget, Qt
+from aqt import mw
 
-from aqt import QFont, QHBoxLayout, QLabel, QLayout, QPixmap, QSizePolicy, QVBoxLayout, QWidget, Qt, mw, QImage
-from aqt.webview import AnkiWebView
-
-from .consts import BUTTON_NAMES
-
+from .consts import BUTTON_NAMES, BUTTON_ORDER
 from .funcs import get_state
-from .funcs import get_dark_mode
 from .profile import Profile
 from .components import ControlButton
 
@@ -114,62 +108,3 @@ class ControlsOverlay():
 
             self.left.show()
             self.right.show()
-
-
-BUTTON_ORDER = [
-        'Left Shoulder',
-        'Right Shoulder',
-        'Left Trigger',
-        'Right Trigger',
-        'Triangle',
-        'Circle',
-        'Square',
-        'Cross',
-        'Y',
-        'X',
-        'B',
-        'A',
-        'D-Pad Up',
-        'D-Pad Down',
-        'D-Pad Left',
-        'D-Pad Right',
-        'Up',
-        'Down',
-        'Left',
-        'Right',
-        'Z',
-        'LZ',
-        'RZ',
-        'Capture',
-        'Plus',
-        'Minus',
-        'Menu',
-        'View',
-        'Start',
-        'Select',
-        'Forward',
-        'Back',
-        'Xbox',
-        'Home',
-        'Share',
-        'Options',
-        'Stick',
-        'Left Stick',
-        'Right Stick',
-        'Stick Up',
-        'Stick Down',
-        'Stick Left',
-        'Stick Right',
-        'Left Stick',
-        'Right Stick',
-        'Left Stick Up',
-        'Left Stick Down',
-        'Left Stick Left',
-        'Left Stick Right',
-        'Right Stick Up',
-        'Right Stick Down',
-        'Right Stick Left',
-        'Right Stick Right',
-        'Pad',
-        'PS',
-]

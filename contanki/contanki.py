@@ -1,5 +1,6 @@
-from ast import Call
+from collections import defaultdict
 from time import time
+from typing import Tuple
 
 from aqt import QMenu, gui_hooks, mw
 from aqt.qt import QAction, qconnect
@@ -17,27 +18,19 @@ from .profile import *
 class Contanki(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
+
         self.profile = None
-
-        self.funcs = {
-            'on_connect':               self.on_connect,
-            'on_disconnect':            self.on_disconnect,
-            'poll':                     self.poll,
-        }
-
         self.icons = defaultdict(list)
 
-        gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         mw.addonManager.setConfigAction(__name__, self.on_config)
-        self.setFixedSize(0,0)
         self.config = mw.addonManager.getConfig(__name__)
         
+        self.setFixedSize(0,0)
+        
+        gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
 
-    def register_icon(self, index: int, on_func: Callable, off_func: Callable) -> None:
-        self.icons[index].append((on_func, off_func))
-
-    def on_connect(self, buttons: str, axes:str, *con: List[str]) -> None:
+    def on_connect(self, buttons: str, axes: str, *con: Tuple[str]) -> None:
         buttons, axes, con = int(buttons), int(axes), '::'.join(con)
         controller = identifyController(con, buttons, axes)
         
@@ -68,27 +61,23 @@ class Contanki(AnkiWebView):
         self.reload()
 
     def on_receive_message(self, handled: tuple, message: str, context: str) -> tuple:
+        funcs = {
+            'on_connect':       self.on_connect,
+            'on_disconnect':    self.on_disconnect,
+            'poll':             self.poll,
+        }
+
         if message[:8] == 'contanki':
             _, func, *args = message.split('::')
             if func == 'message':
-                tooltip(str(args[0]))
+                tooltip(str('::'.join(args)))
             else:
-                if type(args) != list(): args=list(args)
-                self.funcs[func](*args)
+                funcs[func](*args)
             return (True, None)
         else:
             return handled
-            
-    def on_config(self) -> None:
-        ContankiConfig(mw, self.profile)
 
-    def update_profile(self, profile: Profile) -> None:
-        if self.profile:
-            self.profile = profile
-            self.config = mw.addonManager.getConfig(__name__)
-            self.controlsOverlay = ControlsOverlay(profile, self.config['Large Overlays'])
-
-    def poll(self, buttons, axes):
+    def poll(self, buttons: str, axes: str) -> None:
         buttons = [True if button == 'true' else False for button in buttons.split(',')]
         axes = [float(axis) for axis in axes.split(',')]
         state = get_state()
@@ -128,8 +117,14 @@ class Contanki(AnkiWebView):
         if any(axes):
             self.profile.doAxesActions(state, mod, axes)
 
-    def timeGuard(self, axis: str, value: float) -> bool:
-        if (_time := time()) - self.last[axis] > 1 - abs(value): 
-            self.last[axis] = _time
-            return False
-        return True
+    def on_config(self) -> None:
+        ContankiConfig(mw, self.profile.copy())
+
+    def update_profile(self, profile: Profile) -> None:
+        if self.profile:
+            self.profile = profile
+            self.config = mw.addonManager.getConfig(__name__)
+            self.controlsOverlay = ControlsOverlay(profile, self.config['Large Overlays'])
+
+    def register_icon(self, index: int, on_func: Callable, off_func: Callable) -> None:
+        self.icons[index].append((on_func, off_func))

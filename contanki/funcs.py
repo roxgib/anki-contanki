@@ -1,18 +1,18 @@
 import re
-from typing import Callable
 import subprocess
+from typing import Callable, Dict
 from functools import partial
-from os import listdir
-
-from anki.decks import DeckId
-from aqt import QIcon, QKeyEvent, QKeySequence, QPainter, mw
-from aqt.deckoptions import display_options_for_deck_id
-from aqt.qt import QCoreApplication, QEvent, QMouseEvent, QPoint, QPointF, Qt, QPixmap
-from aqt.qt import QKeyEvent as QKE
-from aqt.utils import current_window
 from os.path import dirname, abspath, join, exists
 
+from anki.decks import DeckId
+from aqt import QPainter, mw
+from aqt.deckoptions import display_options_for_deck_id
+from aqt.qt import QCoreApplication, QKeySequence, QMouseEvent, QEvent, QPixmap, QPoint, QPointF, Qt
+from aqt.qt import QKeyEvent as QKE
+from aqt.utils import current_window
+
 addon_path = dirname(abspath(__file__))
+
 
 # Internal
 
@@ -22,10 +22,8 @@ def get_state() -> str:
             return mw.reviewer.state if mw.state == "review" else mw.state
         elif focus.objectName() == 'Preferences':
             return 'dialog'
-        elif focus.objectName() == '':
-            return 'NoFocus'
         else:
-            return focus.objectName().lower()
+            return 'NoFocus'
     else:
         return 'NoFocus'
 
@@ -34,38 +32,7 @@ def _pass() -> None:
     pass
 
 
-def cdid() -> DeckId:
-    return mw.col.decks.get_current_id()
-
-
-def build_mappings(mappings):
-    states = {
-            "startup":          mappings['startup'],
-            "deckBrowser":      mappings['deckBrowser'],
-            "overview":         mappings['overview'],
-            "profileManager":   mappings['profileManager'],
-            'question':         mappings['question'],
-            'answer':           mappings['answer'],
-            'dialog':           mappings['dialog'],
-        }
-
-    for key, value in mappings['review'].items():
-        if key not in states['question'] or states['question'][key] == '':
-            states['question'][key] = value
-        if key not in states['answer'] or states['answer'][key] == '':
-            states['answer'][key] = value
-
-    for key, value in mappings['all'].items():
-        for state, d in states.items():
-            if key not in d or d[key] == '':
-                states[state][key] = value
-
-    states['NoFocus'] = {'Pad':'Focus Main Window'}
-
-    return states
-
-
-def quadCurve(value, factor = 5):
+def quad_curve(value: float, factor: int = 5) -> float:
     return ((value * factor)**2) * value
 
 
@@ -74,7 +41,6 @@ def _get_dark_mode() -> Callable:
         from aqt.utils import is_mac, is_win
     except:
         return lambda: False
-
 
     if is_win:
         from aqt.theme import get_windows_dark_mode
@@ -115,7 +81,7 @@ def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap
     return pixmap
 
 
-def get_custom_actions():
+def get_custom_actions() -> Dict[str, Callable]:
     config = mw.addonManager.getConfig(__name__)["Custom Actions"]
     actions = dict()
     for action in config.keys():
@@ -133,8 +99,7 @@ def get_custom_actions():
     return actions
 
 
-
-def get_file(file: str) -> str:
+def get_file(file: str) -> str: # refactor this
     paths = [
         addon_path,
         join(addon_path, 'user_files'), 
@@ -145,6 +110,7 @@ def get_file(file: str) -> str:
         if exists(join(path, file)):
             with open(join(path, file)) as f:
                 return f.read()
+
 
 # Common
 
@@ -157,7 +123,7 @@ def select() -> None:
     mw.web.eval("document.activeElement.click()")
 
 
-def tab(value: float):
+def tab(value: float = 1) -> None:
     if value < 0:
         keyPress(Qt.Key.Key_Tab, Qt.KeyboardModifier.ShiftModifier)
     elif value > 0:
@@ -168,9 +134,11 @@ def scroll_build() -> Callable:
     config = mw.addonManager.getConfig(__name__)
     speed = config['Scroll Speed'] / 10
     def scroll (x: float, y: float) -> None:
-        mw.web.eval(f'window.scrollBy({quadCurve(x*speed)}, {quadCurve(y*speed)})')
+        mw.web.eval(f'window.scrollBy({quad_curve(x*speed)}, {quad_curve(y*speed)})')
 
     return scroll
+
+scroll = scroll_build()
 
 def move_mouse_build() -> Callable:
     config = mw.addonManager.getConfig(__name__)
@@ -194,7 +162,8 @@ def move_mouse_build() -> Callable:
     
     return move_mouse
 
-def hideCursor() -> None:
+
+def hide_cursor() -> None:
     mw.cursor().setPos(
         QPoint(
             mw.app.primaryScreen().size().width(), 
@@ -254,32 +223,29 @@ def forward() -> None:
         mw.moveToState("review")
 
 
-def filter_deck() -> None:
-    pass
-
-
-def onOptions() -> None:
-    def deckOptions(did: str) -> None:
+def on_options() -> None:
+    def deck_options(did: str) -> None:
         try: 
             display_options_for_deck_id(DeckId(int(did)))
         except:
-            mw.onPrefs
+            mw.onPrefs()
     if mw.state == "review":
         mw.reviewer.onOptions()
     elif mw.state == "deckBrowser":
-        mw.web.evalWithCallback('document.activeElement.parentElement.parentElement.id', deckOptions)
+        mw.web.evalWithCallback('document.activeElement.parentElement.parentElement.id', deck_options)
     elif mw.state == "overview":
-        display_options_for_deck_id(cdid())
+        display_options_for_deck_id(mw.col.decks.get_current_id())
 
 
-def toggle_fullscreen():
+def toggle_fullscreen() -> None:
     if cw := current_window().window():
         if cw.isFullScreen():
             cw.showNormal()
         else:
             cw.showFullScreen()
 
-def changeVolume(direction=True):
+
+def change_volume(direction=True):
     try:
         from aqt.utils import is_mac
     except:
@@ -299,7 +265,7 @@ def changeVolume(direction=True):
             current_volume = int(current_volume.group(1)) / 14
             current_volume += -0.5 + int(direction)
             subprocess.run(f'osascript -e "set volume {current_volume}"', shell=True)
-        
+
 
 ### Review
 
@@ -395,7 +361,7 @@ def choose_deck(direction: bool, due: bool = False) -> None:
             lambda c_deck: _choose_deck(c_deck, decks, direction)
             )
     else:
-        _choose_deck(cdid(), decks, direction)
+        _choose_deck(mw.col.decks.get_current_id(), decks, direction)
 
 
 def collapse_deck() -> None:

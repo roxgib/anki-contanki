@@ -5,8 +5,8 @@ from .funcs import *
 from .funcs import _pass
 
 button_actions = {
-    "":                     _pass,                      # handle unmapped buttons
-    "mod":                  _pass,                      # For buttons used as modifiers
+    "":       _pass,  # handle unmapped buttons
+    "mod":    _pass,  # For buttons used as modifiers
     
 
     # Common Function                                           
@@ -22,16 +22,13 @@ button_actions = {
     "Forward":              forward,                                    # Works
     "Enter":                on_enter,                                   # Mostly Works
     "Fullscreen":           toggle_fullscreen,                          # Works
-    "Volume Up":            changeVolume,                               # Only works on Mac
-    "Volume Down":          lambda: changeVolume(False),                # Only works on Mac
-    "Menubar":              mw.menuWidget().setFocus,                   # Doesn't Work
-    "Add":                  mw.onAddCard,                               # Not Tested
-    "About Anki":           mw.onAbout,                                 # Not Tested
+    "Volume Up":            change_volume,                              # Only works on Mac
+    "Volume Down":          lambda: change_volume(False),               # Only works on Mac
+    # "Menubar":              mw.menuWidget().setFocus,                   # Doesn't Work
+    "Add":                  mw.onAddCard,                               # Works
     "Preferences":          mw.onPrefs,                                 # Works, but preferences dialog not controllable
     "Quit":                 mw.close,                                   # Works
-    "Switch Profile":       mw.unloadProfileAndShowProfileManager,      # Not Tested
-    "Hide Cursor":          hideCursor,                                 # Works
-    "Anki Help":            mw.onDocumentation,                         # Not Tested
+    "Hide Cursor":          hide_cursor,                                # Works
 
 
     # UI Functions
@@ -42,7 +39,7 @@ button_actions = {
                                         Qt.Key.Key_Tab, 
                                         Qt.KeyboardModifier.ShiftModifier),
     "Select":               select,                                             # Works
-    "Focus Main Window":    mw.window().activateWindow,                         # Doesn't Work
+    # "Focus Main Window":    mw.window().activateWindow,                         # Doesn't Work
     "Switch Window":        mw.focusNextChild,                                  # Not Tested
     "Escape":               lambda:keyPress(Qt.Key.Key_Escape),                 # Works
     "Up":                   lambda: keyPress(Qt.Key.Key_Up),                    # Works
@@ -53,9 +50,9 @@ button_actions = {
     "Down by 10":           lambda: keyPress(                                   # Works
                                 Qt.Key.Key_Down,
                                 Qt.KeyboardModifier.ControlModifier),                  
-    'Scroll Up':            lambda: scroll(0, -50),                             # Not Tested
-    'Scroll Down':          lambda: scroll(0, 50),                              # Not Tested
-    'Options':              onOptions,                                          # Works in some screens
+    'Scroll Up':            lambda: scroll(0, -50),                             # Works
+    'Scroll Down':          lambda: scroll(0, 50),                              # Works
+    'Options':              on_options,                                         # Works in some screens
 
     
     # Deck Browser Functions
@@ -70,11 +67,11 @@ button_actions = {
     "Empty Cards":          mw.onEmptyCards,                                    # Works
     "Manage Note Types":    mw.onNoteTypes,                                     # Works
     "Study Deck":           mw.onStudyDeck,                                     # Works
-    "Export":               mw.onExport,                                        # Not Tested
-    "Import":               mw.onImport,                                        # Not Tested
+    # "Export":               mw.onExport,                                        # Not Tested
+    # "Import":               mw.onImport,                                        # Not Tested
     
     # Overview Functions
-    "Custom Study":         lambda: keyPress(Qt.Key.Key_C),                     # Works but opens dialog
+    "Custom Study":         lambda: keyPress(Qt.Key.Key_C),                     # Works
     "Rebuild":              mw.overview.rebuild_current_filtered_deck,          # Works
     "Empty":                mw.overview.empty_current_filtered_deck,            # Works
 
@@ -87,19 +84,19 @@ button_actions = {
     "Suspend Note":         mw.reviewer.suspend_current_note,                   # Works
     "Bury Card":            mw.reviewer.bury_current_card,                      # Works
     "Bury Note":            mw.reviewer.bury_current_note,                      # Works
+    "Flag":                 cycle_flag,                                         # Works
     "Mark Note":            mw.reviewer.toggle_mark_on_current_note,            # Works
     "Delete Note":          mw.reviewer.delete_current_note,                    # Works
     "Record Voice":         mw.reviewer.onRecordVoice,                          # Not Tested
     "Replay Voice":         mw.reviewer.onReplayRecorded,                       # Not Tested
-    "Card Info":            mw.reviewer.on_card_info,                           # Works but opens dialog
-    "Previous Card Info":   previous_card_info,                                 # Works but opens dialog
+    "Card Info":            mw.reviewer.on_card_info,                           # Works
+    "Previous Card Info":   previous_card_info,                                 # Works
     "Pause Audio":          mw.reviewer.on_pause_audio,                         # Works
     "Audio +5s":            mw.reviewer.on_seek_forward,                        # Works
     "Audio -5s":            mw.reviewer.on_seek_backward,                       # Works
     "Replay Audio":         mw.reviewer.replayAudio,                            # Works
     "Edit Note":            mw.onEditCurrent,                                   # Not Tested
     "Flip Card":            mw.reviewer.onEnterKey,                             # Works
-    "Flag":                 cycle_flag,                                         # Works
     "Set Due Date":         mw.reviewer.on_set_due,                             # Works
 }
 
@@ -120,8 +117,6 @@ release_actions = {
     "Previous Deck":        _pass,
     "Next Due Deck":        _pass,
     "Previous Due Deck":    _pass,
-    "":                     _pass,
-    "mod":                  _pass,
 }
 
 
@@ -133,9 +128,8 @@ state_actions = {
         "Sync",                 "Overview",             "Browser",              "Statistics",
         "Main Screen",          "Review",               "Undo",                 "Redo",
         "Back",                 "Forward",              "Enter",                "Fullscreen",
-        "Volume Up",            "Volume Down",          "Menubar",              "Add",
-        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
-        "Hide Cursor",          "Anki Help",    
+        "Volume Up",            "Volume Down",          "Add",                  "Hide Cursor",
+        "About Anki",           "Preferences",          "Quit",
 
         # UI Functions  
         "Click",                "Secondary Click",      "Select Next",          "Select Previous",
@@ -143,7 +137,7 @@ state_actions = {
 
         # Deck Browser Functions    
         "Check Database",       "Check Media",          "Empty Cards",          "Manage Note Types",
-        "Study Deck",           
+        "Study Deck",
     ],  
 
     "deckBrowser": [    
@@ -153,9 +147,8 @@ state_actions = {
         "Sync",                 "Overview",             "Browser",              "Statistics",
         "Main Screen",          "Review",               "Undo",                 "Redo",
         "Back",                 "Forward",              "Enter",                "Fullscreen",
-        "Volume Up",            "Volume Down",          "Menubar",              "Add",
-        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
-        "Hide Cursor",          "Anki Help",    
+        "Volume Up",            "Volume Down",          "Hide Cursor",          "Add",
+        "Preferences",          "Quit",
 
         # UI Functions      
         "Click",                "Secondary Click",      "Select Next",          "Select Previous",
@@ -165,7 +158,7 @@ state_actions = {
         "Next Deck",            "Previous Deck",        "Next Due Deck",        "Previous Due Deck",
         "Collapse/Expand",      "Filter",               "Rebuild",              "Empty",
         "Check Database",       "Check Media",          "Empty Cards",          "Manage Note Types",
-        "Study Deck",           "Export",               "Import",   
+        "Study Deck",
     ],      
 
     "overview": [       
@@ -176,8 +169,7 @@ state_actions = {
         "Main Screen",          "Review",               "Undo",                 "Redo",
         "Back",                 "Forward",              "Enter",                "Fullscreen",
         "Volume Up",            "Volume Down",          "Menubar",              "Add",
-        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
-        "Hide Cursor",          "Anki Help",    
+        "Preferences",          "Quit",                 "Hide Cursor",
 
         # UI Functions      
         "Click",                "Secondary Click",      "Select Next",          "Select Previous",
@@ -187,7 +179,7 @@ state_actions = {
         "Next Deck",            "Previous Deck",        "Next Due Deck",        "Previous Due Deck",
         "Collapse/Expand",      "Filter",               "Rebuild",              "Empty",
         "Check Database",       "Check Media",          "Empty Cards",          "Manage Note Types",
-        "Study Deck",           "Export",               "Import",   
+        "Study Deck",
 
         # Overview Functions        
         "Custom Study",     
@@ -200,9 +192,8 @@ state_actions = {
         "Sync",                 "Overview",             "Browser",              "Statistics",
         "Main Screen",          "Review",               "Undo",                 "Redo",
         "Back",                 "Forward",              "Enter",                "Fullscreen",
-        "Volume Up",            "Volume Down",          "Menubar",              "Add",
-        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
-        "Hide Cursor",          "Anki Help",    
+        "Volume Up",            "Volume Down",          "Add",                  "Preferences",          
+        "Quit",                 "Hide Cursor",
 
         # UI Functions      
         "Click",                "Secondary Click",      "Select Next",          "Select Previous",
@@ -214,7 +205,7 @@ state_actions = {
         "Mark Note",            "Delete Note",          "Record Voice",         "Replay Voice",
         "Card Info",            "Previous Card Info",   "Pause Audio",          "Audio +5s",
         "Audio -5s",            "Replay Audio",         "Edit Note",            "Flip Card",
-        "Flag",                 "Set Due Date",         "Show Hint",    
+        "Flag",                 "Set Due Date",
     ],      
 
     "question": [       
@@ -224,9 +215,8 @@ state_actions = {
         "Sync",                 "Overview",             "Browser",              "Statistics",
         "Main Screen",          "Review",               "Undo",                 "Redo",
         "Back",                 "Forward",              "Enter",                "Fullscreen",
-        "Volume Up",            "Volume Down",          "Menubar",              "Add",
-        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
-        "Hide Cursor",          "Anki Help",    
+        "Volume Up",            "Volume Down",          "Add",                  "Preferences",
+        "Quit",                 "Hide Cursor",
 
         # UI Functions      
         "Click",                "Secondary Click",      "Select Next",          "Select Previous",
@@ -238,7 +228,7 @@ state_actions = {
         "Mark Note",            "Delete Note",          "Record Voice",         "Replay Voice",
         "Card Info",            "Previous Card Info",   "Pause Audio",          "Audio +5s",
         "Audio -5s",            "Replay Audio",         "Edit Note",            "Flip Card",
-        "Flag",                 "Set Due Date",         "Show Hint",    
+        "Flag",                 "Set Due Date",
     ],      
 
     "answer": [     
@@ -249,8 +239,7 @@ state_actions = {
         "Main Screen",          "Review",               "Undo",                 "Redo",
         "Back",                 "Forward",              "Enter",                "Fullscreen",
         "Volume Up",            "Volume Down",          "Menubar",              "Add",
-        "About Anki",           "Preferences",          "Quit",                 "Switch Profile",
-        "Hide Cursor",          "Anki Help",    
+        "About Anki",           "Preferences",          "Quit",                 "Hide Cursor",
 
         # UI Functions      
         "Click",                "Secondary Click",      "Select Next",          "Select Previous",
@@ -262,7 +251,7 @@ state_actions = {
         "Mark Note",            "Delete Note",          "Record Voice",         "Replay Voice",
         "Card Info",            "Previous Card Info",   "Pause Audio",          "Audio +5s",
         "Audio -5s",            "Replay Audio",         "Edit Note",            "Flip Card",
-        "Flag",                 "Set Due Date",         "Show Hint",    
+        "Flag",                 "Set Due Date",
     ],      
 
     "dialog": [     
@@ -276,6 +265,6 @@ state_actions = {
         "Click",                "Secondary Click",      "Select Next",          "Select Previous",
         "Select",               "Focus Main Window",    "Switch Window",        "Escape",
         "Up",                   "Down",                 "Up by 10",             "Down by 10",
-        "Scroll Up",            "Scroll Down",          
+        "Scroll Up",            "Scroll Down",         
     ],
 }
