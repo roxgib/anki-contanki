@@ -1,5 +1,4 @@
 from collections import defaultdict
-from time import time
 from typing import Tuple
 
 from aqt import QMenu, gui_hooks, mw
@@ -28,10 +27,10 @@ class Contanki(AnkiWebView):
         self.menuItem = QAction(f"Controller Options", mw)
         qconnect(self.menuItem.triggered, self.on_config)
         
-        self.setFixedSize(100,100)
+        self.setFixedSize(0,0)
         
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
-        self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
+        self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>""")
 
     def on_connect(self, buttons: str, axes: str, *con: Tuple[str]) -> None:
         self.on_disconnect()
@@ -68,8 +67,9 @@ class Contanki(AnkiWebView):
         funcs = {
             'on_connect':       self.on_connect,
             'on_disconnect':    self.on_disconnect,
-            'register':         self.register_controllers, 
             'poll':             self.poll,
+            'register':         self.register_controllers, 
+            'initialise':       lambda *args, **kwargs: None
         }
 
         if message[:8] == 'contanki':

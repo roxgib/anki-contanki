@@ -4,7 +4,7 @@ initialise()
 function initialise() {
     if (ready) {return}
     try {
-        bridgeCommand('contanki::message::Contanki Initialised');
+        bridgeCommand('contanki::initialise::arg');
     } catch (err) {
         setTimeout(initialise, 1000);
         return;
