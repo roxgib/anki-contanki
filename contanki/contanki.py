@@ -19,20 +19,24 @@ class Contanki(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
 
-        self.profile = None
+        self.buttons = self.axes = self.profile = self.controlsOverlay = None
         self.icons = defaultdict(list)
+        self.controllers = list()
 
         mw.addonManager.setConfigAction(__name__, self.on_config)
         self.config = mw.addonManager.getConfig(__name__)
+        self.menuItem = QAction(f"Controller Options", mw)
+        qconnect(self.menuItem.triggered, self.on_config)
         
-        self.setFixedSize(0,0)
+        self.setFixedSize(100,100)
         
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>\n<!DOCTYPE html><body></body></html>""")
 
     def on_connect(self, buttons: str, axes: str, *con: Tuple[str]) -> None:
+        self.on_disconnect()
         buttons, axes, con = int(buttons), int(axes), '::'.join(con)
-        controller = identifyController(con, buttons, axes)
+        controller = identifyController(con, buttons, axes)[0]
         
         if controller:
             self.profile = findProfile(controller, buttons, axes)
@@ -47,23 +51,24 @@ class Contanki(AnkiWebView):
         self.len_axes = axes
 
         self.mods = [False] * len(self.profile.mods)
-        self.menuItem = QAction(f"Controller Options", mw)
-        qconnect(self.menuItem.triggered, self.on_config)
         mw.form.menuTools.addAction(self.menuItem)
         self.controlsOverlay = ControlsOverlay(self.profile, is_large=self.config['Large Overlays'])
 
     def on_disconnect(self, *args) -> None:
         if self.controlsOverlay:
             self.controlsOverlay.disappear()
-        self.buttons = self.axes = self.profile = self.controlsOverlay = None
+        self.buttons = self.axes = self.profile = self.controlsOverlay = self.controllers = None
         mw.form.menuTools.removeAction(self.menuItem)
         tooltip('Controller Disconnected')
-        self.reload()
+
+    def register_controllers(self, *controllers):
+        self.controllers = [identifyController(*(controller.split('%%%')))[1] for controller in controllers]
 
     def on_receive_message(self, handled: tuple, message: str, context: str) -> tuple:
         funcs = {
             'on_connect':       self.on_connect,
             'on_disconnect':    self.on_disconnect,
+            'register':         self.register_controllers, 
             'poll':             self.poll,
         }
 

@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from re import search
 import os
 import json
@@ -173,77 +173,73 @@ class Profile:
         return Profile(new_profile)
 
 
+def identifyController(id: str, len_buttons: int, len_axes: int) -> Tuple[str, str]:
+    device_name = id
+    vendor_id = search(r'Vendor: (\w{4})', id)
+    device_id = search(r'Product: (\w{4})', id)
+    if vendor_id is not None and device_id is not None:
+        vendor_id = vendor_id.group(1)
+        device_id = device_id.group(1)
 
-def identifyController(id: str, len_buttons: int, len_axes: int) -> str:
-    vendor_id = search(r'Vendor: (\w{4})', id).group(1)
-    device_id = search(r'Product: (\w{4})', id).group(1)
+        controller_ids = json.loads(get_file('controllerIDs.json'))
 
-    controller_ids = json.loads(get_file('controllerIDs.json'))
-
-    if vendor_id in controller_ids['vendors']:
-        vendor_name = controller_ids['vendors'][vendor_id]
-        if device_id in controller_ids['devices'][vendor_id]:
+        if vendor_id in controller_ids['vendors'] and device_id in controller_ids['devices'][vendor_id]:
             device_name = controller_ids['devices'][vendor_id][device_id]
             if device_name in BUTTON_NAMES:
-                return device_name
+                return device_name, device_name + f' ({len_buttons} buttons)'
 
     id = id.lower()
 
-    if 'dualshock' in id or 'playstation' or 'sony' in id:
+    if 'dualshock' in id or 'playstation' or 'sony' in id: # this would be a good place to use case match
         if len_axes == 0:
-            return "PlayStation Controller"
+            device_name = "PlayStation Controller"
         elif len_buttons == 17:
-            return 'DualShock 3'
+            device_name = 'DualShock 3'
         elif 'DualSense' in id:
-            return 'DualSense'
+            device_name = 'DualSense'
         elif len_buttons == 18:
-            return 'DualShock 4'
-
+            device_name = 'DualShock 4'
     if 'xbox' in id:
         if '360' in id:
-            return 'Xbox 360'
+            device_name = 'Xbox 360'
         elif 'one' in id:
-            return 'Xbox One'
+            device_name = 'Xbox One'
         elif 'elite' in id:
-            return 'Xbox Series'
+            device_name = 'Xbox Series'
         elif 'series' in id:
-            return 'Xbox Series'
+            device_name = 'Xbox Series'
         elif 'adaptive' in id:
-            return 'Xbox 360'
+            device_name = 'Xbox 360'
         elif len_buttons == 16:
-            return 'Xbox 360'
+            device_name = 'Xbox 360'
         elif len_buttons == 17:
-            return 'Xbox Series'
-
+            device_name = 'Xbox Series'
     if 'joycon' in id or 'joy-con' in id:
         if 'left' in id:
-            return 'Joy-Con Left'
+            device_name = 'Joy-Con Left'
         if 'right' in id:
-            return 'Joy-Con Right'
+            device_name = 'Joy-Con Right'
         else:
-            return 'Joy-Con'
-
+            device_name = 'Joy-Con'
     if 'switch' in id:
         if 'pro' in id:
-            return 'Switch Pro'
+            device_name = 'Switch Pro'
         else:
             if 'left' in id:
-                return 'Joy-Con Left'
+                device_name = 'Joy-Con Left'
             if 'right' in id:
-                return 'Joy-Con Right'
+                device_name = 'Joy-Con Right'
             else:
-                return 'Joy-Con'
-
+                device_name = 'Joy-Con'
     if 'wii' in id:
         if 'nunchuck' in id:
-            return 'Wii Nunchuck'
+            device_name = 'Wii Nunchuck'
         else:
-            return 'Wii Remote'
-
+            device_name = 'Wii Remote'
     if 'steam' in id or 'valve' in id:
-        return 'Steam Controller'
+        device_name = 'Steam Controller'
 
-    return None
+    return (device_name, (device_name + f' ({len_buttons} buttons)'))
 
 
 def getControllerList():
