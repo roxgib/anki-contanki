@@ -1,6 +1,6 @@
 # Contanki: Controller Support for Anki
 
-Contanki is an add-on for [Anki](https://apps.ankiweb.com) which allows users to control Anki using a gamepad or other controller device.
+Contanki is an add-on for [Anki](https://apps.ankiweb.net) which allows users to control Anki using a gamepad or other controller device.
 
 Features:
  - Comfortably review your cards using a gamepad - no more sore hands, backs, or eyes!
