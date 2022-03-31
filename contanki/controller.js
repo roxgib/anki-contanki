@@ -39,7 +39,7 @@ function on_controller_connect(event) {
         }
         bridgeCommand(register);
         connect_controller(i);
-        bridgeCommand('contanki::message::Multiple controllers are not yet supported.');
+        bridgeCommand("contanki::message::Multiple controllers detected. Pick which one you'd like to use from the Tools menu.");
     }
 }
 

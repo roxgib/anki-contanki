@@ -36,7 +36,6 @@ If you encounter an issue, let me know what you were trying to do, what platform
  - Add-on doesn't function in the profile window
  - Clicking outside Anki or in the title bar doesn't work 
  - Interaction outside of the main window (e.g. browser) is only partially implemented
- - Some controllers aren't fully mapped or lack default profiles
 
 Version Specific:
  - on Anki 2.1.49 and below, opening certain menus or dialogs prevents any actions from firing, until it's closed and they fire all at once
@@ -45,6 +44,10 @@ Platform Specific
  - Volume controls only work on Mac
 
 ## Development log
+
+### Alpha 9
+- If multiple controllers are plugged in, the user can now select which one to use. Some controllers may present themselves multiple times (presumably for compatibility reasons)
+- Default profiles have been added to all supported controllers
 
 ### Alpha 8
 
