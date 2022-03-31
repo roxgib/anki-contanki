@@ -1,4 +1,4 @@
-let polling, index, ready;
+let polling, index, indices, ready;
 initialise()
 
 function initialise() {
@@ -14,22 +14,10 @@ function initialise() {
     ready = true;
 }
 
-// function on_controller_connect(event) {
-//     let controllers = window.navigator.getGamepads();
-//     for (let i = 0; i < controllers.length; i++) {
-//         if (controllers[i] != null && controllers[i].connected == true) {
-//             bridgeCommand(`contanki::on_connect::${controllers[i].buttons.length}::${controllers[i].axes.length}::${controllers[i].id}`);
-//             index = i;
-//             polling = setInterval(poll, 50);
-//             return;
-//         }
-//     }
-// }
-
 function on_controller_connect(event) {
     let controllers = window.navigator.getGamepads();
     let register = 'contanki::register';
-    let indices = [];
+    indices = [];
     for (let i = 0; i < controllers.length; i++) {
         if (controllers[i] != null && controllers[i].connected == true) {
             indices.push(i);
@@ -49,8 +37,8 @@ function on_controller_connect(event) {
                 i = con;
             }
         }
-        connect_controller(i);
         bridgeCommand(register);
+        connect_controller(i);
         bridgeCommand('contanki::message::Multiple controllers are not yet supported.');
     }
 }
@@ -59,6 +47,7 @@ function connect_controller(i) {
     index = i
     let controllers = window.navigator.getGamepads();
     bridgeCommand(`contanki::on_connect::${controllers[index].buttons.length}::${controllers[index].axes.length}::${controllers[index].id}`);
+    window.clearInterval(polling);
     polling = setInterval(poll, 50);
 }
 

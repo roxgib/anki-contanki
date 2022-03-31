@@ -1,4 +1,5 @@
 from collections import defaultdict
+from copy import copy
 from typing import Tuple
 
 from aqt import QMenu, gui_hooks, mw
@@ -27,13 +28,13 @@ class Contanki(AnkiWebView):
         self.menuItem = QAction(f"Controller Options", mw)
         qconnect(self.menuItem.triggered, self.on_config)
         
-        self.setFixedSize(0,0)
+        self.setFixedSize(100,100)
         
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>""")
 
     def on_connect(self, buttons: str, axes: str, *con: Tuple[str]) -> None:
-        self.on_disconnect()
+        self.reset_controller()
         buttons, axes, con = int(buttons), int(axes), '::'.join(con)
         controller = identifyController(con, buttons, axes)[0]
         
@@ -54,14 +55,32 @@ class Contanki(AnkiWebView):
         self.controlsOverlay = ControlsOverlay(self.profile, is_large=self.config['Large Overlays'])
 
     def on_disconnect(self, *args) -> None:
-        if self.controlsOverlay:
-            self.controlsOverlay.disappear()
-        self.buttons = self.axes = self.profile = self.controlsOverlay = self.controllers = None
-        mw.form.menuTools.removeAction(self.menuItem)
+        if self.controllers is not None:
+            for controller in self.controllers:
+                mw.form.menuTools.removeAction(controller)
+        self.controllers = None
+        self.reset_controller()
         tooltip('Controller Disconnected')
 
+    def reset_controller(self) -> None:
+        if self.controlsOverlay:
+            self.controlsOverlay.disappear()
+        mw.form.menuTools.removeAction(self.menuItem)
+        self.buttons = self.axes = self.profile = self.controlsOverlay = None
+
     def register_controllers(self, *controllers):
-        self.controllers = [identifyController(*(controller.split('%%%')))[1] for controller in controllers]
+        if self.controllers is not None:
+            for controller in self.controllers:
+                mw.form.menuTools.removeAction(controller)
+        controllers = [identifyController(*(controller.split('%%%')))[1] for controller in controllers]
+        self.controllers = [QAction(controller, mw) for controller in controllers]
+        for i, controller in enumerate(self.controllers):
+            func = partial(self.change_controller, i)
+            qconnect(controller.triggered, func)
+            mw.form.menuTools.addAction(controller)
+
+    def change_controller(self, index: int) -> None:
+        self._evalWithCallback(f"connect_controller(indices[{index}]);", None)
 
     def on_receive_message(self, handled: tuple, message: str, context: str) -> tuple:
         funcs = {

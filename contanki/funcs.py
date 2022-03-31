@@ -9,7 +9,7 @@ from aqt import QPainter, mw
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.qt import QCoreApplication, QKeySequence, QMouseEvent, QEvent, QPixmap, QPoint, QPointF, Qt
 from aqt.qt import QKeyEvent as QKE
-from aqt.utils import current_window
+from aqt.utils import current_window, showInfo
 
 addon_path = dirname(abspath(__file__))
 
@@ -110,7 +110,6 @@ def get_file(file: str) -> str: # refactor this
         if exists(join(path, file)):
             with open(join(path, file)) as f:
                 return f.read()
-
 
 # Common
 

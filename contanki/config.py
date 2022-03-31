@@ -15,10 +15,11 @@ from .actions import state_actions
 from .components import ControlButton
 
 
+
 class ContankiConfig(QDialog):
     def __init__(self, parent: QWidget, profile: Profile) -> None:
         if not profile:
-            showInfo("Controller not detected. Connect using Bluetooth or USB, and press any button to initialise.")
+            showInfo("Controller not detected. Connect your controller using Bluetooth or USB, and press any button to initialise.")
             return
         super().__init__(parent)
         self.setWindowTitle("Contanki Options")
@@ -30,7 +31,7 @@ class ContankiConfig(QDialog):
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.tabBar = QTabWidget()
         self.tabs = dict()
-        self.setupOptions()
+        self.setup_options()
         self.setup_bindings()
         
         self.saveButton = QPushButton(self)
@@ -175,7 +176,7 @@ class ContankiConfig(QDialog):
                 self._options["Custom Actions"][scut.key().toString()] = scut.key().toString()
 
 
-    def setupOptions(self) -> None:
+    def setup_options(self) -> None:
         tab = QWidget()
         self.tabs['main'] = tab
         tab.layout = QGridLayout(tab)
