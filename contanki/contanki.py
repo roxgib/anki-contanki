@@ -102,9 +102,11 @@ class Contanki(AnkiWebView):
             return handled
 
     def poll(self, buttons: str, axes: str) -> None:
+        state = get_state()
+        if state == 'NoFocus': return
+        
         buttons = [True if button == 'true' else False for button in buttons.split(',')]
         axes = [float(axis) for axis in axes.split(',')]
-        state = get_state()
 
         mods = tuple(
             buttons[mod] if mod < 100 
