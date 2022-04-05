@@ -45,16 +45,22 @@ Platform Specific
 
 ## Development log
 
+### Alpha 10
+ - Improved deck navigation
+ - Fix for certain actions occuring when Anki not focused
+ - If a user actions triggers an error, this will now be captured and show in a tooltip
+
+
 ### Alpha 9
-- If multiple controllers are plugged in, the user can now select which one to use. Some controllers may present themselves multiple times (presumably for compatibility reasons)
-- Default profiles have been added to all supported controllers
+ - If multiple controllers are plugged in, the user can now select which one to use. Some controllers may present themselves multiple times (presumably for compatibility reasons)
+ - Default profiles have been added to all supported controllers
 
 ### Alpha 8
 
-- Profile buttons are now functional, allowing you to add, delete, and rename profiles. 
-- Mouse and scroll behaviour can now be customised. 
-- Added option to disable or use large overlays. 
-- Various fixes.
+ - Profile buttons are now functional, allowing you to add, delete, and rename profiles. 
+ - Mouse and scroll behaviour can now be customised. 
+ - Added option to disable or use large overlays. 
+ - Various fixes.
 
 I need to create default profiles for some remaining controllers, and if I don't find any more bugs I'll release a beta.
 
