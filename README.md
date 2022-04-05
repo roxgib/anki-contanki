@@ -12,7 +12,7 @@ Features:
 
 ## Usage Notes
 
-Connect your controller via USB or Bluetooth, install the add-on and restart Anki, and click and button to get started.
+Connect your controller via USB or Bluetooth, install the add-on, restart Anki, and press any button to get started.
 
 Since Anki has a lot of functions to map, Contanki uses modifier buttons (by default, the triggers (R2 and L2) are used). This mean that the other buttons will trigger different commands according to whether a modifier button is held down, similar to shift, control, etc on a keyboard. Holding down the modifier buttons will also pull up an overlay showing the control binding for the current context. To show the overlay for the unmodified controls, hold down both triggers at once. 
 
