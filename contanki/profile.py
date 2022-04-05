@@ -1,14 +1,14 @@
 from copy import deepcopy
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 from re import search
 import os
+
 import json
 
 from aqt.utils import showInfo, tooltip
 from aqt.qt import QMessageBox, QInputDialog
 
 from .consts import BUTTON_NAMES
-from .funcs import quad_curve
 from .actions import *
 
 addon_path = os.path.dirname(os.path.abspath(__file__))
@@ -73,11 +73,17 @@ class Profile:
 
     def doAction(self, state: str, mod: int, button: int) -> None:
         if button in self.actions[state][mod]:
-            self.actions[state][mod][button]()
+            try:
+                self.actions[state][mod][button]()
+            except Exception as err:
+                tooltip("Error: " + str(err))
 
     def doReleaseAction(self, state: str, mod: int, button: int) -> None:
         if button in self.releaseActions[state][mod]:
-            self.releaseActions[state][mod][button]()
+            try:
+                self.releaseActions[state][mod][button]()
+            except Exception as err:
+                tooltip("Error: " + str(err))
 
     def doAxesActions(self, state: str, mod: int, axes: List[float]) -> None:
         mx = my = sx = sy = 0
@@ -115,11 +121,16 @@ class Profile:
             elif assignment == "Cursor Vertical":
                 my = value
         if mx or my:
-            self.move_mouse(mx, my)
+            try:
+                self.move_mouse(mx, my)
+            except Exception as err:
+                tooltip("Error: " + str(err))
         if sx or sy:
-            self.scroll(sx, sy)
-
-
+            try:
+                self.scroll(sx, sy)
+            except Exception as err:
+                tooltip("Error: " + str(err))
+            
     def updateBinding(
         self, 
         state: str,
