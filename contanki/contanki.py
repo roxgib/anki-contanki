@@ -21,14 +21,14 @@ class Contanki(AnkiWebView):
 
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
         self.icons = defaultdict(list)
-        self.controllers = list()
+        self.controllers = list() 
 
         mw.addonManager.setConfigAction(__name__, self.on_config)
         self.config = mw.addonManager.getConfig(__name__)
         self.menuItem = QAction(f"Controller Options", mw)
         qconnect(self.menuItem.triggered, self.on_config)
         
-        self.setFixedSize(100,100)
+        self.setFixedSize(0,0)
         
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>""")

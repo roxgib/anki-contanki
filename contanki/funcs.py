@@ -1,6 +1,6 @@
 import re
 import subprocess
-from typing import Callable, Dict
+from typing import Callable, Dict, List, Tuple
 from functools import partial
 from os.path import dirname, abspath, join, exists
 
@@ -299,24 +299,20 @@ previous_card_info = _previous_card_info()
 
 ### Deck Browser
 
-def _build_deck_list(due: bool = False) -> list:
+def _build_deck_list() -> List[Tuple[int, bool]]:
     
-    def _build_node(node, due: bool):
-        if due:
-            if not (node.review_count or node.learn_count or node.new_count):
-                return []
-        
-        decks = [node.deck_id]
+    def _build_node(node):        
+        decks = [(node.deck_id, node.review_count or node.learn_count or node.new_count)]
         if node.children:
             if not node.collapsed:
                 for child in node.children:
-                    decks.extend(_build_node(child, due))
+                    decks.extend(_build_node(child))
         
         return decks
 
     decks = list()
     for child in mw.col.sched.deck_due_tree().children:
-        decks.extend(_build_node(child, due))
+        decks.extend(_build_node(child))
 
     return decks
 
@@ -325,8 +321,13 @@ def _select_deck(did) -> None:
     mw.web.eval(f"document.getElementById({did}).getElementsByClassName('deck')[0].focus()")
 
 
-def _choose_deck(c_deck: int, decks: list, direction: bool) -> None:
+def _choose_deck(c_deck: int, direction: bool, due: bool) -> None:
     c_deck = int(c_deck) if c_deck else None
+    decks, dues = zip(*_build_deck_list())
+    len_decks = len(decks)
+
+    if len(decks) == 0:
+        return
 
     if c_deck == decks[-1]:
         c_deck_index = -1
@@ -336,9 +337,12 @@ def _choose_deck(c_deck: int, decks: list, direction: bool) -> None:
         c_deck_index = -direction
 
     c_deck_index += (1 if direction else -1)
-
-    if decks[c_deck_index] == 1:
+    while due and not dues[c_deck_index]:
         c_deck_index += (1 if direction else -1)
+        if c_deck_index == len_decks:
+            c_deck_index = -1
+        if decks[c_deck_index] == 1:
+            c_deck_index += (1 if direction else -1)
     
     if mw.state == 'deckBrowser':
         _select_deck(decks[c_deck_index])
@@ -348,19 +352,15 @@ def _choose_deck(c_deck: int, decks: list, direction: bool) -> None:
 
 
 def choose_deck(direction: bool, due: bool = False) -> None:
-    decks = _build_deck_list(due)
     mw.web.setFocus()
-
-    if len(decks) == 0:
-        return
 
     if mw.state == 'deckBrowser':
         mw.web.evalWithCallback(
             'document.activeElement.parentElement.parentElement.id', 
-            lambda c_deck: _choose_deck(c_deck, decks, direction)
+            lambda c_deck: _choose_deck(c_deck, direction, due)
             )
     else:
-        _choose_deck(mw.col.decks.get_current_id(), decks, direction)
+        _choose_deck(mw.col.decks.get_current_id(), direction, due)
 
 
 def collapse_deck() -> None:
