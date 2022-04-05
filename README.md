@@ -38,7 +38,8 @@ If you encounter an issue, let me know what you were trying to do, what platform
  - Interaction outside of the main window (e.g. browser) is only partially implemented
 
 Version Specific:
- - on Anki 2.1.49 and below, opening certain menus or dialogs prevents any actions from firing, until it's closed and they fire all at once
+ - On Anki 2.1.49 and below, opening certain menus or dialogs prevents any actions from firing, until it's closed and they fire all at once
+ - This is mostly fixed in 2.1.50, but some dialogs may still prevent actions from firing.
 
 Platform Specific
  - Volume controls only work on Mac
@@ -49,6 +50,8 @@ Platform Specific
  - Improved deck navigation
  - Fix for certain actions occuring when Anki not focused
  - If a user actions triggers an error, this will now be captured and show in a tooltip
+
+ Anki 2.1.50 is likely to drop soon, and I'm aiming to release a beta at the same time. 
 
 
 ### Alpha 9
