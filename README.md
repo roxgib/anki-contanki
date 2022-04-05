@@ -49,7 +49,7 @@ Platform Specific
 ### Alpha 10
  - Improved deck navigation
  - Fix for certain actions occuring when Anki not focused
- - If a user actions triggers an error, this will now be captured and show in a tooltip
+ - If a user action triggers an error, this will now be captured and show in a tooltip
 
  Anki 2.1.50 is likely to drop soon, and I'm aiming to release a beta at the same time. 
 
