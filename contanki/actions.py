@@ -1,8 +1,21 @@
 from aqt import mw
 from aqt.qt import Qt
+from aqt.utils import tooltip
 
 from .funcs import *
 from .funcs import _pass
+
+def rebuild_wrapper():
+    if mw.col.decks.is_filtered(mw.col.decks.get_current_id()):
+        mw.overview.rebuild_current_filtered_deck()
+    else:
+        tooltip("This action can only be done on filtered decks")
+
+def empty_wrapper():
+    if mw.col.decks.is_filtered(mw.col.decks.get_current_id()):
+        mw.overview.empty_current_filtered_deck()
+    else:
+        tooltip("This action can only be done on filtered decks")
 
 button_actions = {
     "":       _pass,  # handle unmapped buttons
@@ -72,8 +85,8 @@ button_actions = {
     
     # Overview Functions
     "Custom Study":         lambda: keyPress(Qt.Key.Key_C),                     # Works
-    "Rebuild":              mw.overview.rebuild_current_filtered_deck,          # Works
-    "Empty":                mw.overview.empty_current_filtered_deck,            # Works
+    "Rebuild":              rebuild_wrapper,                                    # Not Tested
+    "Empty":                empty_wrapper,                                      # Not Tested
 
     # Reviewer Functions
     "Again":                lambda: mw.reviewer._answerCard(1),                 # Works
