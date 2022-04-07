@@ -9,7 +9,7 @@ from aqt import QPainter, mw
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.qt import QCoreApplication, QKeySequence, QMouseEvent, QEvent, QPixmap, QPoint, QPointF, Qt
 from aqt.qt import QKeyEvent as QKE
-from aqt.utils import current_window, showInfo
+from aqt.utils import current_window, tooltip
 
 addon_path = dirname(abspath(__file__))
 
@@ -26,6 +26,17 @@ def get_state() -> str:
             return 'NoFocus'
     else:
         return 'NoFocus'
+
+
+def for_states(states: List[str]) -> Callable:
+    def decorater(func: Callable) -> Callable:
+        def wrapped(*args, **kwargs) -> None:
+            if get_state() in states: 
+                func(*args, **kwargs)
+            else:
+                tooltip("Action not available on this screen")
+        return wrapped
+    return decorater    
 
 
 def _pass() -> None:
