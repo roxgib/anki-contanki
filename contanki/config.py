@@ -15,7 +15,6 @@ from .actions import state_actions
 from .components import ControlButton
 
 
-
 class ContankiConfig(QDialog):
     def __init__(self, parent: QWidget, profile: Profile) -> None:
         if not profile:

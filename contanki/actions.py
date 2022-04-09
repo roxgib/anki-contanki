@@ -65,7 +65,7 @@ button_actions = {
                                 Qt.KeyboardModifier.ControlModifier),                  
     'Scroll Up':            lambda: scroll(0, -50),                             # Works
     'Scroll Down':          lambda: scroll(0, 50),                              # Works
-    'Options':              on_options,                                         # Works in some screens
+    'Options':              on_options,                                         # Works, but deck options still exec
 
     
     # Deck Browser Functions
@@ -85,8 +85,8 @@ button_actions = {
     
     # Overview Functions
     "Custom Study":         lambda: keyPress(Qt.Key.Key_C),                     # Works
-    "Rebuild":              rebuild_wrapper,                                    # Not Tested
-    "Empty":                empty_wrapper,                                      # Not Tested
+    "Rebuild":              rebuild_wrapper,                                    # Works
+    "Empty":                empty_wrapper,                                      # Works
 
     # Reviewer Functions
     "Again":                lambda: mw.reviewer._answerCard(1),                 # Works
