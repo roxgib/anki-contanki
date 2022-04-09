@@ -6,7 +6,7 @@ from aqt import QTableWidget, QTableWidgetItem
 from aqt.qt import QAction, QDialog, QWidget, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QTabWidget
 from aqt.qt import QKeySequenceEdit, QSpinBox, QLabel, QGridLayout, QGroupBox
 from aqt.theme import theme_manager
-from aqt.utils import showInfo, tooltip, getText
+from aqt.utils import showInfo, tooltip, getText, openLink
 
 from .funcs import get_button_icon
 from .consts import BUTTON_NAMES, AXES_NAMES
@@ -127,7 +127,7 @@ class ContankiConfig(QDialog):
         self.close()
 
     def help(self) -> None:
-        pass
+        openLink("https://github.com/roxgib/anki-contanki")
 
     def changeProfile(self, profile: Profile = None) -> None:
         if type(profile) == str:
