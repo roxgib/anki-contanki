@@ -174,10 +174,11 @@ def move_mouse_build() -> Callable:
 
 
 def hide_cursor() -> None:
+    size = mw.screen().geometry()
     mw.cursor().setPos(
         QPoint(
-            mw.app.primaryScreen().size().width(), 
-            mw.app.primaryScreen().size().height()
+            size.width(), 
+            size.height()
         )
     )
 
