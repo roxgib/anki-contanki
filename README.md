@@ -2,6 +2,8 @@
 
 Contanki is an add-on for [Anki](https://apps.ankiweb.net) which allows users to control Anki using a gamepad or other controller device.
 
+<img src="screenshots/main.png" width="400">
+
 Features:
  - Comfortably review your cards using a gamepad - no more sore hands, backs, or eyes!
  - Control almost any Anki feature without a keyboard or mouse
@@ -18,6 +20,8 @@ Since Anki has a lot of functions to map, Contanki uses modifier buttons (by def
 
 Controls can be reassigned using the add-on's config dialog. You can assign controls for each context (review, deck browser, etc), as well as global settings that are used if a control isn't assigned to a particular context. It is suggested that you try the default control bindings to begin with, and make changes as needed. You can remove any actions you don't need if the controls overlay is too cluttered. 
 
+Support is provided for 2.1.45 and above, but please note the version specific issues below. 
+
 ### Analog Sticks
 By default the right stick is used to move and click the mouse, and you can use L2 + right stick for a secondary click. It is only possible to click within Anki. The left stick is used to scroll and to navigate between views. Sticks can be reassigned and can also be put in 'button mode', where actions can be assigned to the directions of a stick.
 
@@ -29,8 +33,6 @@ Currently it is only possible to use a single controller at a time. This may inc
 
 ## Testing
 I'm now looking for beta testers - download the latest beta release and let me know how it goes. Please report all issues on the GitHub issue tracker. Reports about bugs on Windows or when using an Xbox controller are particularly welcome as I have been testing almost exclusively on Mac using a DualShock 4 up to now. 
-
-Support is provided for 2.1.45 and above, but please note the version specific issues below. 
 
 If you encounter an issue, let me know what you were trying to do, what platform and controller you're using, and the text of any error or message your receive. Please take note of the known issues and don't report anything listed there. Suggestions are also welcome, and should also be raised on the issue tracker.
 
@@ -50,6 +52,10 @@ Platform Specific
  Controller Specific
  - Only a single Joy-Con can be used at a time. Support for using Joy-Cons as a single controller is planned.
 
+<img src="screenshots/Config.png" width="400">
+<img src="screenshots/Controls Config.png" width="400">
+<img src="screenshots/Night Mode.png" width="400">
+
 ## Development log
 
 ### Beta 1
@@ -58,8 +64,9 @@ It's here!
 Changes since Alpha 10:
  - Various actions trigger tooltips instead of popups when they fail (undo, redo, empy, rebuild)
  - Some other improvements to how actions errors are handled
+ - Improved support for older versions back to 2.1.45
 
- You can now find it on AnkiWeb. 
+ You can now find it on AnkiWeb.
 
 ### Alpha 10
  - Improved deck navigation
