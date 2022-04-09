@@ -2,8 +2,6 @@
 
 Contanki is an add-on for [Anki](https://apps.ankiweb.net) which allows users to control Anki using a gamepad or other controller device.
 
-<img src="screenshots/main.png" width="400">
-
 Features:
  - Comfortably review your cards using a gamepad - no more sore hands, backs, or eyes!
  - Control almost any Anki feature without a keyboard or mouse
@@ -11,6 +9,8 @@ Features:
  - Cursor control for limited situations where the gamepad is insufficient
  - Fully customisable control bindings
  - Much more!
+
+ <img src="screenshots/main.png" width="400">
 
 ## Usage Notes
 
