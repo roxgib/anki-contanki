@@ -1,6 +1,6 @@
 import re
 import subprocess
-from typing import Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 from functools import partial
 from os.path import dirname, abspath, join, exists
 
@@ -30,9 +30,9 @@ def get_state() -> str:
 
 def for_states(states: List[str]) -> Callable:
     def decorater(func: Callable) -> Callable:
-        def wrapped(*args, **kwargs) -> None:
+        def wrapped(*args, **kwargs) -> Any:
             if get_state() in states: 
-                func(*args, **kwargs)
+                return func(*args, **kwargs)
             else:
                 tooltip("Action not available on this screen")
         return wrapped
@@ -212,28 +212,29 @@ def click_release(
 
 
 def on_enter() -> None:
-    if mw.state == "review":
+    if mw.state == "deckBrowser" or mw.state == "overview":
+        select()
+    elif mw.state == "review":
         mw.reviewer.onEnterKey()
-    elif mw.state == "deckBrowser":
-        select()
-    elif mw.state == "overview":
-        select()
+    else:
+        keyPress(Qt.Key.Key_Enter)
+        
 
-
+@for_states(['deckBrowser','review','overview','question','answer'])
 def back() -> None:
     if mw.state == "review":
         mw.moveToState("overview")
     else:
         mw.moveToState("deckBrowser")
 
-
+@for_states(['deckBrowser','review','overview','question','answer'])
 def forward() -> None:
     if mw.state == "deckBrowser":
         mw.moveToState("overview")
     elif mw.state == "overview":
         mw.moveToState("review")
 
-
+@for_states(['deckBrowser','review','overview','question','answer'])
 def on_options() -> None:
     def deck_options(did: str) -> None:
         try: 
@@ -247,7 +248,7 @@ def on_options() -> None:
     elif mw.state == "overview":
         display_options_for_deck_id(mw.col.decks.get_current_id())
 
-
+@for_states(['deckBrowser','review','overview','question','answer'])
 def toggle_fullscreen() -> None:
     if cw := current_window().window():
         if cw.isFullScreen():
@@ -283,6 +284,7 @@ def change_volume(direction=True):
 def _cycle_flag() -> Callable:
     flags = mw.addonManager.getConfig(__name__)["Flags"]
 
+    @for_states(['question','answer'])
     def cycle_flag(flags):
         flag = mw.reviewer.card.flags
         if flag == 0:
@@ -298,13 +300,16 @@ def _cycle_flag() -> Callable:
 
 cycle_flag = _cycle_flag()
 
+@for_states(['question','answer'])
+def card_info():
+    mw.reviewer.on_card_info()
 
 def _previous_card_info():
     try:
         f = mw.reviewer.on_previous_card_info
-        return f
     except:
-        return _pass
+        return _pass    
+    return for_states(['question','answer'])(f)
 
 previous_card_info = _previous_card_info()
 
@@ -374,7 +379,6 @@ def choose_deck(direction: bool, due: bool = False) -> None:
     else:
         _choose_deck(mw.col.decks.get_current_id(), direction, due)
 
-
+@for_states(['deckBrowser'])
 def collapse_deck() -> None:
-    if get_state() != 'deckBrowser': return
     mw.web.eval("document.activeElement.parentElement.getElementsByClassName('collapse')[0].click()")

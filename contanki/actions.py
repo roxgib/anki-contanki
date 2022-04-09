@@ -102,7 +102,7 @@ button_actions = {
     "Delete Note":          mw.reviewer.delete_current_note,                    # Works
     "Record Voice":         mw.reviewer.onRecordVoice,                          # Not Tested
     "Replay Voice":         mw.reviewer.onReplayRecorded,                       # Not Tested
-    "Card Info":            mw.reviewer.on_card_info,                           # Works
+    "Card Info":            card_info,                                          # Works
     "Previous Card Info":   previous_card_info,                                 # Works
     "Pause Audio":          mw.reviewer.on_pause_audio,                         # Works
     "Audio +5s":            mw.reviewer.on_seek_forward,                        # Works
