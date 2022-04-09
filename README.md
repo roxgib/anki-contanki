@@ -52,9 +52,9 @@ Platform Specific
  Controller Specific
  - Only a single Joy-Con can be used at a time. Support for using Joy-Cons as a single controller is planned.
 
-<img src="screenshots/Config.png" width="400">
-<img src="screenshots/Controls Config.png" width="400">
-<img src="screenshots/Night Mode.png" width="400">
+<img src="screenshots/Config.png" width="800">
+<img src="screenshots/Controls Config.png" width="800">
+<img src="screenshots/Night Mode.png" width="800">
 
 ## Development log
 
