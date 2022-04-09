@@ -256,6 +256,18 @@ def toggle_fullscreen() -> None:
         else:
             cw.showFullScreen()
 
+def undo():
+    if mw.undo_actions_info().can_undo:
+        mw.undo()
+    else:
+        tooltip("Nothing to undo")
+
+def redo():
+    if mw.undo_actions_info().can_redo:
+        mw.redo()
+    else:
+        tooltip("Nothing to redo")
+
 
 def change_volume(direction=True):
     try:

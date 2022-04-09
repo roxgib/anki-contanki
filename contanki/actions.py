@@ -29,8 +29,8 @@ button_actions = {
     "Statistics":           mw.onStats,                                 # Works
     "Main Screen":          lambda: mw.moveToState("deckBrowser"),      # Works
     "Review":               lambda: mw.moveToState("review"),           # Works
-    "Undo":                 mw.undo,                                    # Works
-    "Redo":                 mw.redo,                                    # Works
+    "Undo":                 undo,                                       # Works
+    "Redo":                 redo,                                       # Works
     "Back":                 back,                                       # Works
     "Forward":              forward,                                    # Works
     "Enter":                on_enter,                                   # Mostly Works
