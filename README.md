@@ -28,23 +28,38 @@ I have been testing using a DualShock 4, which  makes a good choice and can be r
 Currently it is only possible to use a single controller at a time. This may include Joy-Cons depending on your system, but support for using both Joy-Cons is planned.
 
 ## Testing
-I'm now looking for alpha testers - download the latest Alpha release and let me know how it goes. Please report all issues on the GitHub issue tracker. Reports about bugs on Windows or when using an Xbox controller are particularly welcome as I have been testing almost exclusively on Mac using a DualShock 4 up to now. 
+I'm now looking for beta testers - download the latest beta release and let me know how it goes. Please report all issues on the GitHub issue tracker. Reports about bugs on Windows or when using an Xbox controller are particularly welcome as I have been testing almost exclusively on Mac using a DualShock 4 up to now. 
+
+Support is provided for 2.1.45 and above, but please note the version specific issues below. 
 
 If you encounter an issue, let me know what you were trying to do, what platform and controller you're using, and the text of any error or message your receive. Please take note of the known issues and don't report anything listed there. Suggestions are also welcome, and should also be raised on the issue tracker.
 
 ## Known issues
+ - Interaction outside of the main window (especially the browser and preferences) is only partially implemented
+ - Clicking outside Anki or in the title or menu bars doesn't work 
  - Add-on doesn't function in the profile window
- - Clicking outside Anki or in the title bar doesn't work 
- - Interaction outside of the main window (e.g. browser) is only partially implemented
+ - Unable to open or close webview context menus
 
 Version Specific:
- - On Anki 2.1.49 and below, opening certain menus or dialogs prevents any actions from firing, until it's closed and they fire all at once
- - This is mostly fixed in 2.1.50, but some dialogs may still prevent actions from firing.
+ - Opening certain menus or dialogs prevents any actions from firing, until it's closed and they fire all at once. This mostly affectts Anki 2.1.49 and below. The above issue is mostly fixed in 2.1.50, but some dialogs may still prevent actions from firing.
+ - A small number of actions are only supported in 2.1.50
 
 Platform Specific
- - Volume controls only work on Mac
+ - Volume controls only work on MacOS
+
+ Controller Specific
+ - Only a single Joy-Con can be used at a time. Support for using Joy-Cons as a single controller is planned.
 
 ## Development log
+
+### Beta 1
+It's here!
+
+Changes since Alpha 10:
+ - Various actions trigger tooltips instead of popups when they fail (undo, redo, empy, rebuild)
+ - Some other improvements to how actions errors are handled
+
+ You can now find it on AnkiWeb. 
 
 ### Alpha 10
  - Improved deck navigation
