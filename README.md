@@ -10,7 +10,7 @@ Features:
  - Fully customisable control bindings
  - Much more!
 
- <img src="screenshots/main.png" width="400">
+ <img src="screenshots/Main.png" width="400">
 
 ## Usage Notes
 
