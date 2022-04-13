@@ -144,7 +144,7 @@ class Contanki(AnkiWebView):
             self.profile.doAxesActions(state, mod, axes)
 
     def on_config(self) -> None:
-        ContankiConfig(mw, self.profile.copy())
+        ContankiConfig(mw, self.profile)
 
     def update_profile(self, profile: Profile) -> None:
         if self.profile:
