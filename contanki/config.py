@@ -17,7 +17,7 @@ from .components import ControlButton
 
 class ContankiConfig(QDialog):
     def __init__(self, parent: QWidget, profile: Profile) -> None:
-        if not profile:
+        if profile is None:
             showInfo("Controller not detected. Connect your controller using Bluetooth or USB, and press any button to initialise.")
             return
         super().__init__(parent)
