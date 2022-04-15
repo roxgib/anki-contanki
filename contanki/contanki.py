@@ -1,5 +1,4 @@
 from collections import defaultdict
-from copy import copy
 from typing import Tuple
 
 from aqt import QMenu, gui_hooks, mw
@@ -158,7 +157,15 @@ class Contanki(AnkiWebView):
             self.profile.doAxesActions(state, mod, axes)
 
     def on_config(self) -> None:
-        ContankiConfig(mw, self.profile)
+        if focus := current_window():
+            ContankiConfig(focus, self.profile)
+        # if focus := current_window():
+        #     name = focus.objectName()
+        #     if name == 'MainWindow':
+        #         ContankiConfig(mw, self.profile)
+        #     elif name == "Dialog":
+        #         showInfo(str(focus.objectName()))
+        
 
     def update_profile(self, profile: Profile) -> None:
         if self.profile:
