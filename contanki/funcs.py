@@ -81,18 +81,15 @@ def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap
         pixmap = QPixmap(path(button))
         dpixmap = QPixmap(join(addon_path, 'buttons', 'Arrows', direction))
         painter = QPainter()
-        painter.begin(pixmap)
-        painter.drawPixmap(pixmap.rect(), dpixmap, dpixmap.rect())
-        painter.end()
+        with QPainter(pixmap) as painter:
+            painter.drawPixmap(pixmap.rect(), dpixmap, dpixmap.rect())
     else:
         pixmap = QPixmap(path(button))
         
     if glow:
         gpixmap = QPixmap(join(addon_path, 'buttons', 'Other', 'glow'))
-        painter = QPainter()
-        painter.begin(pixmap)
-        painter.drawPixmap(pixmap.rect(), gpixmap, gpixmap.rect())
-        painter.end()
+        with QPainter(pixmap) as painter:
+            painter.drawPixmap(pixmap.rect(), gpixmap, gpixmap.rect())
 
     return pixmap
 

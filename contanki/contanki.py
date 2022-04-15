@@ -66,6 +66,7 @@ class Contanki(AnkiWebView):
         if self.controlsOverlay:
             self.controlsOverlay.disappear()
         mw.form.menuTools.removeAction(self.menuItem)
+        self.icons = defaultdict(list)
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
 
     def register_controllers(self, *controllers):
