@@ -106,15 +106,14 @@ class ContankiConfig(QDialog):
 
         controls = self.tabs['bindings']
 
-        for key in range(self.profile.len_axes):
-            self.profile.axes_bindings[key] = self.axes_bindings[key].currentText()
+        for i, combo in enumerate(self.axes_bindings):
+            self.profile.axes_bindings[i] = combo.currentText()
 
         for state in states:
             for mod, title in mods.items():
                 for button in range(self.profile.len_buttons):
                     if button in self.profile.mods or button not in controls.stateTabs[state].modTabs[mod].controls:
                         continue
-
                     action = controls.stateTabs[state].modTabs[mod].controls[button].currentText()
                     if 'inherit' in action:
                         action = ""
@@ -317,7 +316,7 @@ class ContankiConfig(QDialog):
         
         self.axes_bindings = list()
         self.axes_button_bindings = list()
-        for axis, value in self.profile.axes_bindings.items():
+        for axis, name in AXES_NAMES[self.profile.controller].items():
             button = QComboBox()
             button.addItems([
                 "Unassigned", 
@@ -327,10 +326,10 @@ class ContankiConfig(QDialog):
                 "Scroll Horizontal",
                 "Scroll Vertical",
             ])
-            button.setCurrentText(value)
+            button.setCurrentText(self.profile.axes_bindings[axis])
             self.axes_bindings.append(button)
             label = QLabel()
-            pixmap = get_button_icon(self.profile.controller, AXES_NAMES[self.profile.controller][axis])
+            pixmap = get_button_icon(self.profile.controller, name)
             label.setPixmap(pixmap.scaled(40, 40, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
             qconnect(button.currentIndexChanged, self.refresh_bindings)
             axes.layout.addRow(label, button)
