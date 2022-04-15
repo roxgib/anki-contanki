@@ -13,7 +13,6 @@ Features:
  <img src="screenshots/Main.png" width="800">
 
 ## Usage Notes
-
 Connect your controller via USB or Bluetooth, install the add-on, restart Anki, and press any button to get started.
 
 Since Anki has a lot of functions to map, Contanki uses modifier buttons (by default, the triggers (R2 and L2) are used). This mean that the other buttons will trigger different commands according to whether a modifier button is held down, similar to shift, control, etc on a keyboard. Holding down the modifier buttons will also pull up an overlay showing the control binding for the current context. To show the overlay for the unmodified controls, hold down both triggers at once. 
@@ -26,7 +25,6 @@ Support is provided for 2.1.45 and above, but please note the version specific i
 By default the right stick is used to move and click the mouse, and you can use L2 + right stick for a secondary click. It is only possible to click within Anki. The left stick is used to scroll and to navigate between views. Sticks can be reassigned and can also be put in 'button mode', where actions can be assigned to the directions of a stick.
 
 ### Choosing a Controller
-
 I have been testing using a DualShock 4, which  makes a good choice and can be readily purchased secondhand at a reasonable price. The cheapest option would be a knockoff SNES controller, which can be found for $10 or less.
 
 Currently it is only possible to use a single controller at a time. This may include Joy-Cons depending on your system, but support for using both Joy-Cons is planned.
@@ -57,6 +55,14 @@ Platform Specific
 <img src="screenshots/Night Mode.png" width="800">
 
 ## Development log
+
+### Beta 2
+Changes:
+ - Adds buttons for the Steam Deck and 8BitDo Zero and Lite
+ - Fixed an error when opening the config dialog without a controller connected
+ - Fixed an issue where the config dialog wasn't accessible when opened from the add-ons dialog
+ - Fixed config button icons not glowing when button pressed
+ - Fixed error on profile save when selected controller has fewer axes than profile
 
 ### Beta 1
 It's here!
