@@ -22,6 +22,7 @@ class ContankiConfig(QDialog):
             return
         super().__init__(parent)
         self.setWindowTitle("Contanki Options")
+        self.setObjectName("Contanki Options")
         self.setFixedWidth(800)
         self.setMinimumHeight(660)
 
