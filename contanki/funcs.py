@@ -22,6 +22,8 @@ def get_state() -> str:
             return mw.reviewer.state if mw.state == "review" else mw.state
         elif focus.objectName() == 'Preferences':
             return 'dialog'
+        elif focus.objectName() == 'Contanki Options':
+            return 'config'
         else:
             return 'NoFocus'
     else:
