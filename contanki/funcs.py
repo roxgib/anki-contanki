@@ -70,18 +70,23 @@ get_dark_mode = _get_dark_mode()
 
 
 def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap:
-    if 'Stick' in button and button.split(' ')[-1] in ['Left','Right','Up','Down','Horizontal','Vertical']:
+    directions = ['Left','Right','Up','Down','Horizontal','Vertical', "Diagonal", "Cross"]
+    def path(button):
+        return join(addon_path, 'buttons', controller, button)
+    if exists(path(button) + '.png'):
+        pixmap = QPixmap(path(button))
+    elif button.split(' ')[-1] in directions:
         direction = button.split(' ')[-1]
         button = ' '.join(button.split(' ')[:-1])
-        pixmap = QPixmap(join(addon_path, 'buttons', controller, button))
+        pixmap = QPixmap(path(button))
         dpixmap = QPixmap(join(addon_path, 'buttons', 'Arrows', direction))
         painter = QPainter()
         painter.begin(pixmap)
         painter.drawPixmap(pixmap.rect(), dpixmap, dpixmap.rect())
         painter.end()
     else:
-        pixmap = QPixmap(join(addon_path, 'buttons', controller, button))
-
+        pixmap = QPixmap(path(button))
+        
     if glow:
         gpixmap = QPixmap(join(addon_path, 'buttons', 'Other', 'glow'))
         painter = QPainter()
