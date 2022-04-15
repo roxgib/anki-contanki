@@ -109,13 +109,14 @@ class Contanki(AnkiWebView):
         buttons = [True if button == 'true' else False for button in buttons.split(',')]
         axes = [float(axis) for axis in axes.split(',')]
 
-
         mods = tuple(
             buttons[mod] if mod < 100 
             else (True if axes[mod-100] else False)
             for mod in self.profile.mods
         )
 
+        mod = mods.index(True) + 1 if any(mods) else 0
+        
         if state == 'config':
             for i, value in enumerate(buttons):
                 if value == self.buttons[i]: continue
@@ -132,6 +133,8 @@ class Contanki(AnkiWebView):
 
             if any(axes):
                 self.profile.doAxesActions(state, mod, axes)
+            
+            return
 
         if self.config['Enable Overlays']:
             if mods != self.mods:
@@ -141,8 +144,6 @@ class Contanki(AnkiWebView):
                     self.controlsOverlay.disappear()
 
             self.mods = mods
-
-        mod = mods.index(True) + 1 if any(mods) else 0
 
         for i, value in enumerate(buttons):
             if value == self.buttons[i]: continue
