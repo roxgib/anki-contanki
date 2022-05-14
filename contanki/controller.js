@@ -21,7 +21,8 @@ function on_controller_connect(event) {
     for (let i = 0; i < controllers.length; i++) {
         if (controllers[i] != null && controllers[i].connected == true) {
             indices.push(i);
-            register = register + `::${controllers[i].id}%%%${controllers[i].buttons.length}%%%${controllers[i].axes.length}`;
+            register = register 
+                + `::${controllers[i].id}%%%${controllers[i].buttons.length}%%%${controllers[i].axes.length}`;
         }
     }
     if (indices.length == 0) {
@@ -39,7 +40,9 @@ function on_controller_connect(event) {
         }
         bridgeCommand(register);
         connect_controller(i);
-        bridgeCommand("contanki::message::Multiple controllers detected - pick which one you'd like to use from the Tools menu.");
+        bridgeCommand(
+            "contanki::message::Multiple controllers detected - pick which one you'd like to use from the Tools menu."
+            );
     }
 }
 

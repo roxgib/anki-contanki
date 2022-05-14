@@ -1,8 +1,5 @@
-from copy import copy
-from os import path
-from re import S
 from typing import List
-from aqt import QComboBox, QEvent, QFont, QHBoxLayout, QLabel, QLayout, QObject, QPixmap, QSizePolicy, QWidget, Qt, mw
+from aqt import QComboBox, QFont, QHBoxLayout, QLabel, QSizePolicy, QWidget, Qt
 
 from .funcs import get_button_icon
 

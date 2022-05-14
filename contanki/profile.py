@@ -2,7 +2,6 @@ from copy import deepcopy
 from typing import List, Optional, Tuple
 from re import search
 import os
-
 import json
 
 from aqt.utils import showInfo, tooltip

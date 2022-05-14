@@ -68,7 +68,7 @@ class Contanki(AnkiWebView):
         self.icons = defaultdict(list)
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
 
-    def register_controllers(self, *controllers):
+    def register_controllers(self, *controllers) -> None:
         if self.controllers is not None:
             for controller in self.controllers:
                 mw.form.menuTools.removeAction(controller)
@@ -159,13 +159,6 @@ class Contanki(AnkiWebView):
     def on_config(self) -> None:
         if focus := current_window():
             ContankiConfig(focus, self.profile)
-        # if focus := current_window():
-        #     name = focus.objectName()
-        #     if name == 'MainWindow':
-        #         ContankiConfig(mw, self.profile)
-        #     elif name == "Dialog":
-        #         showInfo(str(focus.objectName()))
-        
 
     def update_profile(self, profile: Profile) -> None:
         if self.profile:

@@ -1,12 +1,11 @@
 from functools import partial
 
-from aqt import QIcon, Qt, mw, qconnect 
-from aqt import QComboBox, QFormLayout, QHeaderView, QKeySequence, QLayout, QShortcut
-from aqt import QTableWidget, QTableWidgetItem
-from aqt.qt import QAction, QDialog, QWidget, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QTabWidget
-from aqt.qt import QKeySequenceEdit, QSpinBox, QLabel, QGridLayout, QGroupBox
+from aqt import mw, qconnect 
+from aqt.qt import QTableWidget, QTableWidgetItem, QComboBox, QFormLayout, QHeaderView
+from aqt.qt import QAction, QDialog, QWidget, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QTabWidget, QIcon
+from aqt.qt import QKeySequenceEdit, QSpinBox, QLabel, QGridLayout, QGroupBox, Qt, QKeySequence, QLayout, QShortcut
 from aqt.theme import theme_manager
-from aqt.utils import showInfo, tooltip, getText, openLink
+from aqt.utils import showInfo, getText, openLink
 
 from .funcs import get_button_icon
 from .consts import BUTTON_NAMES, AXES_NAMES

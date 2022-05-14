@@ -4,12 +4,12 @@ from typing import Any, Callable, Dict, List, Tuple
 from functools import partial
 from os.path import dirname, abspath, join, exists
 
-from anki.decks import DeckId
-from aqt import QPainter, mw
+from aqt import mw
 from aqt.deckoptions import display_options_for_deck_id
-from aqt.qt import QCoreApplication, QKeySequence, QMouseEvent, QEvent, QPixmap, QPoint, QPointF, Qt
+from aqt.qt import QCoreApplication, QKeySequence, QMouseEvent, QEvent, QPixmap, QPoint, QPointF, Qt, QPainter
 from aqt.qt import QKeyEvent as QKE
 from aqt.utils import current_window, tooltip
+from anki.decks import DeckId
 
 addon_path = dirname(abspath(__file__))
 
@@ -194,10 +194,12 @@ def click(
     pos = mw.cursor().pos()
     widget = mw.app.widgetAt(pos)
     if not widget: return
+    
     widgetPostition = widget.mapToGlobal(QPoint(0,0))
     localPos = QPointF(pos.x() - widgetPostition.x(), pos.y() - widgetPostition.y())
-
     QCoreApplication.postEvent(widget, QMouseEvent(QEvent.Type.MouseButtonPress, localPos, button, button, mod))
+
+    mw.web.eval('document.querySelectorAll( ":hover" )[0].click()')
 
 
 def click_release(
