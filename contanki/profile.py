@@ -223,7 +223,7 @@ def identifyController(id: str, len_buttons: int, len_axes: int) -> Tuple[str, s
             device_name = 'Xbox 360'
         elif len_buttons == 16:
             device_name = 'Xbox 360'
-        elif len_buttons == 17:
+        elif len_buttons > 16:
             device_name = 'Xbox Series'
     if 'joycon' in id or 'joy-con' in id:
         if 'left' in id:
