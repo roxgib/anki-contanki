@@ -147,7 +147,10 @@ def tab(value: float = 1) -> None:
 def scroll_build() -> Callable:
     config = mw.addonManager.getConfig(__name__)
     speed = config['Scroll Speed'] / 10
+    deadzone = config['Stick Deadzone'] / 100
+    
     def scroll (x: float, y: float) -> None:
+        if abs(x) + abs(y) < deadzone: return
         mw.web.eval(f'window.scrollBy({quad_curve(x*speed)}, {quad_curve(y*speed)})')
 
     return scroll
@@ -158,9 +161,10 @@ def move_mouse_build() -> Callable:
     config = mw.addonManager.getConfig(__name__)
     speed = config['Cursor Speed'] / 2
     accel = config['Cursor Acceleration'] / 5
+    deadzone = config['Stick Deadzone'] / 100
     
     def move_mouse(x: float, y: float) -> None:
-        if abs(x) + abs(y) < 0.05: return
+        if abs(x) + abs(y) < deadzone: return
         cursor = mw.cursor()
         pos = cursor.pos()
         geom = mw.screen().geometry()
