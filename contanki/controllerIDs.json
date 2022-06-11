@@ -27,6 +27,7 @@
         "28de": "Valve Software",
         "081f": ""
     },
+
     "devices": {
         "045e": {
             "0007": "SideWinder Game Pad",
@@ -55,7 +56,8 @@
             "02e6": "Xbox 360",
             "02ea": "Xbox Series",
             "02fd": "Xbox Series",
-            "0b13": "Xbox Series"
+            "0b13": "Xbox Series",
+            "07e8": "invalid"
         },
         "0955": {
             "7214": "NVIDIA Controller",

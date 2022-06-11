@@ -72,12 +72,16 @@ class Contanki(AnkiWebView):
         if self.controllers is not None:
             for controller in self.controllers:
                 mw.form.menuTools.removeAction(controller)
-        controllers = [identifyController(*(controller.split('%%%')))[1] for controller in controllers]
-        self.controllers = [QAction(controller, mw) for controller in controllers]
-        for i, controller in enumerate(self.controllers):
-            func = partial(self.change_controller, i)
-            qconnect(controller.triggered, func)
-            mw.form.menuTools.addAction(controller)
+        controllers = [
+            con[1] for controller in controllers
+            if (con := identifyController(*(controller.split('%%%')))) is not None
+            ]
+        if len(controllers) > 1:
+            self.controllers = [QAction(controller, mw) for controller in controllers]
+            for i, controller in enumerate(self.controllers):
+                qconnect(controller.triggered, partial(self.change_controller, i))
+                mw.form.menuTools.addAction(controller)
+            tooltip(f"{str(len(controllers))} controllers detected - pick the one you want to use in the Tools menu.")
 
     def change_controller(self, index: int) -> None:
         self._evalWithCallback(f"connect_controller(indices[{index}]);", None)

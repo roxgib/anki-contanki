@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from copy import deepcopy
 from typing import List, Optional, Tuple
 from re import search
@@ -130,7 +132,7 @@ class Profile:
                 self.scroll(sx, sy)
             except Exception as err:
                 tooltip("Error: " + str(err))
-            
+
     def updateBinding(
         self, 
         state: str,
@@ -157,8 +159,6 @@ class Profile:
         pass
 
     def save(self) -> None:
-        path = os.path.join(user_profile_path, self.name)
-
         output =  {
         'name'             : self.name,
         'size'             : self.size,
@@ -168,8 +168,9 @@ class Profile:
         'axes_bindings'    : self.axes_bindings,
         }
 
+        path = os.path.join(user_profile_path, self.name)
         with open(path, 'w') as f:
-                json.dump(output, f)
+            json.dump(output, f)
 
     def copy(self):
         new_profile =  {
@@ -184,7 +185,7 @@ class Profile:
         return Profile(new_profile)
 
 
-def identifyController(id: str, len_buttons: int, len_axes: int) -> Tuple[str, str]:
+def identifyController(id: str, len_buttons: int, len_axes: int) -> Tuple[str, str] | None:
     device_name = id
     vendor_id = search(r'Vendor: (\w{4})', id)
     device_id = search(r'Product: (\w{4})', id)
@@ -194,14 +195,18 @@ def identifyController(id: str, len_buttons: int, len_axes: int) -> Tuple[str, s
 
         controller_ids = json.loads(get_file('controllerIDs.json'))
 
-        if vendor_id in controller_ids['vendors'] and device_id in controller_ids['devices'][vendor_id]:
+        if (vendor_id in controller_ids['vendors'] 
+            and device_id in controller_ids['devices'][vendor_id]):
             device_name = controller_ids['devices'][vendor_id][device_id]
+            if device_name == 'invalid':
+                return None
             if device_name in BUTTON_NAMES:
                 return device_name, device_name + f' ({len_buttons} buttons)'
 
     id = id.lower()
 
-    if 'dualshock' in id or 'playstation' or 'sony' in id: # this would be a good place to use case match
+    # this would be a good place to use case match
+    if 'dualshock' in id or 'playstation' or 'sony' in id: 
         if len_axes == 0:
             device_name = "PlayStation Controller"
         elif len_buttons == 17:
@@ -210,6 +215,7 @@ def identifyController(id: str, len_buttons: int, len_axes: int) -> Tuple[str, s
             device_name = 'DualSense'
         elif len_buttons == 18:
             device_name = 'DualShock 4'
+
     if 'xbox' in id:
         if '360' in id:
             device_name = 'Xbox 360'
@@ -225,6 +231,7 @@ def identifyController(id: str, len_buttons: int, len_axes: int) -> Tuple[str, s
             device_name = 'Xbox 360'
         elif len_buttons > 16:
             device_name = 'Xbox Series'
+
     if 'joycon' in id or 'joy-con' in id:
         if 'left' in id:
             device_name = 'Joy-Con Left'
@@ -232,6 +239,7 @@ def identifyController(id: str, len_buttons: int, len_axes: int) -> Tuple[str, s
             device_name = 'Joy-Con Right'
         else:
             device_name = 'Joy-Con'
+
     if 'switch' in id:
         if 'pro' in id:
             device_name = 'Switch Pro'
@@ -242,15 +250,17 @@ def identifyController(id: str, len_buttons: int, len_axes: int) -> Tuple[str, s
                 device_name = 'Joy-Con Right'
             else:
                 device_name = 'Joy-Con'
+
     if 'wii' in id:
         if 'nunchuck' in id:
             device_name = 'Wii Nunchuck'
         else:
             device_name = 'Wii Remote'
+
     if 'steam' in id or 'valve' in id:
         device_name = 'Steam Controller'
 
-    return (device_name, (device_name + f' ({len_buttons} buttons)'))
+    return device_name, device_name + f' ({len_buttons} buttons)'
 
 
 def getControllerList():
@@ -337,7 +347,6 @@ def deleteProfile(name: str, confirm: bool = True) -> None:
             confirm_dialog.open()
         else:
             delete()
-
 
 
 def copyProfile(name: str, new_name: str) -> None:
