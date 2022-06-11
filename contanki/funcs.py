@@ -392,6 +392,7 @@ def _choose_deck(c_deck: int, direction: bool, due: bool) -> None:
         mw.moveToState("overview")
 
 
+@for_states(['deckBrowser', 'overview'])
 def choose_deck(direction: bool, due: bool = False) -> None:
     mw.web.setFocus()
 
@@ -403,6 +404,9 @@ def choose_deck(direction: bool, due: bool = False) -> None:
     else:
         _choose_deck(mw.col.decks.get_current_id(), direction, due)
 
+
 @for_states(['deckBrowser'])
 def collapse_deck() -> None:
-    mw.web.eval("document.activeElement.parentElement.getElementsByClassName('collapse')[0].click()")
+    mw.web.eval(
+        "document.activeElement.parentElement.getElementsByClassName('collapse')[0].click()"
+        )
