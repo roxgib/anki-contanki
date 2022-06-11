@@ -5,6 +5,7 @@
     "Scroll Speed": 10,
     "Cursor Speed": 10,
     "Cursor Acceleration": 10,
+    "Stick Deadzone": 5,
     
     "Custom Actions": {
         "AwesomeTTS": "Ctrl+T"
