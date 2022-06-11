@@ -339,7 +339,6 @@ previous_card_info = _previous_card_info()
 ### Deck Browser
 
 def _build_deck_list() -> List[Tuple[int, bool]]:
-    
     def _build_node(node):        
         decks = [(node.deck_id, node.review_count or node.learn_count or node.new_count)]
         if node.children:
@@ -365,7 +364,7 @@ def _choose_deck(c_deck: int, direction: bool, due: bool) -> None:
     decks, dues = zip(*_build_deck_list())
     len_decks = len(decks)
 
-    if len(decks) == 0:
+    if not len_decks:
         return
 
     if c_deck == decks[-1]:
@@ -383,6 +382,9 @@ def _choose_deck(c_deck: int, direction: bool, due: bool) -> None:
         if decks[c_deck_index] == 1:
             c_deck_index += (1 if direction else -1)
     
+    if len_decks == 1:
+        c_deck_index = 0
+
     if mw.state == 'deckBrowser':
         _select_deck(decks[c_deck_index])
     else:
