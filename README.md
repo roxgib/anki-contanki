@@ -46,6 +46,7 @@ Version Specific:
 
 Platform Specific
  - Volume controls only work on MacOS
+ - Steam Deck is currently unsupported while we wait for Qt to upgrade to a newer Chromium version or find a workaround
 
  Controller Specific
  - Only a single Joy-Con can be used at a time. Support for using Joy-Cons as a single controller is planned.
