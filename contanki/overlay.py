@@ -1,7 +1,7 @@
 from aqt.qt import QLayout, QVBoxLayout, QWidget, Qt
 from aqt import mw
 
-from .consts import BUTTON_NAMES, BUTTON_ORDER
+from .buttons import BUTTON_NAMES, BUTTON_ORDER
 from .funcs import get_state
 from .profile import Profile
 from .components import ControlButton

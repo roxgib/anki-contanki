@@ -9,7 +9,7 @@ import json
 from aqt.utils import showInfo, tooltip
 from aqt.qt import QMessageBox, QInputDialog
 
-from .consts import BUTTON_NAMES
+from .buttons import BUTTON_NAMES
 from .actions import *
 
 addon_path = os.path.dirname(os.path.abspath(__file__))

@@ -8,7 +8,7 @@ from aqt.theme import theme_manager
 from aqt.utils import showInfo, getText, openLink
 
 from .funcs import get_button_icon
-from .consts import BUTTON_NAMES, AXES_NAMES
+from .buttons import BUTTON_NAMES, AXES_NAMES
 from .profile import *
 from .actions import state_actions
 from .components import ControlButton

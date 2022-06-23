@@ -237,12 +237,14 @@ def back() -> None:
     else:
         mw.moveToState("deckBrowser")
 
+
 @for_states(['deckBrowser','review','overview','question','answer'])
 def forward() -> None:
     if mw.state == "deckBrowser":
         mw.moveToState("overview")
     elif mw.state == "overview":
         mw.moveToState("review")
+
 
 @for_states(['deckBrowser','review','overview','question','answer'])
 def on_options() -> None:
@@ -258,6 +260,7 @@ def on_options() -> None:
     elif mw.state == "overview":
         display_options_for_deck_id(mw.col.decks.get_current_id())
 
+
 @for_states(['deckBrowser','review','overview','question','answer'])
 def toggle_fullscreen() -> None:
     if cw := current_window().window():
@@ -266,11 +269,13 @@ def toggle_fullscreen() -> None:
         else:
             cw.showFullScreen()
 
+
 def undo():
     if mw.undo_actions_info().can_undo:
         mw.undo()
     else:
         tooltip("Nothing to undo")
+
 
 def redo():
     if mw.undo_actions_info().can_redo:
@@ -322,6 +327,7 @@ def _cycle_flag() -> Callable:
 
 cycle_flag = _cycle_flag()
 
+
 @for_states(['question','answer'])
 def card_info():
     mw.reviewer.on_card_info()
@@ -345,7 +351,6 @@ def _build_deck_list() -> List[Tuple[int, bool]]:
             if not node.collapsed:
                 for child in node.children:
                     decks.extend(_build_node(child))
-        
         return decks
 
     decks = list()

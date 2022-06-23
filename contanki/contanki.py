@@ -8,7 +8,7 @@ from aqt.webview import AnkiWebView
 
 from .actions import *
 from .config import *
-from .consts import *
+from .buttons import *
 from .funcs import *
 from .overlay import *
 from .profile import *
@@ -125,15 +125,10 @@ class Contanki(AnkiWebView):
                 if value == self.buttons[i]: continue
                 if i in self.profile.mods: continue
                 self.buttons[i] = value
-                if value:
-                    if i in self.icons:
-                        for f in self.icons[i]:
-                            f[0]()
-                else:
-                    if i in self.icons:
-                        for f in self.icons[i]:
-                            f[1]()
-
+                if i in self.icons:
+                    for f in self.icons[i]:
+                        f[not(value)]()
+            
             if any(axes):
                 self.profile.doAxesActions(state, mod, axes)
             
