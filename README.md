@@ -62,6 +62,12 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 3
+Changes:
+ - Implement cursor deadzone setting and add deadzone to scrolling (thanks to@AuroraWright)
+ - Improved controller detection
+ - Fixes to deck navigation when collection only has one deck
+
 ### Beta 2
 Changes:
  - Adds buttons for the Steam Deck and 8BitDo Zero and Lite
