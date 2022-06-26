@@ -34,7 +34,7 @@ class Contanki(AnkiWebView):
 
     def on_connect(self, buttons: str, axes: str, *con: Tuple[str]) -> None:
         self.reset_controller()
-        buttons, axes, con = int(buttons), int(axes), '::'.join(con)
+        con = '::'.join(con)
         controller = identifyController(con, buttons, axes)[0]
         
         if controller:

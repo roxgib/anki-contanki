@@ -185,7 +185,8 @@ class Profile:
         return Profile(new_profile)
 
 
-def identifyController(id: str, len_buttons: int, len_axes: int) -> Tuple[str, str] | None:
+def identifyController(id: str, len_buttons: int|str, len_axes: int|str) -> Tuple[str, str] | None:
+    len_buttons, len_axes = int(len_buttons), int(len_axes)
     device_name = id
     vendor_id = search(r'Vendor: (\w{4})', id)
     device_id = search(r'Product: (\w{4})', id)

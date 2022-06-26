@@ -56,7 +56,7 @@ Controller Specific
 Add-on compatibility
  - Not compatible with:
     - Anjoy
- Has issues:
+ - Has issues:
     - Enhance Main Windows - can't navigate decks in main window (try selecting the deck in the overview screen instead)
     - Customize Keyboard Shortcuts - a small number of actions rely on simulating a key press, and won't work if you've changed that shortcut. Instead you can create a custom action in the controller options using your assigned shortcut
 
