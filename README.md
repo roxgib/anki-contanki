@@ -62,6 +62,9 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 4
+Hotfix for certain controllers causing an error when connected. 
+
 ### Beta 3
 Changes:
  - Implement cursor deadzone setting and add deadzone to scrolling (thanks to@AuroraWright)
