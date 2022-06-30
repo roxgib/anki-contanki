@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import defaultdict
 from typing import Tuple
 
@@ -20,46 +22,49 @@ class Contanki(AnkiWebView):
 
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
         self.icons = defaultdict(list)
-        self.controllers = list() 
+        self.controllers: list[QAction] = list()
 
         mw.addonManager.setConfigAction(__name__, self.on_config)
         self.config = mw.addonManager.getConfig(__name__)
         self.menuItem = QAction(f"Controller Options", mw)
         qconnect(self.menuItem.triggered, self.on_config)
-        
-        self.setFixedSize(0,0)
-        
+
+        self.setFixedSize(0, 0)
+
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
-        self.stdHtml(f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>""")
+        self.stdHtml(
+            f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>"""
+        )
 
-    def on_connect(self, buttons: str, axes: str, *con: Tuple[str]) -> None:
+    def on_connect(self, buttons: str, axes: str, *con: list[str]) -> None:
         self.reset_controller()
-        con = '::'.join(con)
-        controller = identifyController(con, buttons, axes)[0]
-        
+        con = "::".join(con)
+        self.len_buttons, self.len_axes = int(buttons), int(axes)
+        controller = identifyController(con, self.len_buttons, self.len_axes)[0]
+
         if controller:
-            self.profile = findProfile(controller, buttons, axes)
-            tooltip(f'{controller} Connected')
+            self.profile = findProfile(controller, self.len_buttons, self.len_axes)
+            tooltip(f"{controller} Connected")
         else:
-            self.profile = findProfile(con, buttons, axes)
-            tooltip('Unknown Controller Connected | ' + con)
+            self.profile = findProfile(con, self.len_buttons, self.len_axes)
+            tooltip("Unknown Controller Connected | " + con)
 
-        self.buttons = [False] * buttons
-        self.axes = [False] * axes
-        self.len_buttons = buttons
-        self.len_axes = axes
-
+        self.buttons = [False] * self.len_buttons
+        self.axes = [False] * self.len_axes
         self.mods = [False] * len(self.profile.mods)
+
         mw.form.menuTools.addAction(self.menuItem)
-        self.controlsOverlay = ControlsOverlay(self.profile, is_large=self.config['Large Overlays'])
+        self.controlsOverlay = ControlsOverlay(
+            self.profile, self.config["Large Overlays"]
+        )
 
     def on_disconnect(self, *args) -> None:
         if self.controllers is not None:
             for controller in self.controllers:
                 mw.form.menuTools.removeAction(controller)
-        self.controllers = None
+        self.controllers = list()
         self.reset_controller()
-        tooltip('Controller Disconnected')
+        tooltip("Controller Disconnected")
 
     def reset_controller(self) -> None:
         if self.controlsOverlay:
@@ -69,36 +74,37 @@ class Contanki(AnkiWebView):
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
 
     def register_controllers(self, *controllers) -> None:
-        if self.controllers is not None:
+        for controller in self.controllers:
+            mw.form.menuTools.removeAction(controller)
+        self.controllers: list[QAction] = list()
+        for i, controller in enumerate(controllers):
+            con = identifyController(*(controller.split("%%%")))
+            if con is None: continue
+            self.controllers.append(QAction(con[0], mw))
+            qconnect(self.controllers[-1].triggered, partial(self.change_controller, i))
+        if len(self.controllers) > 1:
             for controller in self.controllers:
-                mw.form.menuTools.removeAction(controller)
-        controllers = [
-            con[1] for controller in controllers
-            if (con := identifyController(*(controller.split('%%%')))) is not None
-            ]
-        if len(controllers) > 1:
-            self.controllers = [QAction(controller, mw) for controller in controllers]
-            for i, controller in enumerate(self.controllers):
-                qconnect(controller.triggered, partial(self.change_controller, i))
                 mw.form.menuTools.addAction(controller)
-            tooltip(f"{str(len(controllers))} controllers detected - pick the one you want to use in the Tools menu.")
+            tooltip(
+                f"{str(len(self.controllers))} controllers detected - pick the one you want to use in the Tools menu."
+            )
 
     def change_controller(self, index: int) -> None:
         self._evalWithCallback(f"connect_controller(indices[{index}]);", None)
 
     def on_receive_message(self, handled: tuple, message: str, context: str) -> tuple:
         funcs = {
-            'on_connect':       self.on_connect,
-            'on_disconnect':    self.on_disconnect,
-            'poll':             self.poll,
-            'register':         self.register_controllers, 
-            'initialise':       lambda *args, **kwargs: None
+            "on_connect": self.on_connect,
+            "on_disconnect": self.on_disconnect,
+            "poll": self.poll,
+            "register": self.register_controllers,
+            "initialise": lambda *args, **kwargs: None,
         }
 
-        if message[:8] == 'contanki':
-            _, func, *args = message.split('::')
-            if func == 'message':
-                tooltip(str('::'.join(args)))
+        if message[:8] == "contanki":
+            _, func, *args = message.split("::")
+            if func == "message":
+                tooltip(str("::".join(args)))
             else:
                 funcs[func](*args)
             return (True, None)
@@ -107,36 +113,38 @@ class Contanki(AnkiWebView):
 
     def poll(self, buttons: str, axes: str) -> None:
         state = get_state()
-        if state == 'NoFocus': return
-        
-        buttons = [True if button == 'true' else False for button in buttons.split(',')]
-        axes = [float(axis) for axis in axes.split(',')]
+        if state == "NoFocus":
+            return
+
+        buttons = [True if button == "true" else False for button in buttons.split(",")]
+        axes = [float(axis) for axis in axes.split(",")]
 
         mods = tuple(
-            buttons[mod] if mod < 100 
-            else (True if axes[mod-100] else False)
+            buttons[mod] if mod < 100 else (True if axes[mod - 100] else False)
             for mod in self.profile.mods
         )
 
         mod = mods.index(True) + 1 if any(mods) else 0
-        
-        if state == 'config':
+
+        if state == "config":
             for i, value in enumerate(buttons):
-                if value == self.buttons[i]: continue
-                if i in self.profile.mods: continue
+                if value == self.buttons[i]:
+                    continue
+                if i in self.profile.mods:
+                    continue
                 self.buttons[i] = value
                 if i in self.icons:
                     for f in self.icons[i]:
-                        f[not(value)]()
-            
+                        f[not (value)]()
+
             if any(axes):
                 self.profile.doAxesActions(state, mod, axes)
-            
+
             return
 
-        if self.config['Enable Overlays']:
+        if self.config["Enable Overlays"]:
             if mods != self.mods:
-                if any(mods):    
+                if any(mods):
                     self.controlsOverlay.appear(mods)
                 else:
                     self.controlsOverlay.disappear()
@@ -144,8 +152,10 @@ class Contanki(AnkiWebView):
             self.mods = mods
 
         for i, value in enumerate(buttons):
-            if value == self.buttons[i]: continue
-            if i in self.profile.mods: continue
+            if value == self.buttons[i]:
+                continue
+            if i in self.profile.mods:
+                continue
             self.buttons[i] = value
             if value:
                 self.profile.doAction(state, mod, i)
@@ -163,7 +173,9 @@ class Contanki(AnkiWebView):
         if self.profile:
             self.profile = profile
             self.config = mw.addonManager.getConfig(__name__)
-            self.controlsOverlay = ControlsOverlay(profile, self.config['Large Overlays'])
+            self.controlsOverlay = ControlsOverlay(
+                profile, self.config["Large Overlays"]
+            )
 
     def register_icon(self, index: int, on_func: Callable, off_func: Callable) -> None:
         self.icons[index].append((on_func, off_func))

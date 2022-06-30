@@ -2,7 +2,7 @@ let polling, index, indices, ready;
 initialise()
 
 function initialise() {
-    if (ready) {return}
+    if (ready) { return }
     try {
         bridgeCommand('contanki::initialise::arg');
     } catch (err) {
@@ -21,7 +21,7 @@ function on_controller_connect(event) {
     for (let i = 0; i < controllers.length; i++) {
         if (controllers[i] != null && controllers[i].connected == true) {
             indices.push(i);
-            register = register 
+            register = register
                 + `::${controllers[i].id}%%%${controllers[i].buttons.length}%%%${controllers[i].axes.length}`;
         }
     }
@@ -55,18 +55,25 @@ function on_controller_disconnect(event) {
     bridgeCommand(`contanki::on_disconnect::arg`);
     window.clearInterval(polling);
     index = null;
+    let controllers = window.navigator.getGamepads();
+    for (let i = 0; i < controllers.length; i++) {
+        if (controllers[i] != null) {
+            on_controller_connect(event);
+            return;
+        }
+    }
 }
 
 function poll() {
-    if (index == null) {on_controller_disconnect()}
-    
+    if (index == null) { on_controller_disconnect() }
+
     let controller = window.navigator.getGamepads()[index];
 
     try {
         if (controller.connected == false) {
             on_controller_disconnect();
             return;
-        } 
+        }
     } catch (err) {
         on_controller_disconnect();
         return;
@@ -82,6 +89,6 @@ function poll() {
     for (let i = 0; i < controller.axes.length; i++) {
         axes.push(controller.axes[i].toString());
     }
-    
+
     bridgeCommand(`contanki::poll::${buttons.toString()}::${axes.toString()}`);
 }
