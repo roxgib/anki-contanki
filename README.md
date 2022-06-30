@@ -62,6 +62,14 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 5
+Changes:
+ - Further fixes for controller connection handling
+ - Fix for current controller requiring reconnection when a different controller was disconnected
+ - Improvements to handling multiple connected controllers
+ - Default controls layout no longer duplicates 'Suspend Card' at the expense of 'Suspend Note'
+
+
 ### Beta 4
 Hotfix for certain controllers causing an error when connected. 
 
