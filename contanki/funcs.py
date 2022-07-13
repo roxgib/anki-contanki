@@ -81,7 +81,7 @@ def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap
         direction = button.split(' ')[-1]
         button = ' '.join(button.split(' ')[:-1])
         if not exists(path(button) + '.png'):
-            raise FileNotFoundError(f"Button {button} not found")
+            raise FileNotFoundError(f"Button {button} for controller {controller} not found")
         pixmap = QPixmap(path(button))
         dpixmap = QPixmap(join(addon_path, 'buttons', 'Arrows', direction))
         painter = QPainter()
