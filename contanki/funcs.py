@@ -72,6 +72,8 @@ get_dark_mode = _get_dark_mode()
 
 
 def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap:
+    if "(" in controller:
+        controller = controller.split(" (")[0]
     directions = ['Left','Right','Up','Down','Horizontal','Vertical', "Diagonal", "Cross"]
     def path(button):
         return join(addon_path, 'buttons', controller, button)
@@ -92,9 +94,11 @@ def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap
         
     if glow:
         gpixmap = QPixmap(join(addon_path, 'buttons', 'Other', 'glow'))
-        with QPainter(pixmap) as painter:
-            painter.drawPixmap(pixmap.rect(), gpixmap, gpixmap.rect())
-
+        try:
+            with QPainter(pixmap) as painter:
+                painter.drawPixmap(pixmap.rect(), gpixmap, gpixmap.rect())
+        except ValueError as err:
+            raise ValueError(f"Button {button} for controller {controller} not found") from err
     return pixmap
 
 
