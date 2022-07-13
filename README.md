@@ -69,7 +69,6 @@ Changes:
  - Improvements to handling multiple connected controllers
  - Default controls layout no longer duplicates 'Suspend Card' at the expense of 'Suspend Note'
 
-
 ### Beta 4
 Hotfix for certain controllers causing an error when connected. 
 
