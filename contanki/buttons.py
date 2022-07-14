@@ -474,6 +474,10 @@ AXES_NAMES = {
         0: 'D-Pad Horizontal',
         1: 'D-Pad Vertical',
     },
+    "8BitDo Zero (Direct Input Mode)": {
+        0: 'D-Pad Horizontal',
+        1: 'D-Pad Vertical',
+    },
     "8BitDo Lite": {
         0: 'Left D-Pad Horizontal',
         1: 'Left D-Pad Vertical',
