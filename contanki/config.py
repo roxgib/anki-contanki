@@ -348,8 +348,9 @@ class ContankiConfig(QDialog):
 
     def update_modifiers(self) -> None:
         _, cbuttons = zip(*BUTTON_NAMES[self.profile.controller].items())
-        self.profile.changeMod(self.profile.mods[0], self.options['mod0'].currentIndex())
-        self.profile.changeMod(self.profile.mods[1], self.options['mod1'].currentIndex())
+        keys = list(BUTTON_NAMES[self.profile.controller].keys())
+        self.profile.changeMod(self.profile.mods[0], keys[self.options['mod0'].currentIndex()])
+        self.profile.changeMod(self.profile.mods[1], keys[self.options['mod1'].currentIndex()])
         self.refresh_bindings()
 
     def setup_bindings(self):

@@ -22,7 +22,7 @@ controllers_path = os.path.join(addon_path, 'controllers')
 class Profile:
     def __init__(self, profile: dict):
         self.bindings = profile['bindings']
-        self.mods = profile['mods']
+        self.mods: list[int] = profile['mods']
         self.name = profile['name']
         self.len_buttons, self.len_axes = self.size = profile['size']
         self.controller = profile['controller']
