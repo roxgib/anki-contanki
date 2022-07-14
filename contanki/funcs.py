@@ -99,7 +99,11 @@ def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap
         "Horizontal",
         "Vertical",
         "Diagonal",
-        "Cross",
+        "UpLeft",
+        "UpRight",
+        "DownLeft",
+        "DownRight",
+        "HorizontalVertical",
     ]
 
     def path(button):
