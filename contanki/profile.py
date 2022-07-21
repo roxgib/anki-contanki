@@ -233,24 +233,15 @@ def identifyController(id: str, len_buttons: int|str, len_axes: int|str) -> Tupl
         elif len_buttons > 16:
             device_name = 'Xbox Series'
 
-    if 'joycon' in id or 'joy-con' in id:
+    if 'joycon' in id or 'joy-con' in id or 'switch' in id:
+        if 'pro' in id:
+            device_name = 'Switch Pro'
         if 'left' in id:
             device_name = 'Joy-Con Left'
         if 'right' in id:
             device_name = 'Joy-Con Right'
         else:
             device_name = 'Joy-Con'
-
-    if 'switch' in id:
-        if 'pro' in id:
-            device_name = 'Switch Pro'
-        else:
-            if 'left' in id:
-                device_name = 'Joy-Con Left'
-            if 'right' in id:
-                device_name = 'Joy-Con Right'
-            else:
-                device_name = 'Joy-Con'
 
     if 'wii' in id:
         if 'nunchuck' in id:
@@ -260,6 +251,12 @@ def identifyController(id: str, len_buttons: int|str, len_axes: int|str) -> Tupl
 
     if 'steam' in id or 'valve' in id:
         device_name = 'Steam Controller'
+
+    if '8bitdo' in id:
+        if 'zero' in id:
+            device_name = '8Bitdo Zero'
+        else:
+            device_name = '8Bitdo Lite'
 
     return device_name, device_name + f' ({len_buttons} buttons)'
 
