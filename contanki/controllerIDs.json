@@ -76,13 +76,17 @@
         "2dc8": {
             "5006": "M30 Bluetooth gamepad",
             "5750": "Bootloader",
-            "6000": "SF30 Pro gamepad",
-            "6001": "SN30/SF30 Pro gamepad",
-            "ab11": "F30 gamepad",
-            "ab12": "N30 gamepad",
-            "ab20": "SN30/SF30 gamepad",
-            "ab21": "SF30 gamepad",
-            "2dc8": "8BitdoN30Arcade_1003"
+            "6000": "8BitDo Pro",
+            "6001": "8BitDo Pro",
+            "6002": "8BitDo Pro",
+            "ab11": "8BitDo Lite",
+            "ab12": "8BitDo Lite",
+            "ab20": "8BitDo Lite",
+            "ab21": "8BitDo Lite",
+            "2dc8": "8BitDo Lite",
+            "3106": "8BitDo Pro",
+            "2000": "8BitDo Pro",
+            "9018": "8BitDo Zero"
         },
         "0428": {
             "4001": "GamePad Pro"
