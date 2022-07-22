@@ -159,6 +159,7 @@ class Profile:
         pass
 
     def save(self) -> None:
+        self.name = "".join([char for char in self.name if char.isalnum() or char in ' ()-_'])
         output =  {
         'name'             : self.name,
         'size'             : self.size,
