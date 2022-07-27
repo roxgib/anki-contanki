@@ -7,11 +7,10 @@ from aqt.qt import QKeySequenceEdit, QSpinBox, QLabel, QGridLayout, QGroupBox, Q
 from aqt.theme import theme_manager
 from aqt.utils import showInfo, getText, openLink
 
-from .funcs import get_button_icon
 from .buttons import BUTTON_NAMES, AXES_NAMES
 from .profile import *
 from .actions import state_actions
-from .components import ControlButton
+from .icons import ControlButton, get_button_icon
 
 
 class ContankiConfig(QDialog):

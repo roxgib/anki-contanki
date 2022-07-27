@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import re
 import subprocess
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable
 from functools import partial
 from os.path import dirname, abspath, join, exists
 
@@ -23,9 +25,7 @@ from anki.decks import DeckId
 
 addon_path = dirname(abspath(__file__))
 
-
 # Internal
-
 
 def get_state() -> str:
     if focus := current_window():
@@ -41,7 +41,7 @@ def get_state() -> str:
         return "NoFocus"
 
 
-def for_states(states: List[str]) -> Callable:
+def for_states(states: list[str]) -> Callable:
     def decorater(func: Callable) -> Callable:
         def wrapped(*args, **kwargs) -> Any:
             if get_state() in states:
@@ -88,57 +88,7 @@ def _get_dark_mode() -> Callable:
 get_dark_mode = _get_dark_mode()
 
 
-def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap:
-    if "(" in controller:
-        controller = controller.split(" (")[0]
-    directions = [
-        "Left",
-        "Right",
-        "Up",
-        "Down",
-        "Horizontal",
-        "Vertical",
-        "Diagonal",
-        "UpLeft",
-        "UpRight",
-        "DownLeft",
-        "DownRight",
-        "HorizontalVertical",
-    ]
-
-    def path(button):
-        return join(addon_path, "buttons", controller, button)
-
-    if exists(path(button) + ".png"):
-        pixmap = QPixmap(path(button))
-    elif button.split(" ")[-1] in directions:
-        direction = button.split(" ")[-1]
-        button = " ".join(button.split(" ")[:-1])
-        if not exists(path(button) + ".png"):
-            raise FileNotFoundError(
-                f"Button {button} for controller {controller} not found"
-            )
-        pixmap = QPixmap(path(button))
-        dpixmap = QPixmap(join(addon_path, "buttons", "Arrows", direction))
-        painter = QPainter()
-        with QPainter(pixmap) as painter:
-            painter.drawPixmap(pixmap.rect(), dpixmap, dpixmap.rect())
-    else:
-        pixmap = QPixmap(path(button))
-
-    if glow:
-        gpixmap = QPixmap(join(addon_path, "buttons", "Other", "glow"))
-        try:
-            with QPainter(pixmap) as painter:
-                painter.drawPixmap(pixmap.rect(), gpixmap, gpixmap.rect())
-        except ValueError as err:
-            raise FileNotFoundError(
-                f"Button {button} for controller {controller} not found"
-            ) from err
-    return pixmap
-
-
-def get_custom_actions() -> Dict[str, Callable]:
+def get_custom_actions() -> dict[str, Callable]:
     config = mw.addonManager.getConfig(__name__)["Custom Actions"]
     actions = dict()
     for action in config.keys():
@@ -408,7 +358,7 @@ previous_card_info = _previous_card_info()
 ### Deck Browser
 
 
-def _build_deck_list() -> List[Tuple[int, bool]]:
+def _build_deck_list() -> list[tuple[int, bool]]:
     def _build_node(node):
         decks = [
             (node.deck_id, node.review_count or node.learn_count or node.new_count)

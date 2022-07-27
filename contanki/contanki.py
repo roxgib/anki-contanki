@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Tuple
+from os import environ
 
-from aqt import QMenu, gui_hooks, mw
+from aqt import gui_hooks, mw
 from aqt.qt import QAction, qconnect
 from aqt.utils import tooltip
 from aqt.webview import AnkiWebView
@@ -35,6 +35,10 @@ class Contanki(AnkiWebView):
         self.stdHtml(
             f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>"""
         )
+        
+        if environ.get("DEBUG"):
+            from .tests import run_tests
+            run_tests()
 
     def on_connect(self, buttons: str, axes: str, *con: list[str]) -> None:
         self.reset_controller()

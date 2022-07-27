@@ -4,7 +4,7 @@ from aqt import mw
 from .buttons import BUTTON_NAMES, BUTTON_ORDER
 from .funcs import get_state
 from .profile import Profile
-from .components import ControlButton
+from .icons import ControlButton
 
 def get_left_right_centre(button: str) -> int:
     button = button.lower()
