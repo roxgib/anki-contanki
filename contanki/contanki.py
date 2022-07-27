@@ -44,13 +44,13 @@ class Contanki(AnkiWebView):
         self.reset_controller()
         con = "::".join(con)
         self.len_buttons, self.len_axes = int(buttons), int(axes)
-        controller = identifyController(con, self.len_buttons, self.len_axes)[0]
+        controller = identify_controller(con, self.len_buttons, self.len_axes)[0]
 
         if controller:
-            self.profile = findProfile(controller, self.len_buttons, self.len_axes)
+            self.profile = find_profile(controller, self.len_buttons, self.len_axes)
             tooltip(f"{controller} Connected")
         else:
-            self.profile = findProfile(con, self.len_buttons, self.len_axes)
+            self.profile = find_profile(con, self.len_buttons, self.len_axes)
             tooltip("Unknown Controller Connected | " + con)
 
         self.buttons = [False] * self.len_buttons
@@ -82,7 +82,7 @@ class Contanki(AnkiWebView):
             mw.form.menuTools.removeAction(controller)
         self.controllers: list[QAction] = list()
         for i, controller in enumerate(controllers):
-            con = identifyController(*(controller.split("%%%")))
+            con = identify_controller(*(controller.split("%%%")))
             if con is None: continue
             self.controllers.append(QAction(con[0], mw))
             qconnect(self.controllers[-1].triggered, partial(self.change_controller, i))
@@ -142,7 +142,7 @@ class Contanki(AnkiWebView):
                         f[not (value)]()
 
             if any(axes):
-                self.profile.doAxesActions(state, mod, axes)
+                self.profile.do_axes_actions(state, mod, axes)
 
             return
 
@@ -162,12 +162,12 @@ class Contanki(AnkiWebView):
                 continue
             self.buttons[i] = value
             if value:
-                self.profile.doAction(state, mod, i)
+                self.profile.do_action(state, mod, i)
             else:
-                self.profile.doReleaseAction(state, mod, i)
+                self.profile.do_release_action(state, mod, i)
 
         if any(axes):
-            self.profile.doAxesActions(state, mod, axes)
+            self.profile.do_axes_actions(state, mod, axes)
 
     def on_config(self) -> None:
         if focus := current_window():

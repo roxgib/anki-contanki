@@ -83,7 +83,7 @@ class ContankiConfig(QDialog):
         self.profile.scroll = scroll_build()
 
         for profile in self.to_delete:
-            deleteProfile(profile, False)
+            delete_profile(profile, False)
 
         states = [
             "all",
@@ -115,12 +115,12 @@ class ContankiConfig(QDialog):
                     action = controls.stateTabs[state].modTabs[mod].controls[button].currentText()
                     if 'inherit' in action:
                         action = ""
-                    self.profile.updateBinding(state, mod, button, action, build_actions=False)
+                    self.profile.update_binding(state, mod, button, action, build_actions=False)
 
-        self.profile.buildActions()
+        self.profile.build_actions()
         self.profile.controller = self.corner.currentText()
         mw.contanki.update_profile(self.profile)
-        updateControllers(self.controller, self.profile.name)
+        update_controllers(self.controller, self.profile.name)
         self.profile.save()
         self.close()
 
@@ -129,16 +129,16 @@ class ContankiConfig(QDialog):
 
     def changeProfile(self, profile: Profile = None) -> None:
         if type(profile) == str:
-            profile = getProfile(profile)
+            profile = get_profile(profile)
         elif not profile or type(profile) != Profile:
-            profile = getProfile(self._profile.currentText())
+            profile = get_profile(self._profile.currentText())
         if not profile:
             return
         self.profile = profile.copy()
         self.refresh_bindings()
 
     def addProfile(self) -> None:
-        new_profile = createProfile()
+        new_profile = create_profile()
         if not new_profile: return
         self._profile.addItem(new_profile.name)
         self._profile.setCurrentText(new_profile.name)
@@ -197,7 +197,7 @@ class ContankiConfig(QDialog):
         profileBar.layout = QHBoxLayout()
         profileBar.layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self._profile = profileCombo = QComboBox(tab)
-        profileCombo.addItems(p_list := getProfileList(include_defaults=False))
+        profileCombo.addItems(p_list := get_profile_list(include_defaults=False))
         profileCombo.setCurrentIndex(p_list.index(self.profile.name))
         profileCombo.currentIndexChanged.connect(self.changeProfile)
         profileBar.layout.addWidget(QLabel("Profile", tab))
@@ -348,15 +348,15 @@ class ContankiConfig(QDialog):
     def update_modifiers(self) -> None:
         _, cbuttons = zip(*BUTTON_NAMES[self.profile.controller].items())
         keys = list(BUTTON_NAMES[self.profile.controller].keys())
-        self.profile.changeMod(self.profile.mods[0], keys[self.options['mod0'].currentIndex()])
-        self.profile.changeMod(self.profile.mods[1], keys[self.options['mod1'].currentIndex()])
+        self.profile.change_mod(self.profile.mods[0], keys[self.options['mod0'].currentIndex()])
+        self.profile.change_mod(self.profile.mods[1], keys[self.options['mod1'].currentIndex()])
         self.refresh_bindings()
 
     def setup_bindings(self):
         tab = self.tabs['bindings'] = QTabWidget()
         
         corner = self.corner = QComboBox()
-        controllers = getControllerList()
+        controllers = get_controller_list()
         for controller in controllers:
             corner.addItem(controller)
         controller = self.profile.controller
@@ -427,7 +427,7 @@ class ContankiConfig(QDialog):
 
     def updateBinding(self, state, mod, button):
         action = self.tabs['bindings'].stateTabs[state].modTabs[mod].controls[button].currentText()
-        self.profile.updateBinding(state, mod, button, action)
+        self.profile.update_binding(state, mod, button, action)
         self.updateInheritance()
 
     def updateInheritance(self):
