@@ -224,8 +224,8 @@ def move_mouse_build() -> Callable:
         x, y = max(x, geom.x()), max(y, geom.y())
         x, y = min(x, geom.width()), min(y, geom.height())
 
-        pos.setX(x)
-        pos.setY(y)
+        pos.setX(int(x))
+        pos.setY(int(y))
         cursor.setPos(pos)
 
     return move_mouse
