@@ -3,7 +3,6 @@ from functools import partial
 from aqt import mw, qconnect
 from aqt.qt import QTableWidget, QTableWidgetItem, QComboBox, QFormLayout, QHeaderView
 from aqt.qt import (
-    QAction,
     QDialog,
     QWidget,
     QPushButton,
@@ -22,13 +21,21 @@ from aqt.qt import (
     Qt,
     QKeySequence,
     QLayout,
-    QShortcut,
 )
 from aqt.theme import theme_manager
 from aqt.utils import showInfo, getText, openLink
 
+from .funcs import move_mouse_build, scroll_build
 from .buttons import BUTTON_NAMES, AXES_NAMES
-from .profile import *
+from .profile import (
+    Profile,
+    create_profile,
+    delete_profile,
+    get_controller_list,
+    get_profile,
+    get_profile_list,
+    update_controllers,
+)
 from .actions import state_actions
 from .icons import ControlButton, get_button_icon
 
@@ -47,7 +54,8 @@ class ContankiConfig(QDialog):
     def __init__(self, parent: QWidget, profile: Profile) -> None:
         if profile is None:
             showInfo(
-                "Controller not detected. Connect your controller using Bluetooth or USB, and press any button to initialise."
+                "Controller not detected. Connect your controller using Bluetooth or USB, \
+                    and press any button to initialise."
             )
             return
         super().__init__(parent)
@@ -242,7 +250,6 @@ class ContankiConfig(QDialog):
                 self.options[key].setMinimumWidth(70)
                 self.options[key].setValue(value)
                 form.layout.addRow(key, self.options[key])
-
             elif type(value) == bool:
                 self.options[key] = QCheckBox(key, tab)
                 self.options[key].setChecked(self._options[key])
@@ -250,53 +257,6 @@ class ContankiConfig(QDialog):
             elif key == "Custom Actions":
                 container = CustomActions(self, tab, value)
                 tab.layout.addWidget(container, 1, 2, 2, 1)
-                # container = QWidget()
-                # container.layout = QGridLayout()
-                # container.layout.addWidget(QLabel("Custom Actions"), 0, 0, 1, 2)
-                # self.options[key] = QTableWidget(len(value), 2, tab)
-                # self.options[key].setHorizontalHeaderLabels(["Name", "Shortcut"])
-                # for row, (_key, _value) in enumerate(value.items()):
-                #     self.options[key].setItem(row, 0, QTableWidgetItem(_key, 0))
-                #     self.options[key].setCellWidget(
-                #         row, 1, QKeySequenceEdit(QKeySequence(_value))
-                #     )
-                # self.options[key].horizontalHeader().setSectionResizeMode(
-                #     0, QHeaderView.ResizeMode.Stretch
-                # )
-                # self.options[key].setColumnWidth(1, 70)
-                # container.layout.addWidget(self.options[key], 1, 0, 1, 2)
-                # add_button = QPushButton("Add")
-                # delete_button = QPushButton("Delete")
-
-                # def add_row():
-                #     if self.options[key].selectedIndexes():
-                #         current_row = self.options[key].currentRow() + 1
-                #     else:
-                #         current_row = self.options[key].rowCount()
-                #     self.options[key].insertRow(current_row)
-                #     self.options[key].setItem(
-                #         current_row, 0, QTableWidgetItem("New Action", 0)
-                #     )
-                #     self.options[key].setCellWidget(
-                #         current_row, 1, QKeySequenceEdit(QKeySequence(""))
-                #     )
-                #     self.options[key].setCurrentCell(current_row, 0)
-
-                # def remove_row():
-                #     if self.options[key].selectedIndexes():
-                #         current_row = self.options[key].currentRow()
-                #     else:
-                #         current_row = self.options[key].rowCount() - 1
-                #     self.options[key].removeRow(current_row)
-
-                # qconnect(add_button.pressed, add_row)
-                # qconnect(delete_button.pressed, remove_row)
-                # qconnect(self.options[key].itemChanged, self.refresh_bindings)
-
-                # container.layout.addWidget(add_button, 2, 0)
-                # container.layout.addWidget(delete_button, 2, 1)
-                # container.setLayout(container.layout)
-
             elif key == "Flags":
                 self.options[key] = flags
                 for flag in mw.flags.all():
@@ -308,10 +268,6 @@ class ContankiConfig(QDialog):
                     flags.layout.addWidget(check)
                 flags.setLayout(flags.layout)
                 tab.layout.addWidget(self.options[key], 2, 1)
-            else:
-                continue
-
-        _, cbuttons = zip(*BUTTON_NAMES[self.profile.controller].items())
 
         label = QLabel("Modifiers")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -319,31 +275,12 @@ class ContankiConfig(QDialog):
             form.layout.rowCount(), QFormLayout.ItemRole.SpanningRole, label
         )
 
-        self.options["mod0"] = QComboBox()
-        for cbutton in cbuttons:
-            self.options["mod0"].addItem(
-                QIcon(get_button_icon(self.profile.controller, cbutton)), cbutton
+        self.options["mod0"] = ModiferSelector(self, self.tabs["main"], 0)
+        self.options["mod1"] = ModiferSelector(self, self.tabs["main"], 1)
+        for mod in [self.options["mod0"], self.options["mod1"]]:
+            form.layout.setWidget(
+                form.layout.rowCount(), QFormLayout.ItemRole.SpanningRole, mod
             )
-        self.options["mod0"].setCurrentIndex(self.profile.mods[0])
-        qconnect(self.options["mod0"].currentIndexChanged, self.update_modifiers)
-        form.layout.setWidget(
-            form.layout.rowCount(),
-            QFormLayout.ItemRole.SpanningRole,
-            self.options["mod0"],
-        )
-
-        self.options["mod1"] = QComboBox()
-        for cbutton in cbuttons:
-            self.options["mod1"].addItem(
-                QIcon(get_button_icon(self.profile.controller, cbutton)), cbutton
-            )
-        self.options["mod1"].setCurrentIndex(self.profile.mods[1])
-        qconnect(self.options["mod1"].currentIndexChanged, self.update_modifiers)
-        form.layout.setWidget(
-            form.layout.rowCount(),
-            QFormLayout.ItemRole.SpanningRole,
-            self.options["mod1"],
-        )
 
         form.setLayout(form.layout)
         tab.layout.addWidget(form, 1, 0, 2, 1)
@@ -524,7 +461,9 @@ class ContankiConfig(QDialog):
                         control.action.setItemText(0, "")
 
     # def findCustomActions(self) -> None:
-    #     shortcuts = [shortcut for name, shortcut in self._options["Custom Actions"].items()]
+    #     shortcuts = [
+    #         shortcut for name, shortcut in self._options["Custom Actions"].items()
+    #     ]
     #     for action in mw.findChildren(QAction):
     #         if (scut := action.shortcut().toString()) != "" and scut not in shortcuts:
     #             if action.objectName() != "":
@@ -534,7 +473,9 @@ class ContankiConfig(QDialog):
 
     #     for scut in mw.findChildren(QShortcut):
     #         if scut.key().toString() != "":
-    #             self._options["Custom Actions"][scut.key().toString()] = scut.key().toString()
+    #             self._options["Custom Actions"][
+    #                 scut.key().toString()
+    #             ] = scut.key().toString()
 
 
 class ProfileBar(QWidget):
@@ -565,7 +506,9 @@ class ProfileBar(QWidget):
 
 
 class CustomActions(QWidget):
-    def __init__(self, parent: ContankiConfig, tab: QWidget, actions: dict[str, str]) -> None:
+    def __init__(
+        self, parent: ContankiConfig, tab: QWidget, actions: dict[str, str]
+    ) -> None:
         super().__init__()
         self.layout = QGridLayout()
         self.layout.addWidget(QLabel("Custom Actions"), 0, 0, 1, 2)
@@ -574,12 +517,14 @@ class CustomActions(QWidget):
         self.table.setHorizontalHeaderLabels(["Name", "Shortcut"])
         for row, (action, key_sequence) in enumerate(actions.items()):
             self.table.setItem(row, 0, QTableWidgetItem(action, 0))
-            self.table.setCellWidget(row, 1, QKeySequenceEdit(QKeySequence(key_sequence)))
+            self.table.setCellWidget(
+                row, 1, QKeySequenceEdit(QKeySequence(key_sequence))
+            )
         self.table.horizontalHeader().setSectionResizeMode(
             0, QHeaderView.ResizeMode.Stretch
         )
         self.table.setColumnWidth(1, 70)
-   
+
         add_button = QPushButton("Add")
         qconnect(add_button.pressed, self.add_row)
         delete_button = QPushButton("Delete")
@@ -608,3 +553,15 @@ class CustomActions(QWidget):
         else:
             current_row = self.table.rowCount() - 1
         self.table.removeRow(current_row)
+
+
+class ModiferSelector(QComboBox):
+    def __init__(self, parent: ContankiConfig, tab: QWidget, mod: int) -> None:
+        super().__init__(tab)
+        buttons = list(zip(*BUTTON_NAMES[parent.profile.controller].items()))[1]
+        for button in buttons:
+            self.addItem(
+                QIcon(get_button_icon(parent.profile.controller, button)), button
+            )
+        self.setCurrentIndex(parent.profile.mods[mod])
+        qconnect(self.currentIndexChanged, parent.update_modifiers)
