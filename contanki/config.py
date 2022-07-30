@@ -288,7 +288,6 @@ class ContankiConfig(QDialog):
         # Axes
 
         self.axes_bindings = list()
-        self.axes_button_bindings = list()
         for axis, name in AXES_NAMES[self.profile.controller].items():
             button = QComboBox()
             button.addItems(

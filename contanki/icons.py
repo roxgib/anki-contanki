@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from os.path import dirname, abspath, join, exists
+from os.path import dirname, abspath, join
 
 from aqt import (
     QComboBox,
@@ -49,11 +49,13 @@ def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap
                 painter.drawPixmap(pixmap.rect(), dpixmap, dpixmap.rect())
     if pixmap.isNull():
         pixmap = QPixmap(100, 100)
-        # not sure how or why, but the last icon will still be there, so we need to clear it
+        # not sure how or why, but the last icon will still be there, so we clear it
         pixmap.fill(QColor(255, 255, 255, 255))
         with QPainter(pixmap) as painter:
             painter.setFont(QFont("Arial", 20))
-            painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, button.replace(" ", "\n"))
+            painter.drawText(
+                pixmap.rect(), Qt.AlignmentFlag.AlignCenter, button.replace(" ", "\n")
+            )
         tooltip(f"Error: Couldn't load {button} icon for {controller}.")
         return pixmap
 
