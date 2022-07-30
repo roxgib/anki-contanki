@@ -402,7 +402,7 @@ class ContankiConfig(QDialog):
 
         tab.layout.addWidget(profileBar, 0, 0, 1, 3)
         tab.setLayout(tab.layout)
-        self.tabBar.addTab(tab, "Options")
+        self.tabBar.insertTab(0, tab, "Options")
 
     def get_custom_actions(self):
         table = self.options["Custom Actions"]
@@ -429,6 +429,7 @@ class ContankiConfig(QDialog):
         corner.setCurrentIndex(controllers.index(controller))
         self.controller = controller = corner.currentText()
         corner.currentIndexChanged.connect(self.refresh_bindings)
+        corner.currentIndexChanged.connect(self.refresh_options)
         self.tabs["bindings"].setCornerWidget(corner)
 
         mods = {0: "Default"}
@@ -497,6 +498,13 @@ class ContankiConfig(QDialog):
         self.controller = self.profile.controller = self.corner.currentText()
         self.tabBar.removeTab(1)
         self.setup_bindings()
+        self.tabBar.setCurrentIndex(current_tab)
+        self.resize(self.sizeHint())
+
+    def refresh_options(self) -> None:
+        current_tab = self.tabBar.currentIndex()
+        self.tabBar.removeTab(0)
+        self.setup_options()
         self.tabBar.setCurrentIndex(current_tab)
         self.resize(self.sizeHint())
 
