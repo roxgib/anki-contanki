@@ -227,29 +227,31 @@ class ContankiConfig(QDialog):
         axes.layout = QFormLayout()
         axes_buttons.layout = QFormLayout()
 
-        profileBar = QWidget()
-        profileBar.layout = QHBoxLayout()
-        profileBar.layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
-        self._profile = profileCombo = QComboBox(tab)
-        profileCombo.addItems(p_list := get_profile_list(include_defaults=False))
-        profileCombo.setCurrentIndex(p_list.index(self.profile.name))
-        profileCombo.currentIndexChanged.connect(self.changeProfile)
-        profileBar.layout.addWidget(QLabel("Profile", tab))
-        profileBar.layout.addWidget(profileCombo)
+        # profileBar = QWidget()
+        # profileBar.layout = QHBoxLayout()
+        # profileBar.layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
+        # profileCombo.addItems(p_list := get_profile_list(include_defaults=False))
+        # profileCombo.setCurrentIndex(p_list.index(self.profile.name))
+        # profileCombo.currentIndexChanged.connect(self.changeProfile)
+        # profileBar.layout.addWidget(QLabel("Profile", tab))
+        # profileBar.layout.addWidget(profileCombo)
 
-        add_button = QPushButton("Add Profile", tab)
-        delete_button = QPushButton("Delete Profile", tab)
-        rename_button = QPushButton("Rename Profile", tab)
+        # add_button = QPushButton("Add Profile", tab)
+        # delete_button = QPushButton("Delete Profile", tab)
+        # rename_button = QPushButton("Rename Profile", tab)
 
-        add_button.clicked.connect(self.addProfile)
-        delete_button.clicked.connect(self.delete_profile)
-        rename_button.clicked.connect(self.rename_profile)
+        # add_button.clicked.connect(self.addProfile)
+        # delete_button.clicked.connect(self.delete_profile)
+        # rename_button.clicked.connect(self.rename_profile)
 
-        profileBar.layout.addWidget(add_button)
-        profileBar.layout.addWidget(delete_button)
-        profileBar.layout.addWidget(rename_button)
+        # profileBar.layout.addWidget(add_button)
+        # profileBar.layout.addWidget(delete_button)
+        # profileBar.layout.addWidget(rename_button)
 
-        profileBar.setLayout(profileBar.layout)
+        # profileBar.setLayout(profileBar.layout)
+
+        profile_bar = ProfileBar(self, self.tabs["main"])
+        self._profile = profile_bar.profile_combo
 
         self._options = mw.addonManager.getConfig(__name__)
         self.options = dict()
@@ -400,7 +402,7 @@ class ContankiConfig(QDialog):
 
         # Finish
 
-        tab.layout.addWidget(profileBar, 0, 0, 1, 3)
+        tab.layout.addWidget(profile_bar, 0, 0, 1, 3)
         tab.setLayout(tab.layout)
         self.tabBar.insertTab(0, tab, "Options")
 
@@ -554,3 +556,29 @@ class ContankiConfig(QDialog):
     #     for scut in mw.findChildren(QShortcut):
     #         if scut.key().toString() != "":
     #             self._options["Custom Actions"][scut.key().toString()] = scut.key().toString()
+
+class ProfileBar(QWidget):
+    def __init__(self, parent: ContankiConfig, tab: QWidget) -> None:
+        super().__init__()
+        self.layout = QHBoxLayout()
+        self.layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
+        self.profile_combo = self.profile_combo = QComboBox(tab)
+        self.profile_combo.addItems(p_list := get_profile_list(include_defaults=False))
+        self.profile_combo.setCurrentIndex(p_list.index(parent.profile.name))
+        self.profile_combo.currentIndexChanged.connect(parent.changeProfile)
+        self.layout.addWidget(QLabel("Profile", tab))
+        self.layout.addWidget(self.profile_combo)
+
+        add_button = QPushButton("Add Profile", tab)
+        add_button.clicked.connect(parent.addProfile)
+        self.layout.addWidget(add_button)
+        
+        delete_button = QPushButton("Delete Profile", tab)
+        delete_button.clicked.connect(parent.delete_profile)
+        self.layout.addWidget(delete_button)
+        
+        rename_button = QPushButton("Rename Profile", tab)
+        rename_button.clicked.connect(parent.rename_profile)
+        self.layout.addWidget(rename_button)
+
+        self.setLayout(self.layout)
