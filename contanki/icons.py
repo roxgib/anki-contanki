@@ -16,6 +16,8 @@ from aqt import (
 )
 from aqt.utils import tooltip
 
+ExpaningPolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
 
 def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap:
     if "(" in controller:
@@ -82,9 +84,7 @@ class ControlButton(QWidget):
         self.layout = QHBoxLayout()
         self.layout.setSpacing(15)
         self.setMaximumHeight(120 if is_large else 80)
-        self.setSizePolicy(
-            QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        )
+        self.setSizePolicy(ExpaningPolicy)
         self.layout.setContentsMargins(1, 1, 1, 1)
         self.icon = QLabel()
         self.pixmap = get_button_icon(controller, button)
@@ -92,9 +92,7 @@ class ControlButton(QWidget):
         self.icon.setPixmap(self.pixmap)
         self.icon.setMaximumHeight(60)
         self.icon.setMaximumWidth(60)
-        self.icon.setSizePolicy(
-            QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        )
+        self.icon.setSizePolicy(ExpaningPolicy)
         self.refresh_icon()
 
         if on_left:
