@@ -227,29 +227,6 @@ class ContankiConfig(QDialog):
         axes.layout = QFormLayout()
         axes_buttons.layout = QFormLayout()
 
-        # profileBar = QWidget()
-        # profileBar.layout = QHBoxLayout()
-        # profileBar.layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
-        # profileCombo.addItems(p_list := get_profile_list(include_defaults=False))
-        # profileCombo.setCurrentIndex(p_list.index(self.profile.name))
-        # profileCombo.currentIndexChanged.connect(self.changeProfile)
-        # profileBar.layout.addWidget(QLabel("Profile", tab))
-        # profileBar.layout.addWidget(profileCombo)
-
-        # add_button = QPushButton("Add Profile", tab)
-        # delete_button = QPushButton("Delete Profile", tab)
-        # rename_button = QPushButton("Rename Profile", tab)
-
-        # add_button.clicked.connect(self.addProfile)
-        # delete_button.clicked.connect(self.delete_profile)
-        # rename_button.clicked.connect(self.rename_profile)
-
-        # profileBar.layout.addWidget(add_button)
-        # profileBar.layout.addWidget(delete_button)
-        # profileBar.layout.addWidget(rename_button)
-
-        # profileBar.setLayout(profileBar.layout)
-
         profile_bar = ProfileBar(self, self.tabs["main"])
         self._profile = profile_bar.profile_combo
 
@@ -271,53 +248,55 @@ class ContankiConfig(QDialog):
                 self.options[key].setChecked(self._options[key])
                 form.layout.addRow(self.options[key])
             elif key == "Custom Actions":
-                container = QWidget()
-                container.layout = QGridLayout()
-                container.layout.addWidget(QLabel("Custom Actions"), 0, 0, 1, 2)
-                self.options[key] = QTableWidget(len(value), 2, tab)
-                self.options[key].setHorizontalHeaderLabels(["Name", "Shortcut"])
-                for row, (_key, _value) in enumerate(value.items()):
-                    self.options[key].setItem(row, 0, QTableWidgetItem(_key, 0))
-                    self.options[key].setCellWidget(
-                        row, 1, QKeySequenceEdit(QKeySequence(_value))
-                    )
-                self.options[key].horizontalHeader().setSectionResizeMode(
-                    0, QHeaderView.ResizeMode.Stretch
-                )
-                self.options[key].setColumnWidth(1, 70)
-                container.layout.addWidget(self.options[key], 1, 0, 1, 2)
-                add_button = QPushButton("Add")
-                delete_button = QPushButton("Delete")
-
-                def add_row():
-                    if self.options[key].selectedIndexes():
-                        current_row = self.options[key].currentRow() + 1
-                    else:
-                        current_row = self.options[key].rowCount()
-                    self.options[key].insertRow(current_row)
-                    self.options[key].setItem(
-                        current_row, 0, QTableWidgetItem("New Action", 0)
-                    )
-                    self.options[key].setCellWidget(
-                        current_row, 1, QKeySequenceEdit(QKeySequence(""))
-                    )
-                    self.options[key].setCurrentCell(current_row, 0)
-
-                def remove_row():
-                    if self.options[key].selectedIndexes():
-                        current_row = self.options[key].currentRow()
-                    else:
-                        current_row = self.options[key].rowCount() - 1
-                    self.options[key].removeRow(current_row)
-
-                qconnect(add_button.pressed, add_row)
-                qconnect(delete_button.pressed, remove_row)
-                qconnect(self.options[key].itemChanged, self.refresh_bindings)
-
-                container.layout.addWidget(add_button, 2, 0)
-                container.layout.addWidget(delete_button, 2, 1)
-                container.setLayout(container.layout)
+                container = CustomActions(self, tab, value)
                 tab.layout.addWidget(container, 1, 2, 2, 1)
+                # container = QWidget()
+                # container.layout = QGridLayout()
+                # container.layout.addWidget(QLabel("Custom Actions"), 0, 0, 1, 2)
+                # self.options[key] = QTableWidget(len(value), 2, tab)
+                # self.options[key].setHorizontalHeaderLabels(["Name", "Shortcut"])
+                # for row, (_key, _value) in enumerate(value.items()):
+                #     self.options[key].setItem(row, 0, QTableWidgetItem(_key, 0))
+                #     self.options[key].setCellWidget(
+                #         row, 1, QKeySequenceEdit(QKeySequence(_value))
+                #     )
+                # self.options[key].horizontalHeader().setSectionResizeMode(
+                #     0, QHeaderView.ResizeMode.Stretch
+                # )
+                # self.options[key].setColumnWidth(1, 70)
+                # container.layout.addWidget(self.options[key], 1, 0, 1, 2)
+                # add_button = QPushButton("Add")
+                # delete_button = QPushButton("Delete")
+
+                # def add_row():
+                #     if self.options[key].selectedIndexes():
+                #         current_row = self.options[key].currentRow() + 1
+                #     else:
+                #         current_row = self.options[key].rowCount()
+                #     self.options[key].insertRow(current_row)
+                #     self.options[key].setItem(
+                #         current_row, 0, QTableWidgetItem("New Action", 0)
+                #     )
+                #     self.options[key].setCellWidget(
+                #         current_row, 1, QKeySequenceEdit(QKeySequence(""))
+                #     )
+                #     self.options[key].setCurrentCell(current_row, 0)
+
+                # def remove_row():
+                #     if self.options[key].selectedIndexes():
+                #         current_row = self.options[key].currentRow()
+                #     else:
+                #         current_row = self.options[key].rowCount() - 1
+                #     self.options[key].removeRow(current_row)
+
+                # qconnect(add_button.pressed, add_row)
+                # qconnect(delete_button.pressed, remove_row)
+                # qconnect(self.options[key].itemChanged, self.refresh_bindings)
+
+                # container.layout.addWidget(add_button, 2, 0)
+                # container.layout.addWidget(delete_button, 2, 1)
+                # container.setLayout(container.layout)
+
             elif key == "Flags":
                 self.options[key] = flags
                 for flag in mw.flags.all():
@@ -557,6 +536,7 @@ class ContankiConfig(QDialog):
     #         if scut.key().toString() != "":
     #             self._options["Custom Actions"][scut.key().toString()] = scut.key().toString()
 
+
 class ProfileBar(QWidget):
     def __init__(self, parent: ContankiConfig, tab: QWidget) -> None:
         super().__init__()
@@ -572,13 +552,59 @@ class ProfileBar(QWidget):
         add_button = QPushButton("Add Profile", tab)
         add_button.clicked.connect(parent.addProfile)
         self.layout.addWidget(add_button)
-        
+
         delete_button = QPushButton("Delete Profile", tab)
         delete_button.clicked.connect(parent.delete_profile)
         self.layout.addWidget(delete_button)
-        
+
         rename_button = QPushButton("Rename Profile", tab)
         rename_button.clicked.connect(parent.rename_profile)
         self.layout.addWidget(rename_button)
 
         self.setLayout(self.layout)
+
+
+class CustomActions(QWidget):
+    def __init__(self, parent: ContankiConfig, tab: QWidget, actions: dict[str, str]) -> None:
+        super().__init__()
+        self.layout = QGridLayout()
+        self.layout.addWidget(QLabel("Custom Actions"), 0, 0, 1, 2)
+        self.table = QTableWidget(len(actions), 2, tab)
+        parent.options["Custom Actions"] = self.table
+        self.table.setHorizontalHeaderLabels(["Name", "Shortcut"])
+        for row, (action, key_sequence) in enumerate(actions.items()):
+            self.table.setItem(row, 0, QTableWidgetItem(action, 0))
+            self.table.setCellWidget(row, 1, QKeySequenceEdit(QKeySequence(key_sequence)))
+        self.table.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.ResizeMode.Stretch
+        )
+        self.table.setColumnWidth(1, 70)
+   
+        add_button = QPushButton("Add")
+        qconnect(add_button.pressed, self.add_row)
+        delete_button = QPushButton("Delete")
+        qconnect(delete_button.pressed, self.remove_row)
+
+        qconnect(self.table.itemChanged, parent.refresh_bindings)
+
+        self.layout.addWidget(self.table, 1, 0, 1, 2)
+        self.layout.addWidget(add_button, 2, 0)
+        self.layout.addWidget(delete_button, 2, 1)
+        self.setLayout(self.layout)
+
+    def add_row(self):
+        if self.table.selectedIndexes():
+            current_row = self.table.currentRow() + 1
+        else:
+            current_row = self.table.rowCount()
+        self.table.insertRow(current_row)
+        self.table.setItem(current_row, 0, QTableWidgetItem("New Action", 0))
+        self.table.setCellWidget(current_row, 1, QKeySequenceEdit(QKeySequence("")))
+        self.table.setCurrentCell(current_row, 0)
+
+    def remove_row(self):
+        if self.table.selectedIndexes():
+            current_row = self.table.currentRow()
+        else:
+            current_row = self.table.rowCount() - 1
+        self.table.removeRow(current_row)
