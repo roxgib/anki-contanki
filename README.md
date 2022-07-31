@@ -74,7 +74,7 @@ Fixes:
  - Fix mouse movement not working on some Linux versions
  - When selecting a different controller in the controls tab, the options tab is now updated immediately
  - Profile saving no longer fails if the profile name contains illegal characters
- - Incompatibilty with the Enhance Main Window add-on has been fixed on their end
+ - Incompatibility with the Enhance Main Window add-on has been fixed on their end
 
 ### Beta 5
 Changes:
