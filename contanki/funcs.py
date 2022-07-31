@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 
 import re
 import subprocess
@@ -20,7 +21,7 @@ from aqt.qt import (
     QPainter,
 )
 from aqt.qt import QKeyEvent as QKE
-from aqt.utils import current_window, tooltip
+from aqt.utils import current_window, tooltip, supportText
 from anki.decks import DeckId
 
 addon_path = dirname(abspath(__file__))
@@ -433,3 +434,13 @@ def collapse_deck() -> None:
     mw.web.eval(
         "document.activeElement.parentElement.getElementsByClassName('collapse')[0].click()"
     )
+
+
+def get_debug_str() -> str:
+    result = """See the <a href="https://ankiweb.net/shared/info/1898790263">add-on page</a> for some tips on using Contanki. If you're having trouble or have found a bug you can post on the <a href="https://forums.ankiweb.net/t/contanki-official-support-thread/">official support thread</a> or the <a href="https://github.com/roxgib/anki-contanki/issues">GitHub issue tracker</a>. <br><br>Please copy and paste the following information into your post:<br><br>"""
+    result += supportText().replace("\n", "<br>")
+    num_controllers = len(mw.contanki.debug_info)
+    result += f"<br>{num_controllers} controller{'' if num_controllers == 1 else 's'} detected{':' if num_controllers > 0 else '.'}<br>"
+    for id, num_buttons, num_axes in mw.contanki.debug_info:
+        result += f"{id}<br>Buttons: {num_buttons}<br>Axes: {num_axes}<br><br>"
+    return result

@@ -25,7 +25,7 @@ from aqt.qt import (
 from aqt.theme import theme_manager
 from aqt.utils import showInfo, getText, openLink
 
-from .funcs import move_mouse_build, scroll_build
+from .funcs import get_debug_str, move_mouse_build, scroll_build
 from .buttons import BUTTON_NAMES, AXES_NAMES
 from .profile import (
     Profile,
@@ -54,8 +54,7 @@ class ContankiConfig(QDialog):
     def __init__(self, parent: QWidget, profile: Profile) -> None:
         if profile is None:
             showInfo(
-                "Controller not detected. Connect your controller using Bluetooth or USB, \
-                    and press any button to initialise."
+                "Controller not detected. Connect your controller using Bluetooth or USB, and press any button to initialise."
             )
             return
         super().__init__(parent)
@@ -178,7 +177,7 @@ class ContankiConfig(QDialog):
         self.close()
 
     def help(self) -> None:
-        openLink("https://github.com/roxgib/anki-contanki")
+        showInfo(get_debug_str(), textFormat="rich")
 
     def changeProfile(self, profile: Profile = None) -> None:
         if type(profile) == str:

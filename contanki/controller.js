@@ -15,11 +15,11 @@ function initialise() {
 }
 
 function on_controller_connect(event) {
-    let controllers = window.navigator.getGamepads();
+    let controllers = window.navigator.getGamepads(); 
     let register = 'contanki::register';
     indices = [];
     for (let i = 0; i < controllers.length; i++) {
-        if (controllers[i] != null && controllers[i].connected == true) {
+        if (controllers[i] != null && controllers[i].connected) {
             indices.push(i);
             register = register
                 + `::${controllers[i].id}%%%${controllers[i].buttons.length}%%%${controllers[i].axes.length}`;
@@ -70,7 +70,7 @@ function poll() {
     let controller = window.navigator.getGamepads()[index];
 
     try {
-        if (controller.connected == false) {
+        if (!controller.connected) {
             on_controller_disconnect();
             return;
         }
@@ -91,4 +91,16 @@ function poll() {
     }
 
     bridgeCommand(`contanki::poll::${buttons.toString()}::${axes.toString()}`);
+}
+
+function get_controller_info() {
+    let controllers = window.navigator.getGamepads();
+    let ids = "";
+    for (let i = 0; i < controllers.length; i++) {
+        if (controllers[i] != null && controllers[i].connected) {
+            let con = controllers[i];
+            ids += `%%%${con.id}%${con.buttons.length}%${con.axes.length}`;
+        }
+    }
+    return ids
 }

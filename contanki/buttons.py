@@ -346,7 +346,7 @@ BUTTON_NAMES = {
         102: 'D-Pad Up',
         103: 'D-Pad Down',
     },
-    "8BitDo Zero (Direct Input Mode)": {
+    "8BitDo Zero (Direct Input)": {
         0: 'A',
         1: 'B',
         3: 'X',
@@ -474,7 +474,7 @@ AXES_NAMES = {
         0: 'D-Pad Horizontal',
         1: 'D-Pad Vertical',
     },
-    "8BitDo Zero (Direct Input Mode)": {
+    "8BitDo Zero (Direct Input)": {
         0: 'D-Pad Horizontal',
         1: 'D-Pad Vertical',
     },

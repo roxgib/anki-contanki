@@ -5,7 +5,7 @@ from os import environ
 
 from aqt import gui_hooks, mw
 from aqt.qt import QAction, qconnect
-from aqt.utils import tooltip
+from aqt.utils import tooltip, showInfo
 from aqt.webview import AnkiWebView
 
 from .actions import *
@@ -26,16 +26,21 @@ class Contanki(AnkiWebView):
 
         mw.addonManager.setConfigAction(__name__, self.on_config)
         self.config = mw.addonManager.getConfig(__name__)
-        self.menuItem = QAction(f"Controller Options", mw)
+        self.menuItem = QAction("Controller Options", mw)
         qconnect(self.menuItem.triggered, self.on_config)
 
-        self.setFixedSize(0, 0)
+        if environ.get("DEBUG"):
+            self.setFixedSize(10, 10)
+        else:
+            self.setFixedSize(0, 0)
 
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         self.stdHtml(
             f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>"""
         )
         
+        self.debug_info = ""
+        self.update_debug_info()
         if environ.get("DEBUG"):
             from .tests import run_tests
             run_tests()
@@ -61,6 +66,7 @@ class Contanki(AnkiWebView):
         self.controlsOverlay = ControlsOverlay(
             self.profile, self.config["Large Overlays"]
         )
+        self.update_debug_info()
 
     def on_disconnect(self, *args) -> None:
         if self.controllers is not None:
@@ -68,6 +74,7 @@ class Contanki(AnkiWebView):
                 mw.form.menuTools.removeAction(controller)
         self.controllers = list()
         self.reset_controller()
+        self.update_debug_info()
         tooltip("Controller Disconnected")
 
     def reset_controller(self) -> None:
@@ -76,6 +83,7 @@ class Contanki(AnkiWebView):
         mw.form.menuTools.removeAction(self.menuItem)
         self.icons = defaultdict(list)
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
+        self.update_debug_info()
 
     def register_controllers(self, *controllers) -> None:
         for controller in self.controllers:
@@ -173,6 +181,7 @@ class Contanki(AnkiWebView):
         if focus := current_window():
             ContankiConfig(focus, self.profile)
 
+
     def update_profile(self, profile: Profile) -> None:
         if self.profile:
             self.profile = profile
@@ -183,3 +192,12 @@ class Contanki(AnkiWebView):
 
     def register_icon(self, index: int, on_func: Callable, off_func: Callable) -> None:
         self.icons[index].append((on_func, off_func))
+
+    def update_debug_info(self):
+        self._evalWithCallback("get_controller_info()", self._update_debug_info)
+
+    def _update_debug_info(self, controllers: str):
+        if controllers is None:
+            self.debug_info = "No controllers detected"
+        else:
+            self.debug_info = [con.split("%") for con in controllers.split("%%%") if con]
