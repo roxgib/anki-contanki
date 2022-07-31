@@ -42,25 +42,39 @@ If you encounter an issue, let me know what you were trying to do, what platform
 
 Version Specific:
  - Opening certain menus or dialogs prevents any actions from firing, until it's closed and they fire all at once. This mostly affectts Anki 2.1.49 and below. The above issue is mostly fixed in 2.1.50, but some dialogs may still prevent actions from firing
- - A small number of actions are only supported in 2.1.50
+ - A small number of actions are only supported in 2.1.50+
 
 Platform Specific
  - Volume controls only work on MacOS
  - Steam Deck is currently unsupported while we wait for Qt to upgrade to a newer Chromium version
- - Cursor control doesn't work on Linux
+ - Cursor control doesn't work on Linux due to a Qt issue
 
 Controller Specific
  - Only a single Joy-Con can be used at a time. Support for using a pair of Joy-Cons as a single controller is planned
- - Some controllers, such as those from 8BitDo, have a keyboard mode in addition to a controller mode. Use controller mode for compatibility with this add-on
+ - Certain 8BitDo controllers may have incorrect button mapping or fail to be detect if they are set on the wrong mode. Try a different controller mode if this happens. More info [here](https://support.8bitdo.com)
 
 Add-on compatibility
  - Not compatible with:
     - Anjoy
  - Has issues:
-    - Enhance Main Windows - can't navigate decks in main window (try selecting the deck in the overview screen instead)
     - Customize Keyboard Shortcuts - a small number of actions rely on simulating a key press, and won't work if you've changed that shortcut. Instead you can create a custom action in the controller options using your assigned shortcut
 
 ## Development log
+
+### Beta 6
+Improvements:
+ - When a button icon can't be found, a fallback text icon will now be generated
+ - Improved controller detection code and added various controllers to the list 
+ - The help button in the config now provides debug data and additional advice 
+ - Implemented testing module and began to add tests
+
+Fixes:
+ - Fix layout error and added direct input mode for 8BitDo Zero
+ - Fixed icon issue for Dualshock 3 on Linux
+ - Fix mouse movement not working on some Linux versions
+ - When selecting a different controller in the controls tab, the options tab is now updated immediately
+ - Profile saving no longer fails if the profile name contains illegal characters
+ - Incompatibilty with the Enhance Main Window add-on has been fixed on their end
 
 ### Beta 5
 Changes:
