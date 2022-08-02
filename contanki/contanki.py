@@ -38,7 +38,7 @@ class Contanki(AnkiWebView):
         self.stdHtml(
             f"""<script type="text/javascript">\n{get_file("controller.js")}\n</script>"""
         )
-        
+
         self.debug_info = ""
         self.update_debug_info()
         if environ.get("DEBUG"):
@@ -91,7 +91,8 @@ class Contanki(AnkiWebView):
         self.controllers: list[QAction] = list()
         for i, controller in enumerate(controllers):
             con = identify_controller(*(controller.split("%%%")))
-            if con is None: continue
+            if con is None:
+                continue
             self.controllers.append(QAction(con[0], mw))
             qconnect(self.controllers[-1].triggered, partial(self.change_controller, i))
         if len(self.controllers) > 1:
@@ -128,11 +129,23 @@ class Contanki(AnkiWebView):
         if state == "NoFocus":
             return
 
-        buttons = [True if button == "true" else False for button in buttons.split(",")]
-        axes = [float(axis) for axis in axes.split(",")]
+        if self.profile is None:
+            self.eval("on_controller_disconnect()")
+            return
+
+        buttons: list[bool] = [
+            True if button == "true" else False for button in buttons.split(",")
+        ]
+        axes: list[float] = [float(axis) for axis in axes.split(",")]
+
+        if not buttons:
+            self.eval("on_controller_disconnect()")
+            return
 
         mods = tuple(
-            buttons[mod] if mod < 100 else (True if axes[mod - 100] else False)
+            buttons[mod] if mod < 100 and mod >= len(buttons) 
+            else bool(axes[mod - 100]) if mod - 100 < len(axes) 
+            else False
             for mod in self.profile.mods
         )
 
@@ -181,7 +194,6 @@ class Contanki(AnkiWebView):
         if focus := current_window():
             ContankiConfig(focus, self.profile)
 
-
     def update_profile(self, profile: Profile) -> None:
         if self.profile:
             self.profile = profile
@@ -200,4 +212,6 @@ class Contanki(AnkiWebView):
         if controllers is None:
             self.debug_info = "No controllers detected"
         else:
-            self.debug_info = [con.split("%") for con in controllers.split("%%%") if con]
+            self.debug_info = [
+                con.split("%") for con in controllers.split("%%%") if con
+            ]

@@ -65,7 +65,10 @@ function on_controller_disconnect(event) {
 }
 
 function poll() {
-    if (index == null) { on_controller_disconnect() }
+    if (index == null) { 
+        on_controller_disconnect();
+        return;
+    }
 
     let controller = window.navigator.getGamepads()[index];
 
