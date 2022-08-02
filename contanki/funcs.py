@@ -359,7 +359,7 @@ previous_card_info = _previous_card_info()
 ### Deck Browser
 
 
-def _build_deck_list() -> list[tuple[int, bool]]:
+def _build_deck_list() -> tuple[list[int], list[bool]]:
     def _build_node(node):
         decks = [
             (node.deck_id, node.review_count or node.learn_count or node.new_count)
@@ -374,7 +374,8 @@ def _build_deck_list() -> list[tuple[int, bool]]:
     for child in mw.col.sched.deck_due_tree().children:
         decks.extend(_build_node(child))
 
-    return decks
+    decks, dues = zip(*decks)
+    return decks, dues
 
 
 def _select_deck(did) -> None:
@@ -385,10 +386,13 @@ def _select_deck(did) -> None:
 
 def _choose_deck(c_deck: int, direction: bool, due: bool) -> None:
     c_deck = int(c_deck) if c_deck else None
-    decks, dues = zip(*_build_deck_list())
+    decks, dues = _build_deck_list()
     len_decks = len(decks)
 
     if not len_decks:
+        return
+
+    if due and not any(dues):
         return
 
     if c_deck == decks[-1]:
