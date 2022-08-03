@@ -19,6 +19,7 @@ BUTTON_NAMES = {
         13: 'D-Pad Down',
         14: 'D-Pad Left',
         15: 'D-Pad Right',
+        16: 'PS',
         100: 'Left Stick Left',
         101: 'Left Stick Right',
         102: 'Left Stick Up',
