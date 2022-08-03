@@ -143,10 +143,9 @@ class Contanki(AnkiWebView):
             return
 
         mods = tuple(
-            buttons[mod] if mod < 100 and mod >= len(buttons) 
-            else bool(axes[mod - 100]) if mod - 100 < len(axes) 
-            else False
-            for mod in self.profile.mods
+            buttons[mod] if mod <= len(buttons) 
+            else bool(axes[mod - 100]) if 0 <= mod - 100 < len(axes) 
+            else False for mod in self.profile.mods
         )
 
         mod = mods.index(True) + 1 if any(mods) else 0
