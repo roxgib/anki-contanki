@@ -61,6 +61,13 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 7
+Hotfix release to fix a bug relating to annotations not being available for some users. 
+
+Other fixes:
+ - Fix freeze when selecting due decks but none due
+ - Tentative fix for crash on 8BitDo Zero auto power off
+
 ### Beta 6
 Improvements:
  - When a button icon can't be found, a fallback text icon will now be generated
