@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 BUTTON_NAMES = {
     "DualShock 3": {
         0: 'Cross',

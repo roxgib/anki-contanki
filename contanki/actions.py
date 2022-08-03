@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from aqt import mw
 from aqt.qt import Qt
 from aqt.utils import tooltip

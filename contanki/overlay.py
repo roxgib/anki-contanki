@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from aqt.qt import QLayout, QVBoxLayout, QWidget, Qt
 from aqt import mw
 
