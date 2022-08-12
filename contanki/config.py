@@ -112,6 +112,7 @@ class ContankiConfig(QDialog):
             elif type(self._options[key]) == bool:
                 self._options[key] = self.options[key].isChecked()
             elif key == "Custom Actions":
+                self._options[key].clear()
                 for row in range(self.options[key].rowCount()):
                     self._options[key][self.options[key].item(row, 0).text()] = (
                         self.options[key].cellWidget(row, 1).keySequence().toString()
