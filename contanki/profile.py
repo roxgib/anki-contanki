@@ -294,7 +294,6 @@ def get_profile(name: str) -> Profile:
     if not exists(path):
         path = join(user_profile_path, name)
         if not exists(path):
-            showInfo(f"Couldn't find profile '{name}'")
             return
 
     def intKeys(d: dict) -> dict:
@@ -366,7 +365,7 @@ def copy_profile(name: str, new_name: str) -> None:
         exists(join(default_profile_path, name))
         or exists(join(user_profile_path, name))
     ):
-        raise FileNotFoundError
+        raise FileNotFoundError("Tried to copy non-existent profile")
 
     profile = get_profile(name).copy()
     profile.name = new_name
@@ -379,7 +378,10 @@ def find_profile(controller: str, len_buttons: int, len_axes: int) -> Profile:
     with open(join(user_files_path, "controllers"), "r") as f:
         controllers = json.load(f)
     if controller in controllers:
-        return get_profile(controllers[controller])
+        if (profile := get_profile(controllers[controller])) is not None:
+            return profile
+        else:
+            showInfo(f"Couldn't find profile '{controllers[controller]}'. Loading default profile instead.")
     default_profiles = os.listdir(default_profile_path)
     if controller in default_profiles:
         profile_to_copy = controller
