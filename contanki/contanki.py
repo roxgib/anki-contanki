@@ -148,7 +148,7 @@ class Contanki(AnkiWebView):
             else False for mod in self.profile.mods
         )
 
-        mod = mods.index(True) + 1 if any(mods) else 0
+        mod = mods.index(True) + 1 if any(mods) and not all(mods) else 0
 
         if state == "config":
             for i, value in enumerate(buttons):
