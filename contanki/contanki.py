@@ -8,6 +8,8 @@ from aqt.qt import QAction, qconnect
 from aqt.utils import tooltip, showInfo
 from aqt.webview import AnkiWebView
 
+
+from .icons import IconHighlighter
 from .actions import *
 from .config import *
 from .buttons import *
@@ -21,7 +23,7 @@ class Contanki(AnkiWebView):
         super().__init__(parent=parent)
 
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
-        self.icons = defaultdict(list)
+        self.icons = IconHighlighter()
         self.controllers: list[QAction] = list()
 
         mw.addonManager.setConfigAction(__name__, self.on_config)
@@ -81,7 +83,6 @@ class Contanki(AnkiWebView):
         if self.controlsOverlay:
             self.controlsOverlay.disappear()
         mw.form.menuTools.removeAction(self.menuItem)
-        self.icons = defaultdict(list)
         self.buttons = self.axes = self.profile = self.controlsOverlay = None
         self.update_debug_info()
 
@@ -152,17 +153,12 @@ class Contanki(AnkiWebView):
 
         if state == "config":
             for i, value in enumerate(buttons):
-                if value == self.buttons[i]:
-                    continue
-                if i in self.profile.mods:
-                    continue
                 self.buttons[i] = value
-                if i in self.icons:
-                    for f in self.icons[i]:
-                        f[not (value)]()
+                self.icons.set_highlight(i, value)
 
-            if any(axes):
-                self.profile.do_axes_actions(state, mod, axes)
+            for i, axis in enumerate(axes):
+                self.icons.set_highlight(i * 2 + 101, axis > 0.5)
+                self.icons.set_highlight(i * 2 + 100, axis < -0.5)
 
             return
 
@@ -201,8 +197,8 @@ class Contanki(AnkiWebView):
                 profile, self.config["Large Overlays"]
             )
 
-    def register_icon(self, index: int, on_func: Callable, off_func: Callable) -> None:
-        self.icons[index].append((on_func, off_func))
+    def register_icon(self, index: int, icon: ControlButton) -> None:
+        self.icons.register_icon(index, icon)
 
     def update_debug_info(self):
         self._evalWithCallback("get_controller_info()", self._update_debug_info)

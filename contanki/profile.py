@@ -101,23 +101,12 @@ class Profile:
                     if not mw.contanki.axes[axis]:
                         self.do_action(state, mod, axis * 2 + 100)
                         mw.contanki.axes[axis] = True
-                    if axis + 100 in mw.contanki.icons:
-                        for f in mw.contanki.icons[100 + axis * 2]:
-                            f[0]()
                 elif value > 0.5:
                     if not mw.contanki.axes[axis]:
                         self.do_action(state, mod, axis * 2 + 1 + 100)
                         mw.contanki.axes[axis] = True
-                        if axis + 100 in mw.contanki.icons:
-                            for f in mw.contanki.icons[100 + axis * 2 + 1]:
-                                f[0]()
                 else:
                     mw.contanki.axes[axis] = False
-                    if axis + 100 in mw.contanki.icons:
-                        for f in mw.contanki.icons[100 + axis * 2]:
-                            f[1]()
-                        for f in mw.contanki.icons[100 + axis * 2 + 1]:
-                            f[1]()
             elif assignment == "Scroll Horizontal":
                 sx = value
             elif assignment == "Scroll Vertical":

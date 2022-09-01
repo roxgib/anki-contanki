@@ -1,6 +1,9 @@
 from __future__ import annotations
+from collections import defaultdict
 
 from os.path import dirname, abspath, join
+from typing import Callable
+from weakref import WeakSet
 
 from aqt import (
     QComboBox,
@@ -157,3 +160,19 @@ class ControlButton(QWidget):
         super().show()
         self.refresh_icon()
         super().show()
+
+
+class IconHighlighter:
+    def __init__(self) -> None:
+        self.icons: defaultdict[WeakSet[ControlButton]] = defaultdict(WeakSet)
+    
+    def register_icon(self, index: int, icon: ControlButton) -> None:
+        self.icons[index].add(icon)
+    
+    def set_highlight(self, index: int, on: bool) -> None:
+        if index in self.icons:
+            for icon in self.icons[index]:
+                if on:
+                    icon.show_pressed()
+                else:
+                    icon.show_not_pressed()
