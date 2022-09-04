@@ -2,7 +2,6 @@ from __future__ import annotations
 from collections import defaultdict
 
 from os.path import dirname, abspath, join
-from typing import Callable
 from weakref import WeakSet
 
 from aqt import (
@@ -23,6 +22,7 @@ ExpaningPolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Ex
 
 
 def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap:
+    """Fetches the icon for a button, and applies glow effect."""
     if "(" in controller:
         controller = controller.split(" (")[0]
     directions = [
@@ -73,13 +73,15 @@ def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap
 
 
 class ControlButton(QWidget):
+    """Displays a button icon, and optionally a dropdown to select an action."""
+
     def __init__(
         self,
         button: str,
         controller: str,
-        on_left: bool = True,
+        on_left=True,
         actions: list[str] = None,
-        is_large: bool = False,
+        is_large=False,
     ) -> None:
         super().__init__()
         self.button = button
@@ -101,9 +103,10 @@ class ControlButton(QWidget):
         if on_left:
             self.configure_action(on_left, actions)
 
-    def refresh_icon(self, on=False):
+    def refresh_icon(self, glow=False):
+        """Updates the icon for size and glow."""
         self.icon.setMaximumWidth(self.icon.height())
-        if on:
+        if glow:
             pixmap = self.pixmap_glow
         else:
             pixmap = self.pixmap
@@ -115,9 +118,8 @@ class ControlButton(QWidget):
             )
         )
 
-    def configure_action(
-        self, on_left: bool = False, actions: list[str] = None
-    ) -> None:
+    def configure_action(self, on_left=False, actions: list[str] = None) -> None:
+        """Configures the action dropdown menu."""
         font = QFont()
         font.setBold(True)
         if self.is_large:
@@ -126,6 +128,7 @@ class ControlButton(QWidget):
         if actions:
             self.action = QComboBox()
             self.action.addItems(actions)
+            self.currentText = self.action.currentText # pylint: disable=invalid-name
         else:
             self.action = QLabel()
             self.action.setFont(font)
@@ -147,32 +150,25 @@ class ControlButton(QWidget):
         )
         self.setLayout(self.layout)
 
-    def currentText(self):
-        return self.action.currentText()
-
-    def show_pressed(self):
-        self.refresh_icon(True)
-
-    def show_not_pressed(self):
-        self.refresh_icon()
-
     def show(self):
+        """Shows the button, refreshing it in the process."""
         super().show()
         self.refresh_icon()
         super().show()
 
 
 class IconHighlighter:
+    """Manages the highlighting of icons."""
+
     def __init__(self) -> None:
         self.icons: defaultdict[WeakSet[ControlButton]] = defaultdict(WeakSet)
-    
+
     def register_icon(self, index: int, icon: ControlButton) -> None:
+        """Registers an icon to be highlighted when pressed."""
         self.icons[index].add(icon)
-    
-    def set_highlight(self, index: int, on: bool) -> None:
+
+    def set_highlight(self, index: int, highlight: bool) -> None:
+        """Sets the highlight for an icon."""
         if index in self.icons:
             for icon in self.icons[index]:
-                if on:
-                    icon.show_pressed()
-                else:
-                    icon.show_not_pressed()
+                icon.refresh_icon(highlight)

@@ -1,5 +1,5 @@
 from ..icons import get_button_icon, ControlButton
-from ..buttons import BUTTON_NAMES, AXES_NAMES, BUTTON_ORDER
+from ..mappings import BUTTON_NAMES, AXES_NAMES, BUTTON_ORDER
 from . import test
 
 @test

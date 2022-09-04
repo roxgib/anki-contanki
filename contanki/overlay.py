@@ -3,50 +3,62 @@ from __future__ import annotations
 from aqt.qt import QLayout, QVBoxLayout, QWidget, Qt
 from aqt import mw
 
-from .buttons import BUTTON_NAMES, BUTTON_ORDER
+from .mappings import BUTTON_NAMES, BUTTON_ORDER
 from .funcs import get_state
 from .profile import Profile
 from .icons import ControlButton
 
+
 def get_left_right_centre(button: str) -> int:
+    """Returns whether to put the button in the left, right, or either side."""
     button = button.lower()
-    if "d-pad" in button:
+    if "d-pad" in button or "left" in button:
         return 0
-    if 'left' in button:
-        return 0
-    if 'right' in button:
+    if "right" in button or button in "abxyr":
         return 2
-    if button in 'abxyr':
-        return 2 
-    if button in ['cross', 'circle', 'square', 'triangle', 'r1', 'r2', 'options', 'start']:
+    if button in [
+        "cross",
+        "circle",
+        "square",
+        "triangle",
+        "r1",
+        "r2",
+        "options",
+        "start",
+    ]:
         return 2
     return 0
 
 
-class ControlsOverlay():
+class ControlsOverlay:
+    """Overlay that shows the current actions of the gamepad."""
     def __init__(self, profile: Profile, is_large: bool = False):
         self.profile = profile
         self.actions = profile.get_inherited_bindings()
         self.left = QWidget(mw)
         self.right = QWidget(mw)
-        
+
         self.controls = {
-            control: ControlButton(button, self.profile.controller, on_left=False, is_large=is_large)
-            for control, button 
-            in BUTTON_NAMES[self.profile.controller].items()
+            control: ControlButton(
+                button, self.profile.controller, on_left=False, is_large=is_large
+            )
+            for control, button in BUTTON_NAMES[self.profile.controller].items()
             # if control not in self.profile.mods
         }
 
         self.left.layout = QVBoxLayout()
         self.right.layout = QVBoxLayout()
-        self.left.layout.setSpacing(0) 
+        self.left.layout.setSpacing(0)
         self.right.layout.setSpacing(0)
         self.left.layout.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
         self.right.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.left.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         lcount = rcount = 0
-        for i, control in sorted(self.controls.items(), key = lambda control: BUTTON_ORDER.index(control[1].button)):
+        for _, control in sorted(
+            self.controls.items(),
+            key=lambda control: BUTTON_ORDER.index(control[1].button),
+        ):
             if get_left_right_centre(control.button):
                 rcount += 1
                 control.configure_action(False)
@@ -58,14 +70,17 @@ class ControlsOverlay():
         self.counts = lcount, rcount
         self.left.setLayout(self.left.layout)
         self.right.setLayout(self.right.layout)
-        
+
     def disappear(self) -> None:
+        """Hide the overlay."""
         self.left.hide()
         self.right.hide()
 
     def appear(self, mods: int) -> None:
+        """Show the overlay."""
         state = get_state()
-        if state not in self.actions: return
+        if state not in self.actions:
+            return
 
         lcount, rcount = self.counts
         geometry_left = mw.geometry()
@@ -86,14 +101,16 @@ class ControlsOverlay():
 
         for i, control in self.controls.items():
             if i in self.actions[state][mod]:
-                if control.action.height() > ((text := self.actions[state][mod][i]).count(' ') * 25):
-                    control.action.setText(text.replace(' ', '\n'))
+                if control.action.height() > (
+                    (text := self.actions[state][mod][i]).count(" ") * 25
+                ):
+                    control.action.setText(text.replace(" ", "\n"))
                 else:
                     control.action.setText(text)
             else:
                 control.action.setText("")
-            
-            if control.action.text() == '':
+
+            if control.action.text() == "":
                 control.hide()
             else:
                 control.show()
@@ -101,11 +118,11 @@ class ControlsOverlay():
         self.left.show()
         self.right.show()
 
-        for i in range(3):
+        for _ in range(3):
             self.left.hide()
             self.right.hide()
 
-            for i, control in self.controls.items():
+            for _, control in self.controls.items():
                 control.refresh_icon()
 
             self.left.show()

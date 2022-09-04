@@ -28,7 +28,7 @@ from aqt.theme import theme_manager
 from aqt.utils import showInfo, getText, openLink
 
 from .funcs import get_debug_str, move_mouse_build, scroll_build
-from .buttons import BUTTON_NAMES, AXES_NAMES
+from .mappings import BUTTON_NAMES, AXES_NAMES
 from .profile import (
     Profile,
     create_profile,
@@ -53,10 +53,14 @@ states = {
 
 
 class ContankiConfig(QDialog):
+    """Contanki's config dialog.
+
+    Allows the user to change the profile, settings, and bindings."""
+
     def __init__(self, parent: QWidget, profile: Profile) -> None:
         if profile is None:
             showInfo(
-                "Controller not detected. Connect your controller using Bluetooth or USB, and press any button to initialise."
+                "Controller not detected. Connect your controller and press any button to initialise." # pylint: disable=line-too-long
             )
             return
         super().__init__(parent)
@@ -66,36 +70,37 @@ class ContankiConfig(QDialog):
         self.setMinimumHeight(660)
 
         self.profile = profile.copy()
+        self.controller = self.profile.controller
         self.layout = QVBoxLayout(self)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.tabBar = QTabWidget()
+        self.tab_bar = QTabWidget()
         self.tabs = dict()
         self.setup_options()
         self.setup_bindings()
 
-        self.saveButton = QPushButton(self)
-        self.cancelButton = QPushButton(self)
-        self.helpButton = QPushButton(self)
+        self.save_button = QPushButton(self)
+        self.cancel_button = QPushButton(self)
+        self.help_button = QPushButton(self)
 
-        self.saveButton.setText("Save")
-        self.cancelButton.setText("Cancel")
-        self.helpButton.setText("Help")
+        self.save_button.setText("Save")
+        self.cancel_button.setText("Cancel")
+        self.help_button.setText("Help")
 
-        self.saveButton.clicked.connect(self.save)
-        self.cancelButton.clicked.connect(self.close)
-        self.helpButton.clicked.connect(self.help)
+        self.save_button.clicked.connect(self.save)
+        self.cancel_button.clicked.connect(self.close)
+        self.help_button.clicked.connect(self.help)
 
         self.buttons = QWidget()
         self.buttons.layout = QHBoxLayout()
 
-        self.buttons.layout.addWidget(self.helpButton)
-        self.buttons.layout.addWidget(self.cancelButton)
-        self.buttons.layout.addWidget(self.saveButton)
+        self.buttons.layout.addWidget(self.help_button)
+        self.buttons.layout.addWidget(self.cancel_button)
+        self.buttons.layout.addWidget(self.save_button)
 
         self.buttons.layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         self.buttons.setLayout(self.buttons.layout)
 
-        self.layout.addWidget(self.tabBar)
+        self.layout.addWidget(self.tab_bar)
         self.layout.addWidget(self.buttons)
 
         self.to_delete = list()
@@ -104,22 +109,23 @@ class ContankiConfig(QDialog):
         self.open()
 
     def save(self) -> None:
-        for key in self.options.keys():
+        """Save changes, and load them. Used on close."""
+        for key, option in self.options.items():
             if "mod" in key:
                 continue
-            if type(self._options[key]) == int:
-                self._options[key] = self.options[key].value()
-            elif type(self._options[key]) == bool:
-                self._options[key] = self.options[key].isChecked()
+            if isinstance(self._options[key], int):
+                self._options[key] = option.value()
+            elif isinstance(self._options[key], bool):
+                self._options[key] = option.isChecked()
             elif key == "Custom Actions":
                 self._options[key].clear()
-                for row in range(self.options[key].rowCount()):
-                    self._options[key][self.options[key].item(row, 0).text()] = (
+                for row in range(option.rowCount()):
+                    self._options[key][option.item(row, 0).text()] = (
                         self.options[key].cellWidget(row, 1).keySequence().toString()
                     )
             elif key == "Flags":
                 self._options["Flags"] = []
-                for flag in self.options[key].findChildren(QCheckBox):
+                for flag in option.findChildren(QCheckBox):
                     if flag.isChecked():
                         self._options["Flags"].append(int(flag.objectName()))
 
@@ -129,16 +135,6 @@ class ContankiConfig(QDialog):
 
         for profile in self.to_delete:
             delete_profile(profile, False)
-
-        states = [
-            "all",
-            "deckBrowser",
-            "overview",
-            "review",
-            "question",
-            "answer",
-            "dialog",
-        ]
 
         mods = {0: "No Modifier"}
         for i, mod in enumerate(self.profile.mods):
@@ -180,19 +176,24 @@ class ContankiConfig(QDialog):
         self.close()
 
     def help(self) -> None:
+        """Open the Contanki help page."""
         showInfo(get_debug_str(), textFormat="rich")
 
-    def changeProfile(self, profile: Profile = None) -> None:
-        if type(profile) == str:
+    def change_profile(self, profile: Profile = None) -> None:
+        """Used when the user changes the profile in the profile list.
+
+        Will only update the main profile if Save is chosen."""
+        if isinstance(profile, str):
             profile = get_profile(profile)
-        elif not profile or type(profile) != Profile:
+        elif not profile or isinstance(profile, Profile):
             profile = get_profile(self._profile.currentText())
         if not profile:
             return
         self.profile = profile.copy()
         self.refresh_bindings()
 
-    def addProfile(self) -> None:
+    def add_profile(self) -> None:
+        """Add a new profile."""
         new_profile = create_profile()
         if not new_profile:
             return
@@ -200,6 +201,7 @@ class ContankiConfig(QDialog):
         self._profile.setCurrentText(new_profile.name)
 
     def delete_profile(self) -> None:
+        """Delete the current profile."""
         if len(self._profile) == 1:
             showInfo("You can't delete the last profile")
             return
@@ -207,6 +209,7 @@ class ContankiConfig(QDialog):
         self._profile.removeItem(self._profile.currentIndex())
 
     def rename_profile(self) -> None:
+        """Rename the current profile."""
         old_name = self.profile.name
         new_name, success = getText(
             "Please enter a new profile name", self, title="New Name"
@@ -218,6 +221,7 @@ class ContankiConfig(QDialog):
         self.to_delete.append(old_name)
 
     def setup_options(self) -> None:
+        """Init the options tab."""
         tab = QWidget()
         self.tabs["main"] = tab
         tab.layout = QGridLayout(tab)
@@ -247,12 +251,12 @@ class ContankiConfig(QDialog):
         form.layout.setVerticalSpacing(20)
 
         for key, value in self._options.items():
-            if type(value) == int:
+            if isinstance(value, int):
                 self.options[key] = QSpinBox(tab)
                 self.options[key].setMinimumWidth(70)
                 self.options[key].setValue(value)
                 form.layout.addRow(key, self.options[key])
-            elif type(value) == bool:
+            elif isinstance(value, bool):
                 self.options[key] = QCheckBox(key, tab)
                 self.options[key].setChecked(self._options[key])
                 form.layout.addRow(self.options[key])
@@ -321,13 +325,15 @@ class ContankiConfig(QDialog):
 
         tab.layout.addWidget(profile_bar, 0, 0, 1, 3)
         tab.setLayout(tab.layout)
-        self.tabBar.insertTab(0, tab, "Options")
+        self.tab_bar.insertTab(0, tab, "Options")
 
     def get_custom_actions(self):
+        """Get the names of custom actions."""
         table = self.options["Custom Actions"]
         return [table.item(row, 0).text() for row in range(table.rowCount())]
 
     def update_modifiers(self) -> None:
+        """Update the selected modifier buttons and refreshes the bindings table"""
         keys = list(BUTTON_NAMES[self.profile.controller].keys())
         self.profile.change_mod(
             self.profile.mods[0], keys[self.options["mod0"].currentIndex()]
@@ -338,6 +344,7 @@ class ContankiConfig(QDialog):
         self.refresh_bindings()
 
     def setup_bindings(self):
+        """Init the bindings tab."""
         tab = self.tabs["bindings"] = QTabWidget()
 
         corner = self.corner = QComboBox()
@@ -363,7 +370,7 @@ class ContankiConfig(QDialog):
             tab.stateTabs[state] = QTabWidget()
             tab.stateTabs[state].setObjectName(state)
             tab.stateTabs[state].modTabs = dict()
-            for mod, mTitle in mods.items():
+            for mod, mod_title in mods.items():
                 tab.stateTabs[state].modTabs[mod] = widget = QWidget()
                 widget.setObjectName(str(mod))
                 widget.layout = QGridLayout()
@@ -380,7 +387,7 @@ class ContankiConfig(QDialog):
                     if button in self.profile.bindings[state][mod]:
                         if text := self.profile.bindings[state][mod][button]:
                             control.action.setCurrentText(text)
-                    control.update = partial(self.updateBinding, state, mod, button)
+                    control.update = partial(self.update_binding, state, mod, button)
                     qconnect(control.action.currentIndexChanged, control.update)
                     if button in self.profile.mods:
                         continue
@@ -403,29 +410,34 @@ class ContankiConfig(QDialog):
                     tab.stateTabs[state].addTab(widget, "No Modifier")
                 else:
                     tab.stateTabs[state].addTab(
-                        widget, QIcon(get_button_icon(controller, mods[mod])), mTitle
+                        widget, QIcon(get_button_icon(controller, mods[mod])), mod_title
                     )
             tab.stateTabs[state].setTabPosition(QTabWidget.TabPosition.South)
             tab.addTab(tab.stateTabs[state], title)
-        self.updateInheritance()
-        self.tabBar.addTab(tab, "Controls")
+        self.update_inheritance()
+        self.tab_bar.addTab(tab, "Controls")
 
+    # FIXME: This should save the bindings and restore them after refreshing
     def refresh_bindings(self) -> None:
-        current_tab = self.tabBar.currentIndex()
+        """Reload the bindings tab. Used when the modifier buttons are changed."""
+        current_tab = self.tab_bar.currentIndex()
         self.controller = self.profile.controller = self.corner.currentText()
-        self.tabBar.removeTab(1)
+        self.tab_bar.removeTab(1)
         self.setup_bindings()
-        self.tabBar.setCurrentIndex(current_tab)
+        self.tab_bar.setCurrentIndex(current_tab)
         self.resize(self.sizeHint())
 
+    # FIXME: This should save the options and restore them after refreshing
     def refresh_options(self) -> None:
-        current_tab = self.tabBar.currentIndex()
-        self.tabBar.removeTab(0)
+        """Reload the options tab. Used when the controller is changed."""
+        current_tab = self.tab_bar.currentIndex()
+        self.tab_bar.removeTab(0)
         self.setup_options()
-        self.tabBar.setCurrentIndex(current_tab)
+        self.tab_bar.setCurrentIndex(current_tab)
         self.resize(self.sizeHint())
 
-    def updateBinding(self, state, mod, button):
+    def update_binding(self, state, mod, button):
+        """Update the binding for the given button."""
         action = (
             self.tabs["bindings"]
             .stateTabs[state]
@@ -434,9 +446,10 @@ class ContankiConfig(QDialog):
             .currentText()
         )
         self.profile.update_binding(state, mod, button, action)
-        self.updateInheritance()
+        self.update_inheritance()
 
-    def updateInheritance(self):
+    def update_inheritance(self):
+        """Updates action selection dropdowns to reflect inherited values."""
         for state in states:
             for mod in range(len(self.profile.mods) + 1):
                 for button, control in (
@@ -445,13 +458,12 @@ class ContankiConfig(QDialog):
                     if button in self.profile.mods:
                         continue
                     inherited = None
-                    if state != "all" and button in (
-                        b := self.profile.bindings["all"][mod]
-                    ):
-                        inherited = b[button]
+                    if state != "all" and button in self.profile.bindings["all"][mod]:
+                        inherited = self.profile.bindings["all"][mod][button]
                     if (
-                        state == "question" or state == "answer"
-                    ) and button in self.profile.bindings["review"][mod]:
+                        state in ["question", "answer"]
+                        and button in self.profile.bindings["review"][mod]
+                    ):
                         if action := self.profile.bindings["review"][mod][button]:
                             inherited = action
                     if inherited:
@@ -478,6 +490,7 @@ class ContankiConfig(QDialog):
 
 
 class ProfileBar(QWidget):
+    """A widget allowing the user to change, rename, or delete profiles."""
     def __init__(self, parent: ContankiConfig, tab: QWidget) -> None:
         super().__init__()
         self.layout = QHBoxLayout()
@@ -485,12 +498,12 @@ class ProfileBar(QWidget):
         self.profile_combo = self.profile_combo = QComboBox(tab)
         self.profile_combo.addItems(p_list := get_profile_list(include_defaults=False))
         self.profile_combo.setCurrentIndex(p_list.index(parent.profile.name))
-        self.profile_combo.currentIndexChanged.connect(parent.changeProfile)
+        self.profile_combo.currentTextChanged.connect(parent.change_profile)
         self.layout.addWidget(QLabel("Profile", tab))
         self.layout.addWidget(self.profile_combo)
 
         add_button = QPushButton("Add Profile", tab)
-        add_button.clicked.connect(parent.addProfile)
+        add_button.clicked.connect(parent.add_profile)
         self.layout.addWidget(add_button)
 
         delete_button = QPushButton("Delete Profile", tab)
@@ -505,6 +518,7 @@ class ProfileBar(QWidget):
 
 
 class CustomActions(QWidget):
+    """A widget allowing the user to modify custom actions."""
     def __init__(
         self, parent: ContankiConfig, tab: QWidget, actions: dict[str, str]
     ) -> None:
@@ -537,6 +551,7 @@ class CustomActions(QWidget):
         self.setLayout(self.layout)
 
     def add_row(self):
+        """Add a row for a new custom action."""
         if self.table.selectedIndexes():
             current_row = self.table.currentRow() + 1
         else:
@@ -547,6 +562,7 @@ class CustomActions(QWidget):
         self.table.setCurrentCell(current_row, 0)
 
     def remove_row(self):
+        """Remove the selected row, or the last one."""
         if self.table.selectedIndexes():
             current_row = self.table.currentRow()
         else:
@@ -555,6 +571,7 @@ class CustomActions(QWidget):
 
 
 class ModiferSelector(QComboBox):
+    """A combo box allowing the user to select a modifier button."""
     def __init__(self, parent: ContankiConfig, tab: QWidget, mod: int) -> None:
         super().__init__(tab)
         buttons = list(zip(*BUTTON_NAMES[parent.profile.controller].items()))[1]
