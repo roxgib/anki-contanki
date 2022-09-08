@@ -86,11 +86,11 @@ class ControlButton(QWidget):
         super().__init__()
         self.button = button
         self.is_large = is_large
-        self.layout = QHBoxLayout()
-        self.layout.setSpacing(15)
+        self._layout = QHBoxLayout()
+        self._layout.setSpacing(15)
         self.setMaximumHeight(120 if is_large else 80)
         self.setSizePolicy(ExpaningPolicy)
-        self.layout.setContentsMargins(1, 1, 1, 1)
+        self._layout.setContentsMargins(1, 1, 1, 1)
         self.icon = QLabel()
         self.pixmap = get_button_icon(controller, button)
         self.pixmap_glow = get_button_icon(controller, button, glow=True)
@@ -126,29 +126,28 @@ class ControlButton(QWidget):
             font.setPointSize(20)
 
         if actions:
-            self.action = QComboBox()
+            self.action: QComboBox | QLabel = QComboBox()
             self.action.addItems(actions)
-            self.currentText = self.action.currentText # pylint: disable=invalid-name
+            self.currentText = self.action.currentText  # pylint: disable=invalid-name
         else:
             self.action = QLabel()
             self.action.setFont(font)
 
         if on_left:
-            self.layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-            self.layout.addWidget(self.icon)
-            self.layout.addWidget(self.action)
+            self._layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            self._layout.addWidget(self.icon)
+            self._layout.addWidget(self.action)
         else:
-            self.layout.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self._layout.setAlignment(Qt.AlignmentFlag.AlignRight)
             self.action.setAlignment(
                 Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
             )
-            self.layout.addWidget(self.action)
-            self.layout.addWidget(self.icon)
+            self._layout.addWidget(self.action)
+            self._layout.addWidget(self.icon)
 
-        self.action.setSizePolicy(
-            QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
-        )
-        self.setLayout(self.layout)
+        policy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
+        self.action.setSizePolicy(policy)
+        self.setLayout(self._layout)
 
     def show(self):
         """Shows the button, refreshing it in the process."""
@@ -161,7 +160,7 @@ class IconHighlighter:
     """Manages the highlighting of icons."""
 
     def __init__(self) -> None:
-        self.icons: defaultdict[WeakSet[ControlButton]] = defaultdict(WeakSet)
+        self.icons: defaultdict[int, WeakSet[ControlButton]] = defaultdict(WeakSet)
 
     def register_icon(self, index: int, icon: ControlButton) -> None:
         """Registers an icon to be highlighted when pressed."""

@@ -1,22 +1,21 @@
+"""The Profile class stores control bindings. Currently it does not store other user
+settings, but this is planned. The Profile class is serializable to JSON for the
+purpose of saving."""
+
+# For ease of testing, this file should not import any Anki
+# modules or Contanki modules other than mappings and utils.
+
 from __future__ import annotations
+from collections import defaultdict
 
 from copy import deepcopy
-from typing import Optional
 from re import search
 import os
 from os.path import join, exists
 import json
 
-from aqt import mw
-from aqt.utils import showInfo, tooltip
-from aqt.qt import QMessageBox, QInputDialog
-
 from .mappings import BUTTON_NAMES
-from .actions import (
-    button_actions,
-    release_actions,
-)
-from .funcs import get_file, int_keys, move_mouse_build, scroll_build, get_custom_actions
+from .utils import State, get_file, int_keys
 
 addon_path = os.path.dirname(os.path.abspath(__file__))
 user_files_path = join(addon_path, "user_files")
@@ -29,124 +28,62 @@ class Profile:
     """Stores control bindings and handles calling functions for them."""
 
     def __init__(self, profile: dict):
-        print(profile)
-        self.bindings = profile["bindings"]
+        if isinstance(profile["bindings"]['all'], dict):
+            self.bindings: dict[tuple[str, int, int], str] = defaultdict(str)
+            for state, state_dict in profile["bindings"].items():
+                for mod, mod_dict in state_dict.items():
+                    for button, action in mod_dict.items():
+                        if action:
+                            self.bindings[(state, mod, button)] = action
+        else:
+            self.bindings = profile["bindings"]
         self.mods: list[int] = profile["mods"]
-        self.name = profile["name"]
-        self.len_buttons, self.len_axes = self.size = profile["size"]
-        self.controller = profile["controller"]
-        self.axes_bindings = profile["axes_bindings"]
-        self.move_mouse = move_mouse_build()
-        self.scroll = scroll_build()
-        self.build_actions()
+        self.name: str = profile["name"]
+        self.size: tuple[int, int] = profile["size"]
+        self.len_buttons, self.len_axes = self.size
+        self.controller: str = profile["controller"]
+        self.axes_bindings: list[str] = profile["axes_bindings"]
+        self.bindings[("NoFocus", 0, 0)] = "Focus Main Window"
 
-    def build_actions(self) -> dict:
-        """Connects action names with functions."""
-        bindings = self.get_inherited_bindings()
-        bindings["NoFocus"] = {0: {0: "Focus Main Window"}}
-        bindings["config"] = {0: {}}
-        bindings["transition"] = {0: {}}
-        for i in range(len(self.mods)):
-            bindings["NoFocus"][i + 1] = dict()
-            bindings["transition"][i + 1] = dict()
-        actions = dict()
-        actions.update(button_actions)
-        actions.update(get_custom_actions())
-        self.actions = dict()
-        self.release_actions = dict()
-        for state, state_dict in bindings.items():
-            self.actions[state] = dict()
-            self.release_actions[state] = dict()
-            for mod, mod_dict in state_dict.items():
-                self.actions[state][mod] = dict()
-                self.release_actions[state][mod] = dict()
-                for button, action in mod_dict.items():
-                    if action in actions:
-                        self.actions[state][mod][button] = actions[action]
-                    if action in release_actions:
-                        self.release_actions[state][mod][button] = release_actions[
-                            action
-                        ]
+    def get(self, state: State, mod: int, button: int) -> str:
+        """Returns the action for a button or axis."""
+        return (
+            self.bindings[(state, mod, button)]
+            or state in ("question", "answer")
+            and self.bindings[("review", mod, button)]
+            or self.bindings[("all", mod, button)]
+        )
 
-        return self.actions
-
-    def get_inherited_bindings(self) -> dict:
-        """Returns a dictionary of bindings with inherited actions added."""
-        bindings = deepcopy(self.bindings)
-        for state, sdict in bindings.items():
-            for mod, mdict in sdict.items():
-                if state == "question" or state == "answer":
-                    for button, action in bindings["review"][mod].items():
-                        if button not in mdict or mdict[button] == "":
-                            mdict[button] = action
-                if state != "all":
-                    for button, action in bindings["all"][mod].items():
-                        if button not in mdict or mdict[button] == "":
-                            mdict[button] = action
-
-        return bindings
-
-    def do_action(self, state: str, mod: int, button: int) -> None:
-        """Calls the appropriate function on button press."""
-        if button in self.actions[state][mod]:
-            try:
-                self.actions[state][mod][button]()
-            except Exception as err:  # pylint: disable=broad-except
-                tooltip("Error: " + str(err))
-
-    def do_release_action(self, state: str, mod: int, button: int) -> None:
-        """Calls the appropriate function on button release."""
-        if button in self.release_actions[state][mod]:
-            try:
-                self.release_actions[state][mod][button]()
-            except Exception as err:  # pylint: disable=broad-except
-                tooltip("Error: " + str(err))
-
-    def do_axes_actions(self, state: str, mod: int, axes: list[float]) -> None:
-        """Handles actions for axis movement."""
-        mouse_x = mouse_y = scroll_x = scroll_y = 0
-        for (axis, assignment), value in zip(self.axes_bindings.items(), axes):
-            if assignment == "Unassigned":
-                continue
-            elif assignment == "Buttons":
-                if abs(value) > 0.5:
-                    if not mw.contanki.axes[axis]:
-                        self.do_action(state, mod, axis * 2 + (value > 0) + 100)
-                        mw.contanki.axes[axis] = True
-                else:
-                    mw.contanki.axes[axis] = False
-            elif assignment == "Scroll Horizontal":
-                scroll_x = value
-            elif assignment == "Scroll Vertical":
-                scroll_y = value
-            elif assignment == "Cursor Horizontal":
-                mouse_x = value
-            elif assignment == "Cursor Vertical":
-                mouse_y = value
-        if mouse_x or mouse_y:
-            try:
-                self.move_mouse(mouse_x, mouse_y)
-            except Exception as err: # pylint: disable=broad-except
-                tooltip("Error: " + str(err))
-        if scroll_x or scroll_y:
-            try:
-                self.scroll(scroll_x, scroll_y)
-            except Exception as err: # pylint: disable=broad-except
-                tooltip("Error: " + str(err))
-
-    def update_binding(
-        self, state: str, mod: int, button: int, action: str, build_actions: bool = True
-    ) -> None:
+    def set(self, state: State, mod: int, button: int, action: str) -> None:
         """Updates the binding for a button or axis."""
-        if mod not in self.bindings[state]:
-            self.bindings[state][mod] = dict()
-        if button not in self.bindings[state][mod]:
-            self.bindings[state][mod][button] = ""
-        if action == "mod" or self.bindings[state][mod][button] == "mod":
-            showInfo("Error: use Binding.updateMods to change the modifier keys")
-        self.bindings[state][mod][button] = action
-        if build_actions:
-            self.build_actions()
+        self.update_binding(state, mod, button, action)
+
+    def get_inherited_bindings(self) -> dict[str, dict[int, dict[int, str]]]:
+        """Returns a dictionary of bindings with inherited actions added."""
+        states = ["deckBrowser", "overview", "question", "answer", "dialog", "config"]
+        inherited_bindings: dict[str, dict[int, dict[int, str]]]
+        inherited_bindings = defaultdict(lambda: defaultdict(dict))
+        for state in states:
+            for mod in self.mods:
+                for button in range(self.len_buttons):
+                    inherited_bindings[state][mod][button] = (
+                        self.bindings[(state, mod, button)]
+                        or state in ("question", "answer")
+                        and self.bindings[("all", mod, button)]
+                        or self.bindings[("all", mod, button)]
+                    )
+
+        return inherited_bindings
+
+    def remove_binding(self, state: State, mod: int, button: int) -> None:
+        """Removes a binding."""
+        del self.bindings[(state, mod, button)]
+
+    def update_binding(self, state: State, mod: int, button: int, action: str) -> None:
+        """Updates the binding for a button or axis."""
+        if action == "mod" or self.bindings[state, mod, button] == "mod":
+            raise ValueError("Use Profile.change_mod to change the modifier keys")
+        self.bindings[(state, mod, button)] = action
 
     def change_mod(self, old_mod: int, new_mod: int) -> None:
         """Changes a modifier key."""
@@ -161,11 +98,20 @@ class Profile:
         self.name = "".join(
             [char for char in self.name if char.isalnum() or char in " ()-_"]
         )
+
+        bindings: dict[str, dict[int, dict[int, str]]] = dict()
+        for (state, mod, button), action in self.bindings.items():
+            if state not in bindings:
+                bindings[state] = dict()
+            if mod not in bindings[state]:
+                bindings[state][mod] = dict()
+            bindings[state][mod][button] = action
+
         output = {
             "name": self.name,
             "size": self.size,
             "mods": self.mods,
-            "bindings": self.bindings,
+            "bindings": bindings,
             "controller": self.controller,
             "axes_bindings": self.axes_bindings,
         }
@@ -187,7 +133,6 @@ class Profile:
 
         return Profile(new_profile)
 
-
 # FIXME: this is a mess
 def identify_controller(
     id_: str,
@@ -197,13 +142,15 @@ def identify_controller(
     """Identifies a controller based on the ID name and number of buttons and axes."""
     len_buttons, len_axes = int(len_buttons), int(len_axes)
     device_name = id_
-    vendor_id = search(r"Vendor: (\w{4})", id_)
-    device_id = search(r"Product: (\w{4})", id_)
-    if vendor_id is not None and device_id is not None:
-        vendor_id = vendor_id.group(1)
-        device_id = device_id.group(1)
+    vendor_id_search = search(r"Vendor: (\w{4})", id_)
+    device_id_search = search(r"Product: (\w{4})", id_)
+    if vendor_id_search is not None and device_id_search is not None:
+        vendor_id = vendor_id_search.group(1)
+        device_id = device_id_search.group(1)
 
-        controller_ids = json.loads(get_file("controllerIDs.json"))
+        controllers_file = get_file("controllerIDs.json")
+        assert controllers_file is not None
+        controller_ids = json.loads(controllers_file)
 
         if (
             vendor_id in controller_ids["vendors"]
@@ -268,21 +215,19 @@ def identify_controller(
     return device_name, device_name + f" ({len_buttons} buttons)"
 
 
-def get_controller_list():
+def get_controller_list() -> list[str]:
     """Returns a list of all supported controllers."""
-    return list(BUTTON_NAMES.keys())
+    return list(BUTTON_NAMES)
 
 
-def get_profile_list(
-    compatibility: Optional[str] = None, include_defaults: bool = True
-) -> list[str]:
+def get_profile_list(compatibility: str = None, defaults: bool = True) -> list[str]:
     """Returns a list of all profiles."""
     profiles = list()
     for file_name in os.listdir(user_profile_path):
         if file_name not in ["placeholder", ".DS_Store"]:
             profiles.append(file_name)
 
-    if include_defaults:
+    if defaults:
         for file_name in os.listdir(default_profile_path):
             if file_name == str(compatibility) or not compatibility:
                 if file_name not in ["placeholder", ".DS_Store"]:
@@ -291,13 +236,13 @@ def get_profile_list(
     return sorted(profiles)
 
 
-def get_profile(name: str) -> Profile:
+def get_profile(name: str) -> Profile | None:
     """Load a profile from a file."""
     path = join(default_profile_path, name)
     if not exists(path):
         path = join(user_profile_path, name)
         if not exists(path):
-            return
+            return None
 
     with open(path, "r", encoding="utf8") as file:
         profile = Profile(json.load(file, object_hook=int_keys))
@@ -305,67 +250,33 @@ def get_profile(name: str) -> Profile:
     return profile
 
 
-def create_profile(controller: str = None) -> Profile:
-    """Create a new Profile object."""
-    old, okay1 = QInputDialog().getItem(
-        mw,
-        "Create New Profile",
-        "Select an existing profile to copy:",
-        get_profile_list(),
-        editable=False,
-    )
-    if not (okay1 and old):
-        return
-    name, okay2 = QInputDialog().getText(
-        mw, "Create New Profile", "Enter the new profile name:"
-    )
-    if not (name and okay2):
-        return
-
-    if exists(join(user_profile_path, name)):
-        showInfo(f"Error: Profile name '{name}' already in use")
-        return
-    if exists(join(default_profile_path, name)):
-        showInfo(f"Error: Profile name '{name}' already in use")
-        return
-
-    return copy_profile(old, name)
+def create_profile(old_name: str, new_name: str) -> Profile:
+    """Create a new Profile object using an existing Profile as a template."""
+    if exists(join(user_profile_path, new_name)):
+        raise FileExistsError(f"Error: Profile name '{new_name}' already in use")
+    if exists(join(default_profile_path, new_name)):
+        raise FileExistsError(
+            f"Error: Profile name '{new_name}' conflicts with built-in profile"
+        )
+    return copy_profile(old_name, new_name)
 
 
-def delete_profile(name: str, confirm: bool = True) -> None:
+def delete_profile(name: str) -> None:
     """Delete a profile from disk."""
     path = join(default_profile_path, name)
     if exists(path):
         raise ValueError("Tried to delete built-in profile")
-
     path = join(user_profile_path, name)
-
-    def delete():
-        os.remove(path)
-
-    if exists(path):
-        if confirm:
-            confirm_dialog = QMessageBox()
-            confirm_dialog.setText(f"This will delete the profile '{name}'.")
-            confirm_dialog.setWindowTitle("Overwrite Profile")
-            confirm_dialog.clickedButton.connect(delete)
-            confirm_dialog.open()
-        else:
-            delete()
+    os.remove(path)
 
 
-def copy_profile(name: str, new_name: str) -> None:
+def copy_profile(name: str, new_name: str) -> Profile:
     """Copy a profile to a new name and save to disk."""
-    if not (
-        exists(join(default_profile_path, name))
-        or exists(join(user_profile_path, name))
-    ):
-        raise FileNotFoundError("Tried to copy non-existent profile")
-
-    profile = get_profile(name).copy()
+    profile = get_profile(name)
+    if profile is None:
+        raise FileNotFoundError(f"Tried to copy non-existent profile '{name}'")
     profile.name = new_name
     profile.save()
-
     return profile
 
 
@@ -376,29 +287,26 @@ def find_profile(controller: str, len_buttons: int, len_axes: int) -> Profile:
     if controller in controllers:
         if (profile := get_profile(con := controllers[controller])) is not None:
             return profile
-        showInfo(
+        raise FileNotFoundError(
             f"Couldn't find profile '{con}'. Loading default profile instead."
         )
     default_profiles = os.listdir(default_profile_path)
     if controller in default_profiles:
         profile_to_copy = controller
-    if (
-        profile := f"Standard Gamepad ({len_buttons} Buttons, {len_axes} Axes)"
-    ) in default_profiles:
-        profile_to_copy = profile
+    if f"Standard Gamepad ({len_buttons} Buttons, {len_axes} Axes)" in default_profiles:
+        profile_to_copy = f"Standard Gamepad ({len_buttons} Buttons, {len_axes} Axes)"
     else:
         profile_to_copy = "Standard Gamepad (16 Buttons, 4 Axes)"
 
-    copy_profile(profile_to_copy, controller)
-    update_controllers(controller, controller)
-    profile = get_profile(controller)
+    profile = copy_profile(profile_to_copy, controller)
+    update_controllers(controller, profile.name)
     if controller in BUTTON_NAMES:
         profile.controller = controller
         profile.save()
     return profile
 
 
-def update_controllers(controller, profile):
+def update_controllers(controller: str, profile: str):
     """Update the controllers file with the profile."""
     with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
         controllers = json.load(file)

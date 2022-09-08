@@ -1,3 +1,5 @@
+# pylint: disable=missing-docstring
+
 from ..mappings import BUTTON_NAMES, AXES_NAMES, BUTTON_ORDER
 from . import test
 
@@ -8,6 +10,6 @@ def test_button_order_includes_all_buttons():
     for _, controller in BUTTON_NAMES.items():
         for _, button in controller.items():
             buttons.append(button)
-    
+
     for button in buttons:
         assert button in BUTTON_ORDER

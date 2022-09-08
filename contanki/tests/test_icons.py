@@ -1,3 +1,5 @@
+# pylint: disable=missing-docstring
+
 from ..icons import get_button_icon, ControlButton
 from ..mappings import BUTTON_NAMES, AXES_NAMES, BUTTON_ORDER
 from . import test

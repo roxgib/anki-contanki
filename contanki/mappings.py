@@ -1,11 +1,18 @@
-"""Maps the controls to the corresponding indices in the Gamepad API. """
+"""
+Maps the controls to the corresponding indices in the Gamepad API.
+"""
 
-from __future__ import annotations
+# For ease of testing, this file should not import any
+# Anki modules or Contanki modules other than utils.
+
 import json
 
-from .funcs import int_keys, get_file
+from .utils import int_keys, get_file
 
-data = int_keys(json.loads(get_file('mappings.json')))
-BUTTON_NAMES = data["BUTTON_NAMES"]
-AXES_NAMES = data["AXES_NAMES"]
-BUTTON_ORDER = data["BUTTON_ORDER"]
+file = get_file("mappings.json")
+if file is None:
+    raise FileNotFoundError("Could not find mappings.json")
+data = int_keys(json.loads(file))
+BUTTON_NAMES: dict[str, dict[int, str]] = data["BUTTON_NAMES"]
+AXES_NAMES: dict[str, dict[int, str]] = data["AXES_NAMES"]
+BUTTON_ORDER: list[str] = data["BUTTON_ORDER"]
