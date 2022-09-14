@@ -4,12 +4,21 @@ Overlays which appear when mod keys are pressed.
 
 from __future__ import annotations
 
-from aqt.qt import QLayout, QVBoxLayout, QWidget, Qt, QLabel
+from aqt.qt import (
+    QVBoxLayout,
+    QWidget,
+    Qt,
+    QLabel,
+    QHBoxLayout,
+    QSizePolicy,
+    QFont,
+    QLayout,
+)
 
 from .mappings import BUTTON_NAMES, BUTTON_ORDER
 from .utils import State
 from .profile import Profile
-from .icons import ControlButton
+from .icons import ButtonIcon
 
 
 # FIXME: Must be better way to do this
@@ -40,87 +49,91 @@ class ControlsOverlay:
     def __init__(self, parent: QWidget, profile: Profile, is_large: bool = False):
         self.parent = parent
         self.profile = profile
+        self.is_shown = False
+
+        left_layout = QVBoxLayout()
+        right_layout = QVBoxLayout()
+        left_layout.setSpacing(0)
+        right_layout.setSpacing(0)
+        right_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        left_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        self.controls: dict[int, OverlayItem] = dict()
+        for index, button in sorted(
+            self.profile.controller.buttons.items(),
+            key=lambda inputs: BUTTON_ORDER.index(inputs[1]),
+        ):
+            on_left = not get_left_right_centre(button)
+            self.controls[index] = OverlayItem(index, self.profile, on_left, is_large)
+            layout = left_layout if on_left else right_layout
+            layout.addWidget(self.controls[index])
+
+        self.rcount = right_layout.count()
+        self.lcount = left_layout.count()
         self.left = QWidget(parent)
         self.right = QWidget(parent)
-
-        self.controls = {
-            control: ControlButton(
-                button, self.profile.controller, on_left=False, is_large=is_large
-            )
-            for control, button in BUTTON_NAMES[self.profile.controller].items()
-            # if control not in self.profile.mods
-        }
-
-        self.left_layout = QVBoxLayout()
-        self.right_layout = QVBoxLayout()
-        self.left_layout.setSpacing(0)
-        self.right_layout.setSpacing(0)
-        self.left_layout.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
-        self.right_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.left_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-        lcount = rcount = 0
-        for _, control in sorted(
-            self.controls.items(),
-            key=lambda control: BUTTON_ORDER.index(control[1].button),
-        ):
-            if get_left_right_centre(control.button):
-                rcount += 1
-                control.configure_action(False)
-                self.right_layout.addWidget(control)
-            else:
-                lcount += 1
-                control.configure_action(True)
-                self.left_layout.addWidget(control)
-        self.counts = lcount, rcount
-        self.left.setLayout(self.left_layout)
-        self.right.setLayout(self.right_layout)
+        self.left.setLayout(left_layout)
+        self.right.setLayout(right_layout)
 
     def disappear(self) -> None:
         """Hide the overlay."""
         self.left.hide()
         self.right.hide()
+        self.is_shown = False
 
-    def appear(self, state: State, mods: list[int]) -> None:
+    def appear(self, state: State) -> None:
         """Show the overlay."""
-        lcount, rcount = self.counts
-        geometry_left = self.parent.geometry()
-        geometry_left.setBottom(min(lcount * 80, self.parent.height()))
-        geometry_left.setTop(20)
-        geometry_left.setLeft(0)
-        geometry_left.setRight(self.parent.width() // 2)
-        self.left.setGeometry(geometry_left)
-
-        geometry_right = self.parent.geometry()
-        geometry_right.setBottom(min(rcount * 80, self.parent.height()))
-        geometry_right.setTop(20)
-        geometry_right.setLeft(self.parent.width() // 2)
-        geometry_right.setRight(self.parent.width())
-        self.right.setGeometry(geometry_right)
-
-        mod = 0 if all(mods) else mods.index(True) + 1
-
-        for i, control in self.controls.items():
-            if text := self.profile.get(state, mod, i):
-                # FIXME: ControlButton method should handle this
-                assert isinstance(control.action, QLabel)
-                if control.action.height() > text.count(" ") * 25:
-                    text = text.replace(" ", "\n")
-                control.action.setText(text)
-                control.show()
-            else:
-                control.hide()
-
-        self.left.show()
-        self.right.show()
-
-        # FIXME: Why is this needed?
-        for _ in range(3):
-            self.left.hide()
-            self.right.hide()
-
-            for _, control in self.controls.items():
-                control.refresh_icon()
-
-            self.left.show()
+        if not self.is_shown:
+            width = self.parent.width() // 2
+            height = self.parent.height() - 10
+            self.left.setGeometry(0, 20, width, height)
+            self.right.setGeometry(width, 20, width, height)
             self.right.show()
+            self.left.show()
+            for control in self.controls.values():
+                control.appear(state)
+            self.is_shown = True
+
+
+class OverlayItem(QWidget):
+    """Displays a button icon and the associated action."""
+
+    def __init__(self, button: int, profile: Profile, on_left=True, is_large=False):
+        super().__init__()
+        self.button = button
+        button_name = profile.controller.buttons[button]
+        self.is_large = is_large
+        self.profile = profile
+        self.setMaximumHeight(120 if is_large else 80)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        align = Qt.AlignmentFlag.AlignLeft if on_left else Qt.AlignmentFlag.AlignRight
+
+        layout = QHBoxLayout()
+        layout.setSpacing(15)
+        layout.setContentsMargins(1, 1, 1, 1)
+        layout.setAlignment(align)
+        if not on_left:
+            layout.setDirection(QHBoxLayout.Direction.RightToLeft)
+
+        self.icon = ButtonIcon(self, button_name, profile.controller, is_large)
+        self.action = QLabel()
+        font = QFont()
+        font.setBold(True)
+        if is_large:
+            font.setPointSize(20)
+        self.action.setFont(font)
+        self.action.setAlignment(align | Qt.AlignmentFlag.AlignVCenter)
+        layout.addWidget(self.icon)
+        layout.addWidget(self.action)
+        self.setLayout(layout)
+
+    def appear(self, state: State):
+        """Shows the button, refreshing it in the process."""
+        self.hide()
+        if text := self.profile.get(state, self.button):
+            if self.width() - 300 < len(text) * 8:
+                text = text.replace(" ", "\n")
+            self.action.setText(text)
+            self.icon.refresh()
+            self.update()
+            self.show()

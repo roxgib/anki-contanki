@@ -13,9 +13,11 @@ from re import search
 import os
 from os.path import join, exists
 import json
+from typing import Any
 
 from .mappings import BUTTON_NAMES
 from .utils import State, get_file, int_keys
+from .controller import Controller
 
 addon_path = os.path.dirname(os.path.abspath(__file__))
 user_files_path = join(addon_path, "user_files")
@@ -27,111 +29,123 @@ controllers_path = join(addon_path, "controllers")
 class Profile:
     """Stores control bindings and handles calling functions for them."""
 
-    def __init__(self, profile: dict):
-        if isinstance(profile["bindings"]['all'], dict):
-            self.bindings: dict[tuple[str, int, int], str] = defaultdict(str)
-            for state, state_dict in profile["bindings"].items():
-                for mod, mod_dict in state_dict.items():
-                    for button, action in mod_dict.items():
-                        if action:
-                            self.bindings[(state, mod, button)] = action
+    def __init__(self, profile: Profile | dict):
+        if isinstance(profile, Profile):
+            profile = int_keys(profile.to_dict())
+        bindings = profile["bindings"]
+        if isinstance(list(bindings.values())[0], dict):
+            self.bindings: dict[tuple[State, int], str] = defaultdict(str)
+            for state, state_dict in int_keys(bindings).items():
+                assert isinstance(state_dict, dict)
+                assert isinstance(state, str)
+                for button, action in state_dict.items():
+                    if action:
+                        self.bindings[(state, button)] = action
         else:
-            self.bindings = profile["bindings"]
-        self.mods: list[int] = profile["mods"]
+            self.bindings = bindings
+        self.quick_select: dict[str, Any] = profile["quick_select"]
         self.name: str = profile["name"]
         self.size: tuple[int, int] = profile["size"]
         self.len_buttons, self.len_axes = self.size
-        self.controller: str = profile["controller"]
-        self.axes_bindings: list[str] = profile["axes_bindings"]
-        self.bindings[("NoFocus", 0, 0)] = "Focus Main Window"
+        self.controller = profile["controller"]
+        self.axes_bindings: dict[int, str] = profile["axes_bindings"]
+        self.bindings[("NoFocus", 0)] = "Focus Main Window"
 
-    def get(self, state: State, mod: int, button: int) -> str:
-        """Returns the action for a button or axis."""
-        return (
-            self.bindings[(state, mod, button)]
-            or state in ("question", "answer")
-            and self.bindings[("review", mod, button)]
-            or self.bindings[("all", mod, button)]
+    @property
+    def controller(self) -> Controller:
+        """Returns the controller."""
+        return self._controller
+
+    @controller.setter
+    def controller(self, controller: Controller | str):
+        """Sets the controller."""
+        if isinstance(controller, str):
+            controller = Controller(controller)
+        self._controller = controller
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, name: str):
+        self._name = "".join(
+            [char for char in name if char.isalnum() or char in " ()-_"]
         )
 
-    def set(self, state: State, mod: int, button: int, action: str) -> None:
-        """Updates the binding for a button or axis."""
-        self.update_binding(state, mod, button, action)
+    def get(self, state: State, button: int) -> str:
+        """Returns the action for a button or axis."""
+        return (
+            self.bindings[(state, button)]
+            or state in ("question", "answer")
+            and self.bindings[("review", button)]
+            or self.bindings[("all", button)]
+        )
 
-    def get_inherited_bindings(self) -> dict[str, dict[int, dict[int, str]]]:
+    def set(self, state: State, button: int, action: str) -> None:
+        """Updates the binding for a button or axis."""
+        self.update_binding(state, button, action)
+
+    def get_inherited_bindings(self) -> dict[str, dict[int, str]]:
         """Returns a dictionary of bindings with inherited actions added."""
         states = ["deckBrowser", "overview", "question", "answer", "dialog", "config"]
-        inherited_bindings: dict[str, dict[int, dict[int, str]]]
-        inherited_bindings = defaultdict(lambda: defaultdict(dict))
+        inherited_bindings: dict[str, dict[int, str]]
+        inherited_bindings = defaultdict(dict)
         for state in states:
-            for mod in self.mods:
-                for button in range(self.len_buttons):
-                    inherited_bindings[state][mod][button] = (
-                        self.bindings[(state, mod, button)]
-                        or state in ("question", "answer")
-                        and self.bindings[("all", mod, button)]
-                        or self.bindings[("all", mod, button)]
-                    )
+            for button in range(self.len_buttons):
+                inherited_bindings[state][button] = (
+                    self.bindings[(state, button)]
+                    or state in ("question", "answer")
+                    and self.bindings[("all", button)]
+                    or self.bindings[("all", button)]
+                )
 
         return inherited_bindings
 
-    def remove_binding(self, state: State, mod: int, button: int) -> None:
+    def remove_binding(self, state: State, button: int) -> None:
         """Removes a binding."""
-        del self.bindings[(state, mod, button)]
+        del self.bindings[(state, button)]
 
-    def update_binding(self, state: State, mod: int, button: int, action: str) -> None:
+    def update_binding(self, state: State, button: int, action: str) -> None:
         """Updates the binding for a button or axis."""
-        if action == "mod" or self.bindings[state, mod, button] == "mod":
-            raise ValueError("Use Profile.change_mod to change the modifier keys")
-        self.bindings[(state, mod, button)] = action
-
-    def change_mod(self, old_mod: int, new_mod: int) -> None:
-        """Changes a modifier key."""
-        if old_mod in self.mods:
-            self.mods[self.mods.index(old_mod)] = new_mod
+        self.bindings[(state, button)] = action
 
     def get_compatibility(self, controller):
         """To be implemented"""
 
-    def save(self) -> None:
-        """Saves the profile to a file."""
-        self.name = "".join(
-            [char for char in self.name if char.isalnum() or char in " ()-_"]
-        )
-
-        bindings: dict[str, dict[int, dict[int, str]]] = dict()
-        for (state, mod, button), action in self.bindings.items():
+    def to_dict(self) -> dict[str, Any]:
+        """Copies the profile to a dict, with str keys for JSON compatibility."""
+        bindings: dict[str, dict[str, str]] = dict()
+        for (state, button), action in self.bindings.items():
             if state not in bindings:
                 bindings[state] = dict()
-            if mod not in bindings[state]:
-                bindings[state][mod] = dict()
-            bindings[state][mod][button] = action
+            bindings[state][str(button)] = action
 
-        output = {
+        return {
             "name": self.name,
             "size": self.size,
-            "mods": self.mods,
-            "bindings": bindings,
-            "controller": self.controller,
-            "axes_bindings": self.axes_bindings,
-        }
-
-        path = os.path.join(user_profile_path, self.name)
-        with open(path, "w", encoding="utf8") as file:
-            json.dump(output, file)
-
-    def copy(self):
-        """Returns a deep copy of the profile."""
-        new_profile = {
-            "name": deepcopy(self.name),
-            "size": deepcopy(self.size),
-            "mods": deepcopy(self.mods),
-            "bindings": deepcopy(self.bindings),
-            "controller": deepcopy(self.controller),
+            "controller": self.controller.name,
+            "quick_select": deepcopy(self.quick_select),
+            "bindings": deepcopy(bindings),
             "axes_bindings": deepcopy(self.axes_bindings),
         }
 
-        return Profile(new_profile)
+    def __hash__(self) -> int:
+        return hash(str(self.to_dict()))
+
+    def __eq__(self, __o: object) -> bool:
+        return self.to_dict() == __o.to_dict() if isinstance(__o, Profile) else False
+
+    def save(self) -> None:
+        """Saves the profile to a file."""
+        path = os.path.join(user_profile_path, self.name)
+        with open(path, "w", encoding="utf8") as file:
+            json.dump(self.to_dict(), file)
+
+    def copy(self):
+        """Returns a deep copy of the profile."""
+        return Profile(self.to_dict())
+
 
 # FIXME: this is a mess
 def identify_controller(
@@ -215,11 +229,6 @@ def identify_controller(
     return device_name, device_name + f" ({len_buttons} buttons)"
 
 
-def get_controller_list() -> list[str]:
-    """Returns a list of all supported controllers."""
-    return list(BUTTON_NAMES)
-
-
 def get_profile_list(compatibility: str = None, defaults: bool = True) -> list[str]:
     """Returns a list of all profiles."""
     profiles = list()
@@ -301,15 +310,15 @@ def find_profile(controller: str, len_buttons: int, len_axes: int) -> Profile:
     profile = copy_profile(profile_to_copy, controller)
     update_controllers(controller, profile.name)
     if controller in BUTTON_NAMES:
-        profile.controller = controller
+        profile.controller = Controller(controller)
         profile.save()
     return profile
 
 
-def update_controllers(controller: str, profile: str):
+def update_controllers(controller: Controller | str, profile: str):
     """Update the controllers file with the profile."""
     with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
         controllers = json.load(file)
-    controllers[controller] = profile
+    controllers[str(controller)] = profile
     with open(join(user_files_path, "controllers"), "w", encoding="utf8") as file:
         json.dump(controllers, file)

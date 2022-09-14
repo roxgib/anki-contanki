@@ -549,5 +549,23 @@
         "Right Grip",
         "Pad",
         "PS"
-    ]
+    ],
+    "HAS_STICK": {
+        "DualShock 3": true,
+        "DualShock 4": true,
+        "DualSense": true,
+        "Xbox 360": true,
+        "Xbox One": true,
+        "Xbox Series": true,
+        "Switch Pro": true,
+        "Steam Controller": true,
+        "Joy-Con": true,
+        "Joy-Con Left": true,
+        "Joy-Con Right": true,
+        "Super Nintendo": false,
+        "Steam Deck": true,
+        "8BitDo Zero": false,
+        "8BitDo Zero (Direct Input)": false,
+        "8BitDo Lite": false
+    }
 }

@@ -12,8 +12,10 @@ from os.path import join, dirname, abspath, exists
 addon_path = dirname(abspath(__file__))
 
 State = Literal[
+    "all",
     "deckBrowser",
     "overview",
+    "review",
     "question",
     "answer",
     "dialog",

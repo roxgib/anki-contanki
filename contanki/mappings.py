@@ -16,3 +16,4 @@ data = int_keys(json.loads(file))
 BUTTON_NAMES: dict[str, dict[int, str]] = data["BUTTON_NAMES"]
 AXES_NAMES: dict[str, dict[int, str]] = data["AXES_NAMES"]
 BUTTON_ORDER: list[str] = data["BUTTON_ORDER"]
+HAS_STICK: dict[str, bool] = data["HAS_STICK"]

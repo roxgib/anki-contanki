@@ -4,6 +4,7 @@ from collections import defaultdict
 from os.path import dirname, abspath, join
 from weakref import WeakSet
 
+from aqt import mw
 from aqt import (
     QComboBox,
     QFont,
@@ -15,14 +16,19 @@ from aqt import (
     QPixmap,
     QPainter,
     QColor,
+    QIcon,
 )
 from aqt.utils import tooltip
 
-ExpaningPolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+from .controller import Controller
 
 
-def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap:
+
+def get_button_icon(
+    controller: Controller | str, button: str, glow: bool = False
+) -> QPixmap:
     """Fetches the icon for a button, and applies glow effect."""
+    controller = str(controller)
     if "(" in controller:
         controller = controller.split(" (")[0]
     directions = [
@@ -72,102 +78,54 @@ def get_button_icon(controller: str, button: str, glow: bool = False) -> QPixmap
     return pixmap
 
 
-class ControlButton(QWidget):
-    """Displays a button icon, and optionally a dropdown to select an action."""
-
+class ButtonIcon(QLabel):
     def __init__(
         self,
+        parent: QWidget | None,
         button: str,
-        controller: str,
-        on_left=True,
-        actions: list[str] = None,
+        controller: Controller,
+        index: int = None,
         is_large=False,
     ) -> None:
-        super().__init__()
-        self.button = button
+        super().__init__(parent)
         self.is_large = is_large
-        self._layout = QHBoxLayout()
-        self._layout.setSpacing(15)
-        self.setMaximumHeight(120 if is_large else 80)
-        self.setSizePolicy(ExpaningPolicy)
-        self._layout.setContentsMargins(1, 1, 1, 1)
-        self.icon = QLabel()
-        self.pixmap = get_button_icon(controller, button)
-        self.pixmap_glow = get_button_icon(controller, button, glow=True)
-        self.icon.setPixmap(self.pixmap)
-        self.icon.setMaximumHeight(60)
-        self.icon.setMaximumWidth(60)
-        self.icon.setSizePolicy(ExpaningPolicy)
-        self.refresh_icon()
+        self.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Expanding)
+        self.setMaximumHeight(120 if is_large else 60)
+        self.setContentsMargins(0, 0, 0, 0)
+        self._pixmap = get_button_icon(controller, button)
+        self._pixmap_glow = get_button_icon(controller, button, glow=True)
+        if index is not None:
+            IconHighlighter.register_icon(index, self)
+        self.refresh()
 
-        if on_left:
-            self.configure_action(on_left, actions)
-
-    def refresh_icon(self, glow=False):
+    def refresh(self, glow=False):
         """Updates the icon for size and glow."""
-        self.icon.setMaximumWidth(self.icon.height())
+        size = self.height()
         if glow:
-            pixmap = self.pixmap_glow
+            pixmap = self._pixmap_glow
         else:
-            pixmap = self.pixmap
-        self.icon.setPixmap(
+            pixmap = self._pixmap
+        self.setPixmap(
             pixmap.scaled(
-                self.icon.size(),
+                size,
+                size,
                 Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation,
             )
         )
 
-    def configure_action(self, on_left=False, actions: list[str] = None) -> None:
-        """Configures the action dropdown menu."""
-        font = QFont()
-        font.setBold(True)
-        if self.is_large:
-            font.setPointSize(20)
-
-        if actions:
-            self.action: QComboBox | QLabel = QComboBox()
-            self.action.addItems(actions)
-            self.currentText = self.action.currentText  # pylint: disable=invalid-name
-        else:
-            self.action = QLabel()
-            self.action.setFont(font)
-
-        if on_left:
-            self._layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-            self._layout.addWidget(self.icon)
-            self._layout.addWidget(self.action)
-        else:
-            self._layout.setAlignment(Qt.AlignmentFlag.AlignRight)
-            self.action.setAlignment(
-                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
-            )
-            self._layout.addWidget(self.action)
-            self._layout.addWidget(self.icon)
-
-        policy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
-        self.action.setSizePolicy(policy)
-        self.setLayout(self._layout)
-
-    def show(self):
-        """Shows the button, refreshing it in the process."""
-        super().show()
-        self.refresh_icon()
-        super().show()
-
-
 class IconHighlighter:
     """Manages the highlighting of icons."""
 
-    def __init__(self) -> None:
-        self.icons: defaultdict[int, WeakSet[ControlButton]] = defaultdict(WeakSet)
+    icons: defaultdict[int, WeakSet[ButtonIcon]] = defaultdict(WeakSet)
 
-    def register_icon(self, index: int, icon: ControlButton) -> None:
+    @classmethod
+    def register_icon(cls, index: int, icon: ButtonIcon) -> None:
         """Registers an icon to be highlighted when pressed."""
-        self.icons[index].add(icon)
+        cls.icons[index].add(icon)
 
     def set_highlight(self, index: int, highlight: bool) -> None:
         """Sets the highlight for an icon."""
         if index in self.icons:
             for icon in self.icons[index]:
-                icon.refresh_icon(highlight)
+                icon.refresh(highlight)

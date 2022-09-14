@@ -440,7 +440,7 @@ def _select_deck(did) -> None:
 
 def _choose_deck(c_deck_input: DeckId | str, direction: bool, due: bool) -> None:
     assert mw is not None
-    c_deck: DeckId | None = DeckId(c_deck_input) if c_deck_input else None
+    c_deck: DeckId | None = DeckId(int(c_deck_input)) if c_deck_input else None
     decks, dues = _build_deck_list()
     len_decks = len(decks)
 

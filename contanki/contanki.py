@@ -2,42 +2,49 @@
 
 from __future__ import annotations
 
+from math import atan
 from os import environ
 from functools import partial
 from typing import Callable
 
-from aqt import gui_hooks, mw
+from aqt import gui_hooks
 from aqt.qt import QAction, qconnect
 from aqt.utils import current_window, tooltip
 from aqt.webview import AnkiWebView
 
-from .icons import IconHighlighter, ControlButton
+from .quick import QuickSelectMenu
+from .icons import IconHighlighter
 from .config import ContankiConfig
 from .funcs import get_state, move_mouse_build, scroll_build
-from .utils import get_file
+from .utils import State, get_file
 from .overlay import ControlsOverlay
-from .profile import Profile, identify_controller, find_profile
+from .profile import Profile, get_profile, identify_controller, find_profile
 from .actions import button_actions, release_actions
+
+from aqt import mw as _mw
+
+assert _mw is not None
+mw = _mw
 
 move_mouse = move_mouse_build()
 scroll = scroll_build()
 DEBUG = environ.get("DEBUG")
+
 
 class Contanki(AnkiWebView):
     """Main add-on object. The webview contains JavaScript code that interfaces with
     the controller, and this classes functions handle translating the controller's
     input into actions and handling other aspects of the add-on"""
 
-    profile = None
-    controls_overlay = None
-    mods = None
-    buttons = None
-    axes = None
-    len_buttons = None
-    len_axes = None
+    overlay = None
+    quick_select = QuickSelectMenu(mw, {"actions": {}})
+    buttons: list[bool] = []
+    axes: list[bool] = []
+    len_buttons = 0
+    len_axes = 0
     icons = IconHighlighter()
     controllers: list[QAction] = list()
-    debug_info = ""
+    debug_info: list[list[str]] = []
 
     def __init__(self, parent):
         super().__init__(parent=parent)
@@ -57,10 +64,28 @@ class Contanki(AnkiWebView):
         if DEBUG:
             self.setFixedSize(10, 10)
             from .tests import run_tests  # pylint: disable=import-outside-toplevel
+
             run_tests()
         else:
             self.setFixedSize(0, 0)
 
+    @property
+    def profile(self) -> Profile | None:
+        """Returns the profile object"""
+        return self._profile
+
+    @profile.setter
+    def profile(self, profile: Profile | str | None) -> None:
+        """Sets the profile object"""
+        if isinstance(profile, str):
+            profile = get_profile(profile)
+        self._profile = profile
+        if profile is None:
+            return
+        self.overlay = ControlsOverlay(mw, profile, self.config["Large Overlays"])
+        self.quick_select = QuickSelectMenu(mw, profile.quick_select)
+        self.quick_select.update_icon(profile.controller, "Left Stick")  # FIXME
+        self.config = mw.addonManager.getConfig(__name__)
 
     def on_config(self) -> None:
         """Opens the config dialog"""
@@ -87,32 +112,25 @@ class Contanki(AnkiWebView):
         else:
             return handled
 
+    def on_error(self, _error: str) -> None:
+        """Reinitialises the controller when an error occurs."""
+        self.eval("on_controller_disconnect()")
+
     def poll(self, input_buttons: str, input_axes: str) -> None:
         """Handles the polling of the controller"""
         state = get_state()
         if state == "NoFocus":
             return
         if self.profile is None:
-            self.eval("on_controller_disconnect()")
+            self.on_error("No profile")
             return
 
         buttons = [button == "true" for button in input_buttons.split(",")]
         axes = [float(axis) for axis in input_axes.split(",")]
 
         if not buttons:
-            self.eval("on_controller_disconnect()")
+            self.on_error("No buttons")
             return
-
-        mods = tuple(
-            buttons[mod]
-            if mod <= len(buttons)
-            else bool(axes[mod - 100])
-            if 0 <= mod - 100 < len(axes)
-            else False
-            for mod in self.profile.mods
-        )
-
-        mod = mods.index(True) + 1 if any(mods) and not all(mods) else 0
 
         if state == "config":
             for i, value in enumerate(buttons):
@@ -123,46 +141,84 @@ class Contanki(AnkiWebView):
                 self.icons.set_highlight(i * 2 + 100, axis < -0.5)
             return
 
-        if self.config["Enable Overlays"]:
-            if mods != self.mods:
-                if any(mods):
-                    self.controls_overlay.appear(state, mods)
-                else:
-                    self.controls_overlay.disappear()
-            self.mods = mods
+        if self.quick_select.is_shown:
+            self.quick_select.select(state, axes[0], axes[1])
+            if (
+                buttons[10]
+                and self.quick_select.is_active
+                and self.quick_select.settings["Do Action on Stick Press"]
+            ):
+                self.quick_select.disappear(True)
+                buttons[10] = False
 
         for i, value in enumerate(buttons):
             if value == self.buttons[i]:
                 continue
             self.buttons[i] = value
-            if i in self.profile.mods:
-                continue
             if value:
-                self.do_action(state, mod, i)
+                self.do_action(state, i)
             else:
-                self.do_release_action(state, mod, i)
+                self.do_release_action(state, i)
 
-        if any(axes):
-            self.do_axes_actions(state, mod, axes)
+        if any(axes) and not self.quick_select.is_shown:
+            self.do_axes_actions(state, axes)
 
-    def do_action(self, state: str, mod: int, button: int) -> None:
+    def show_quick_select(self, state: State) -> None:
+        """Shows the quick select menu"""
+        assert self.overlay is not None
+        if not self.quick_select.is_shown:
+            self.quick_select.appear(state)
+            if self.config["Enable Control Overlays"]:
+                self.overlay.appear(state)
+
+    def hide_quick_select(self) -> None:
+        assert self.overlay is not None
+        self.quick_select.disappear()
+        self.overlay.disappear()
+        self.axes = [True] * self.len_axes
+
+    def toggle_quick_select(self, state: State) -> None:
+        assert self.quick_select is not None
+        if self.quick_select.is_shown:
+            self.hide_quick_select()
+        else:
+            self.show_quick_select(state)
+
+    def do_action(self, state: State, button: int) -> None:
         """Calls the appropriate function on button press."""
-        if (action := self.profile.get(state, mod, button)) in button_actions:
+        if self.profile is None:
+            self.on_error("No profile")
+            return
+        action = self.profile.get(state, button)
+        if action == "Toggle Quick Select":
+            self.toggle_quick_select(state)
+        elif action == "Show Quick Select":
+            self.show_quick_select(state)
+        elif action in button_actions:
             try:
                 button_actions[action]()
             except Exception as err:  # pylint: disable=broad-except
                 tooltip("Error: " + repr(err))
 
-    def do_release_action(self, state: str, mod: int, button: int) -> None:
+    def do_release_action(self, state: State, button: int) -> None:
         """Calls the appropriate function on button release."""
-        if (action := self.profile.get(state, mod, button)) in release_actions:
+        if self.profile is None:
+            self.on_error("No profile")
+            return
+        action = self.profile.get(state, button)
+        if action == "Show Quick Select":
+            self.hide_quick_select()
+        elif (action := self.profile.get(state, button)) in release_actions:
             try:
                 release_actions[action]()
             except Exception as err:  # pylint: disable=broad-except
                 tooltip("Error: " + repr(err))
 
-    def do_axes_actions(self, state: str, mod: int, axes: list[float]) -> None:
+    def do_axes_actions(self, state: State, axes: list[float]) -> None:
         """Handles actions for axis movement."""
+        if self.profile is None:
+            self.on_error("No profile")
+            return
         mouse_x = mouse_y = scroll_x = scroll_y = 0.0
         for (axis, assignment), value in zip(self.profile.axes_bindings.items(), axes):
             if assignment == "Unassigned":
@@ -170,7 +226,7 @@ class Contanki(AnkiWebView):
             elif assignment == "Buttons":
                 if abs(value) > 0.5:
                     if not self.axes[axis]:
-                        self.do_action(state, mod, axis * 2 + (value > 0) + 100)
+                        self.do_action(state, axis * 2 + (value > 0) + 100)
                         self.axes[axis] = True
                 else:
                     self.axes[axis] = False
@@ -195,7 +251,6 @@ class Contanki(AnkiWebView):
 
     def on_connect(self, buttons: str, axes: str, *con: str) -> None:
         """Called when a controller is connects through the JavaScript interface"""
-        assert mw is not None
         self.reset_controller()
         controller_id = "::".join(con)
         self.len_buttons, self.len_axes = int(buttons), int(axes)
@@ -216,12 +271,8 @@ class Contanki(AnkiWebView):
 
         self.buttons = [False] * self.len_buttons
         self.axes = [False] * self.len_axes
-        self.mods = [False] * len(self.profile.mods)
 
         mw.form.menuTools.addAction(self.menu_item)
-        self.controls_overlay = ControlsOverlay(
-            mw, self.profile, self.config["Large Overlays"]
-        )
         self.update_debug_info()
 
     def on_disconnect(self, *_) -> None:
@@ -237,11 +288,13 @@ class Contanki(AnkiWebView):
 
     def reset_controller(self) -> None:
         """Clears the current controller"""
-        assert mw is not None
-        if self.controls_overlay:
-            self.controls_overlay.disappear()
+        if self.overlay:
+            self.overlay.disappear()
+        self.quick_select.disappear()
         mw.form.menuTools.removeAction(self.menu_item)
-        self.buttons = self.axes = self.profile = self.controls_overlay = None
+        self.buttons = []
+        self.axes = []
+        self.profile = None
         self.update_debug_info()
 
     def register_controllers(self, *controllers) -> None:
@@ -270,28 +323,14 @@ class Contanki(AnkiWebView):
             f"connect_controller(indices[{index}]);", None  # type: ignore
         )
 
-    def update_profile(self, profile: Profile) -> None:
-        """Updates the profile"""
-        assert mw is not None and self.config is not None
-        if self.profile:
-            self.profile = profile
-            self.config = mw.addonManager.getConfig(__name__)
-            self.controls_overlay = ControlsOverlay(
-                mw, profile, self.config["Large Overlays"]
-            )
-
-    def register_icon(self, index: int, icon: ControlButton) -> None:
-        """Registers an icon so that it will glow when pressed"""
-        self.icons.register_icon(index, icon)
-
     def update_debug_info(self):
         """Updates the debug info. View by pressing help in the config dialog."""
         self._evalWithCallback("get_controller_info()", self._update_debug_info)
 
-    def _update_debug_info(self, controllers: str):
+    def _update_debug_info(self, controllers: str) -> None:
         """Callback to receive the controller info from the JavaScript interface"""
         if controllers is None:
-            self.debug_info = "No controllers detected"
+            self.debug_info: list[list[str]] = []
         else:
             self.debug_info = [
                 con.split("%") for con in controllers.split("%%%") if con

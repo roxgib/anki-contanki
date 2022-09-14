@@ -1,12 +1,14 @@
 {
     "Flags": [1, 2, 3, 4, 5, 6, 7],
-    "Enable Overlays": true,
-    "Large Overlays": false,
     "Scroll Speed": 10,
     "Cursor Speed": 10,
     "Cursor Acceleration": 10,
     "Stick Deadzone": 5,
-    
+    "Enable Control Overlays": true,
+    "Large Overlays": false,
+    "Overlays Always On": false,
+    "Overlays in Quick Select": true,
+
     "Custom Actions": {
         "AwesomeTTS": "Ctrl+T"
     }

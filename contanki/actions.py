@@ -3,7 +3,9 @@ Maps states to available actions and actions to functions.
 """
 
 from __future__ import annotations
+from copy import deepcopy
 from functools import partial
+from os import stat
 from typing import Any, Callable
 
 from aqt import mw, Qt
@@ -39,36 +41,31 @@ assert mw is not None
 SCROLL_FACTOR = 50 if is_mac else 5
 
 
-def rebuild_wrapper():
-    """Ensures that the current deck is filtered before rebuilding"""
-    if mw.col.decks.is_filtered(mw.col.decks.get_current_id()):
-        mw.overview.rebuild_current_filtered_deck()
-    else:
-        tooltip("This action can only be done on filtered decks")
-
-
-def empty_wrapper():
-    """Ensures that the current deck is filtered before emptying"""
-    if mw.col.decks.is_filtered(mw.col.decks.get_current_id()):
-        mw.overview.empty_current_filtered_deck()
-    else:
-        tooltip("This action can only be done on filtered decks")
-
+def check_filter(func: Callable) -> Callable:
+    """Wrapper/decorator to check that the current deck is filtered."""
+    def wrapper(self, *args, **kwargs):
+        assert mw is not None
+        if mw.col.decks.is_filtered(mw.col.decks.get_current_id()):
+            func(*args, **kwargs)
+        else:
+            tooltip("This action can only be done on filtered decks")
+    return wrapper
 
 # fmt: off
 button_actions: dict[str, Callable[[], Any]] = {
     # pylint: disable=protected-access
     # pylint: disable=line-too-long
     "": _pass,  # handle unmapped buttons
-    "mod": _pass,  # For buttons used as modifiers
+    "Show Quick Select": _pass,
+    "Toggle Quick Select": _pass,
 
     # Common
     "Sync":                     mw.onSync,
-    "Overview":                 partial(mw.moveToState, "overview"),
-    "Browser":                  mw.onBrowse,
-    "Statistics":               mw.onStats,
-    "Main Screen":              partial(mw.moveToState, "deckBrowser"),
-    "Review":                   partial(mw.moveToState, "review"),
+    "Go to Overview":           partial(mw.moveToState, "overview"),
+    "Go to Main Screen":        partial(mw.moveToState, "deckBrowser"),
+    "Go to Review":             partial(mw.moveToState, "review"),
+    "Open Browser":             mw.onBrowse,
+    "Open Statistics":          mw.onStats,
     "Undo":                     undo,
     "Redo":                     redo,
     "Back":                     back,
@@ -77,7 +74,7 @@ button_actions: dict[str, Callable[[], Any]] = {
     "Fullscreen":               toggle_fullscreen,
     "Volume Up":                partial(change_volume, True),           # Works on Mac
     "Volume Down":              partial(change_volume, False),          # Works on Mac
-    "Add":                      mw.onAddCard,
+    "Add Notes":                mw.onAddCard,
     "Preferences":              mw.onPrefs,
     "Quit":                     mw.close,
     "Hide Cursor":              hide_cursor,
@@ -104,9 +101,9 @@ button_actions: dict[str, Callable[[], Any]] = {
     "Next Deck":                partial(choose_deck, True),
     "Previous Deck":            partial(choose_deck, False),
     "Next Due Deck":            partial(choose_deck, True, True),
-    "Previous Due Deck":        partial( choose_deck, False, True),
-    "Collapse/Expand":          collapse_deck,
-    "Filter":                   mw.onCram,
+    "Previous Due Deck":        partial(choose_deck, False, True),
+    "Expand/Collapse":          collapse_deck,
+    "Filter Deck":              mw.onCram,
     "Check Database":           mw.onCheckDB,
     "Check Media":              mw.on_check_media_db,
     "Empty Cards":              mw.onEmptyCards,
@@ -117,8 +114,8 @@ button_actions: dict[str, Callable[[], Any]] = {
 
     # Overview
     "Custom Study":             partial(key_press, Qt.Key.Key_C),
-    "Rebuild":                  rebuild_wrapper,
-    "Empty":                    empty_wrapper,
+    "Rebuild":                  check_filter(mw.overview.rebuild_current_filtered_deck),
+    "Empty":                    check_filter(mw.overview.empty_current_filtered_deck),
 
     # Reviewer
     "Again":                    partial(mw.reviewer._answerCard, 1),
@@ -149,6 +146,7 @@ release_actions: dict[str, Callable[[], Any]] = {
     "": _pass,
     "Click": click_release,
     "Secondary Click": partial(click_release, button=RightButton),
+    "Quick Select": _pass,
     "Select Next": _pass,
     "Select Previous": _pass,
     "Up": _pass,
@@ -161,56 +159,68 @@ release_actions: dict[str, Callable[[], Any]] = {
     "Previous Deck": _pass,
     "Next Due Deck": _pass,
     "Previous Due Deck": _pass,
+
 }
 
-common_actions = [
-    "Add",              "Back",             "Browser",          "Enter",
-    "Forward",          "Fullscreen",       "Hide Cursor",      "Main Screen",
-    "Overview",         "Preferences",      "Quit",             "Redo",
-    "Review",           "Statistics",       "Sync",             "Undo",
-    "Volume Down",      "Volume Up",        "Click",            "Secondary Click",
-    "Options",          "Scroll Down",      "Scroll Up",        "Select Next",
-    "Select Previous",  "Select",
+COMMON_ACTIONS = [
+    "Undo",             "Redo",             "Hide Cursor",      "Sync",
+    "Open Browser",     "Add Notes",        "Fullscreen",       "Study Deck",
+    "Go to Main Screen","Go to Overview",   "Go to Review",     "Preferences",
+    "Open Statistics",  "Options",          "Quit",
 ]
 
-review_actions = [
-    "Again",            "Audio -5s",        "Audio +5s",        "Bury Card",
-    "Bury Note",        "Card Info",        "Delete Note",      "Easy",
-    "Edit Note",        "Flag",             "Flip Card",        "Good", "Hard",
-    "Mark Note",        "Pause Audio",      "Record Voice",     "Previous Card Info",
-    "Replay Audio",     "Replay Voice",     "Set Due Date",     "Suspend Card",
-    "Suspend Note",
+if is_mac:
+    COMMON_ACTIONS.extend(["Volume Up", "Volume Down"])
+
+UI_ACTIONS = [
+    "Enter",            "Select",           "Select Next",      "Select Previous",
+    "Forward",          "Back",             "Click",            "Secondary Click",
+    "Scroll Down",      "Scroll Up",        "Hide Cursor",      "Show Quick Select",
+    "Toggle Quick Select",
 ]
 
-state_actions = {
-    "all": [
-        "",                     *common_actions,            "Check Database",
-        "Check Media",          "Empty Cards",              "Manage Note Types",
-        "Study Deck",
-    ],
+REVIEW_ACTIONS = [
+    "Again",            "Hard",             "Good",             "Easy",
+    "Flip Card",        "Flag",             "Mark Note",        "Delete Note",
+    "Bury Card",        "Bury Note",        "Suspend Card",     "Suspend Note",
+    "Replay Audio",     "Pause Audio",      "Audio -5s",        "Audio +5s",
+    "Record Voice",     "Replay Voice",     "Edit Note",        "Set Due Date",
+    "Card Info",        "Previous Card Info",
+]
+
+STATE_ACTIONS = {
+    "all": ["", *COMMON_ACTIONS, *UI_ACTIONS],
+    "review":   ["", *REVIEW_ACTIONS, *COMMON_ACTIONS],
+    "question": ["", *REVIEW_ACTIONS, *COMMON_ACTIONS],
+    "answer":   ["", *REVIEW_ACTIONS, *COMMON_ACTIONS],
+
     "deckBrowser": [
-        "",                     *common_actions,            "Check Database",
-        "Check Media",          "Collapse/Expand",          "Empty Cards",
-        "Manage Note Types",    "Next Deck",                "Next Due Deck",
-        "Previous Deck",        "Previous Due Deck",        "Study Deck",
+        "",                     "Next Deck",            "Previous Deck",
+        "Expand/Collapse",      "Next Due Deck",        "Previous Due Deck",
+        *COMMON_ACTIONS,        *UI_ACTIONS,
     ],
+
     "overview": [
-        "",                     *common_actions,            "Empty",
-        "Rebuild",              "Filter",                   "Custom Study",
-        "Next Deck",            "Previous Deck",            "Next Due Deck",
-        "Previous Due Deck",
+        "",                     "Next Deck",            "Previous Deck",
+        "Next Due Deck",        "Previous Due Deck",    "Empty",
+        "Rebuild",              *COMMON_ACTIONS,        *UI_ACTIONS,
     ],
+
     "dialog": [
-        "",                     "Enter",                    "Fullscreen",
-        "Undo",                 "Redo",                     "Escape",
-        "Volume Down",          "Volume Up",                "Focus Main Window",
-        "Click",                "Secondary Click",          "Hide Cursor",
-        "Select",               "Select Next",              "Select Previous",
-        "Scroll Up",            "Scroll Down",              "Switch Window",
-        "Up",                   "Down",                     "Quit",
-        "Up by 10",             "Down by 10",
+        "",                     *UI_ACTIONS,            "Fullscreen",
+        "Undo",                 "Redo",                 "Escape",
+        "Focus Main Window",    "Switch Window",        "Up",
+        "Down",                 "Up by 10",             "Down by 10",
     ],
-    "review":   ["", *common_actions, *review_actions],
-    "question": ["", *common_actions, *review_actions],
-    "answer":   ["", *common_actions, *review_actions],
+}
+
+QUICK_SELECT_ACTIONS: dict[str, list[str]] = {
+    "deckBrowser": list(),
+    "overview": list(),
+
+    "review": [
+        "Mark Note",        "Edit Note",        "Delete Note",      "Set Due Date",
+        "Bury Card",        "Bury Note",        "Suspend Card",     "Suspend Note",
+        "Card Info",        "Previous Card Info",
+    ],
 }
