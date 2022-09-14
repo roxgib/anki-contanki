@@ -21,13 +21,14 @@
             "16": "PS"
         },
         "axis_buttons": {
-            "0": "Left Stick Right",
-            "1": "Left Stick Up",
-            "2": "Left Stick Down",
-            "3": "Right Stick Left",
-            "4": "Right Stick Right",
-            "5": "Right Stick Up",
-            "6": "Right Stick Down"
+            "0": "Left Stick Left",
+            "1": "Left Stick Right",
+            "2": "Left Stick Up",
+            "3": "Left Stick Down",
+            "4": "Right Stick Left",
+            "5": "Right Stick Right",
+            "6": "Right Stick Up",
+            "7": "Right Stick Down"
         },
         "axes": {
             "0": "Left Stick Horizontal",
@@ -64,13 +65,14 @@
             "17": "Pad"
         },
         "axis_buttons": {
-            "0": "Left Stick Right",
-            "1": "Left Stick Up",
-            "2": "Left Stick Down",
-            "3": "Right Stick Left",
-            "4": "Right Stick Right",
-            "5": "Right Stick Up",
-            "6": "Right Stick Down"
+            "0": "Left Stick Left",
+            "1": "Left Stick Right",
+            "2": "Left Stick Up",
+            "3": "Left Stick Down",
+            "4": "Right Stick Left",
+            "5": "Right Stick Right",
+            "6": "Right Stick Up",
+            "7": "Right Stick Down"
         },
         "axes": {
             "0": "Left Stick Horizontal",
@@ -107,13 +109,14 @@
             "17": "Pad"
         },
         "axis_buttons": {
-            "0": "Left Stick Right",
-            "1": "Left Stick Up",
-            "2": "Left Stick Down",
-            "3": "Right Stick Left",
-            "4": "Right Stick Right",
-            "5": "Right Stick Up",
-            "6": "Right Stick Down"
+            "0": "Left Stick Left",
+            "1": "Left Stick Right",
+            "2": "Left Stick Up",
+            "3": "Left Stick Down",
+            "4": "Right Stick Left",
+            "5": "Right Stick Right",
+            "6": "Right Stick Up",
+            "7": "Right Stick Down"
         },
         "axes": {
             "0": "Left Stick Horizontal",
@@ -149,13 +152,14 @@
             "16": "Xbox"
         },
         "axis_buttons": {
-            "0": "Left Stick Right",
-            "1": "Left Stick Up",
-            "2": "Left Stick Down",
-            "3": "Right Stick Left",
-            "4": "Right Stick Right",
-            "5": "Right Stick Up",
-            "6": "Right Stick Down"
+            "0": "Left Stick Left",
+            "1": "Left Stick Right",
+            "2": "Left Stick Up",
+            "3": "Left Stick Down",
+            "4": "Right Stick Left",
+            "5": "Right Stick Right",
+            "6": "Right Stick Up",
+            "7": "Right Stick Down"
         },
         "axes": {
             "0": "Left Stick Horizontal",
@@ -192,13 +196,14 @@
             "17": "Share"
         },
         "axis_buttons": {
-            "0": "Left Stick Right",
-            "1": "Left Stick Up",
-            "2": "Left Stick Down",
-            "3": "Right Stick Left",
-            "4": "Right Stick Right",
-            "5": "Right Stick Up",
-            "6": "Right Stick Down"
+            "0": "Left Stick Left",
+            "1": "Left Stick Right",
+            "2": "Left Stick Up",
+            "3": "Left Stick Down",
+            "4": "Right Stick Left",
+            "5": "Right Stick Right",
+            "6": "Right Stick Up",
+            "7": "Right Stick Down"
         },
         "axes": {
             "0": "Left Stick Horizontal",
@@ -234,13 +239,14 @@
             "16": "Xbox"
         },
         "axis_buttons": {
-            "0": "Left Stick Right",
-            "1": "Left Stick Up",
-            "2": "Left Stick Down",
-            "3": "Right Stick Left",
-            "4": "Right Stick Right",
-            "5": "Right Stick Up",
-            "6": "Right Stick Down"
+            "0": "Left Stick Left",
+            "1": "Left Stick Right",
+            "2": "Left Stick Up",
+            "3": "Left Stick Down",
+            "4": "Right Stick Left",
+            "5": "Right Stick Right",
+            "6": "Right Stick Up",
+            "7": "Right Stick Down"
         },
         "axes": {
             "0": "Left Stick Horizontal",
@@ -277,13 +283,14 @@
             "17": "Plus"
         },
         "axis_buttons": {
-            "0": "Left Stick Right",
-            "1": "Left Stick Up",
-            "2": "Left Stick Down",
-            "3": "Right Stick Left",
-            "4": "Right Stick Right",
-            "5": "Right Stick Up",
-            "6": "Right Stick Down"
+            "0": "Left Stick Left",
+            "1": "Left Stick Right",
+            "2": "Left Stick Up",
+            "3": "Left Stick Down",
+            "4": "Right Stick Left",
+            "5": "Right Stick Right",
+            "6": "Right Stick Up",
+            "7": "Right Stick Down"
         },
         "axes": {
             "0": "Left Stick Horizontal",
@@ -325,9 +332,10 @@
             "22": "Steam"
         },
         "axis_buttons": {
-            "0": "Stick Right",
-            "1": "Stick Up",
-            "2": "Stick Down"
+            "0": "Stick Left",
+            "1": "Stick Right",
+            "2": "Stick Up",
+            "3": "Stick Down"
         },
         "axes": {
             "0": "Stick Horizontal",
@@ -354,8 +362,9 @@
         },
         "axis_buttons": {
             "0": "Stick Up",
-            "1": "Stick Left",
-            "2": "Stick Right"
+            "1": "Stick Down",
+            "2": "Stick Left",
+            "3": "Stick Right"
         },
         "axes": {
             "0": "Stick Horizontal",
@@ -381,9 +390,10 @@
             "12": "Capture"
         },
         "axis_buttons": {
-            "0": "Stick Right",
-            "1": "Stick Up",
-            "2": "Stick Down"
+            "0": "Stick Up",
+            "1": "Stick Down",
+            "2": "Stick Left",
+            "3": "Stick Right"
         },
         "axes": {
             "0": "Stick Horizontal",
@@ -418,13 +428,14 @@
             "31": "Right Trigger"
         },
         "axis_buttons": {
-            "0": "Left Stick Right",
-            "1": "Left Stick Up",
-            "2": "Left Stick Down",
-            "3": "Right Stick Left",
-            "4": "Right Stick Right",
-            "5": "Right Stick Up",
-            "6": "Right Stick Down"
+            "0": "Left Stick Left",
+            "1": "Left Stick Right",
+            "2": "Left Stick Up",
+            "3": "Left Stick Down",
+            "4": "Right Stick Left",
+            "5": "Right Stick Right",
+            "6": "Right Stick Up",
+            "7": "Right Stick Down"
         },
         "axes": {
             "0": "Left Stick Horizontal",
@@ -451,9 +462,10 @@
             "9": "Start"
         },
         "axis_buttons": {
-            "0": "D-Pad Right",
-            "1": "D-Pad Up",
-            "2": "D-Pad Down"
+            "0": "D-Pad Up",
+            "1": "D-Pad Down",
+            "2": "D-Pad Left",
+            "3": "D-Pad Right"
         },
         "axes": {
             "0": "D-Pad Horizontal",
@@ -487,13 +499,14 @@
             "16": "Steam"
         },
         "axis_buttons": {
-            "0": "Left Stick Right",
-            "1": "Left Stick Up",
-            "2": "Left Stick Down",
-            "3": "Right Stick Left",
-            "4": "Right Stick Right",
-            "5": "Right Stick Up",
-            "6": "Right Stick Down"
+            "0": "Left Stick Left",
+            "1": "Left Stick Right",
+            "2": "Left Stick Up",
+            "3": "Left Stick Down",
+            "4": "Right Stick Left",
+            "5": "Right Stick Right",
+            "6": "Right Stick Up",
+            "7": "Right Stick Down"
         },
         "axes": {
             "0": "Left Stick Horizontal",
@@ -520,9 +533,10 @@
             "7": "Start"
         },
         "axis_buttons": {
-            "0": "D-Pad Right",
-            "1": "D-Pad Up",
-            "2": "D-Pad Down"
+            "0": "D-Pad Up",
+            "1": "D-Pad Down",
+            "2": "D-Pad Left",
+            "3": "D-Pad Right"
         },
         "axes": {
             "0": "D-Pad Horizontal",
@@ -547,9 +561,10 @@
             "11": "Start"
         },
         "axis_buttons": {
-            "0": "D-Pad Right",
-            "1": "D-Pad Up",
-            "2": "D-Pad Down"
+            "0": "D-Pad Up",
+            "1": "D-Pad Down",
+            "2": "D-Pad Left",
+            "3": "D-Pad Right"
         },
         "axes": {
             "0": "D-Pad Horizontal",
@@ -582,13 +597,14 @@
             "15": "Right Arrow"
         },
         "axis_buttons": {
-            "0": "Left D-Pad Right",
-            "1": "Left D-Pad Up",
-            "2": "Left D-Pad Down",
-            "3": "Right D-Pad Left",
-            "4": "Right D-Pad Right",
-            "5": "Right D-Pad Up",
-            "6": "Right D-Pad Down"
+            "0": "Left Stick Left",
+            "1": "Left Stick Right",
+            "2": "Left Stick Up",
+            "3": "Left Stick Down",
+            "4": "Right Stick Left",
+            "5": "Right Stick Right",
+            "6": "Right Stick Up",
+            "7": "Right Stick Down"
         },
         "axes": {
             "0": "Left D-Pad Horizontal",

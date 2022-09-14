@@ -6,28 +6,36 @@
     ],
     "quick_select": {
         "actions": {
-        "all": [],
-        "review": [],
-        "question": [],
-        "answer": [],
-        "deckBrowser": [
-            "Undo",
-            "Redo",
-            "Browser"
-        ],
-        "overview": [],
-        "dialog": []},
+            "deckBrowser": [
+                "Open Browser",
+                "Open Statistics",
+                "Fullscreen"
+            ],
+            "overview": [
+                "Open Browser",
+                "Open Statistics",
+                "Fullscreen",
+                "Rebuild",
+                "Empty"
+            ],
+            "review": [
+                "Open Browser",
+                "Open Statistics",
+                "Fullscreen",
+                "Suspend Card",
+                "Suspend Note",
+                "Bury Card",
+                "Bury Note",
+                "Card Info"
+            ]
+        },
         "Enable Quick Select": true,
         "Select with Stick": true,
-        "Select with D-Pad": false,
+        "Select with D-Pad": true,
         "Do Action on Release": true,
         "Do Action on Stick Press": true,
         "Do Action on Stick Release": true
     },
-    "overlay_buttons": [
-        6,
-        7
-    ],
     "bindings": {
         "all": {
             "0": "Enter",
@@ -35,7 +43,9 @@
             "2": "",
             "3": "",
             "4": "Undo",
-            "5": "",
+            "5": "Sync",
+            "6": "",
+            "7": "Toggle Quick Select",
             "8": "",
             "9": "Options",
             "10": "Select",
@@ -43,7 +53,8 @@
             "12": "",
             "13": "",
             "14": "",
-            "15": "Sync",
+            "15": "",
+            "16": "",
             "100": "Back",
             "101": "Forward"
         },
@@ -61,7 +72,8 @@
             "12": "",
             "13": "Replay Audio",
             "14": "Flag",
-            "15": "Mark Note"
+            "15": "Mark Note",
+            "16": ""
         },
         "question": {
             "0": "Flip Card",
@@ -77,7 +89,9 @@
             "12": "",
             "13": "",
             "14": "",
-            "15": ""
+            "15": "",
+            "16": "",
+            "17": ""
         },
         "answer": {
             "0": "Good",
@@ -93,13 +107,15 @@
             "12": "",
             "13": "",
             "14": "",
-            "15": ""
+            "15": "",
+            "16": "",
+            "17": ""
         },
         "deckBrowser": {
             "0": "Select",
             "1": "Collapse/Expand",
-            "2": "Browser",
-            "3": "Statistics",
+            "2": "Open Browser",
+            "3": "Open Statistics",
             "4": "",
             "5": "",
             "8": "",
@@ -109,7 +125,9 @@
             "12": "Previous Deck",
             "13": "Next Deck",
             "14": "Previous Due Deck",
-            "15": "Next Due Deck"
+            "15": "Next Due Deck",
+            "16": "",
+            "17": ""
         },
         "overview": {
             "0": "Select",
@@ -125,7 +143,9 @@
             "12": "Previous Deck",
             "13": "Next Deck",
             "14": "Previous Due Deck",
-            "15": "Next Due Deck"
+            "15": "Next Due Deck",
+            "16": "",
+            "17": ""
         },
         "dialog": {
             "0": "Select",
@@ -141,7 +161,9 @@
             "12": "Up",
             "13": "Down",
             "14": "Select Previous",
-            "15": "Select Next"
+            "15": "Select Next",
+            "16": "",
+            "17": ""
         }
     },
     "controller": "DualShock 4",

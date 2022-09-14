@@ -24,6 +24,8 @@ class Controller:
         self.num_axes: int = data["num_axes"]
         self.has_stick: bool = data["has_stick"]
         self.has_dpad: bool = data["has_dpad"]
+        self.dpad_buttons = self.get_dpad_buttons()
+        self.stick_button = self.get_stick_button()
         self.supported: bool = data["supported"]
 
     def __str__(self) -> str:
@@ -39,18 +41,49 @@ class Controller:
         return self.num_buttons, self.num_axes
 
     def axis(self, index: int) -> str:
+        """Get the name of an axis."""
         return self.axes[index]
 
     def axis_button(self, index: int) -> str:
+        """Get the name of an axis 'button'."""
         return self.axis_buttons[index]
 
     def button(self, index: int) -> str:
+        """Get the name of a button"""
         return self.buttons[index]
+
+    def get_dpad_buttons(self) -> tuple[int, int, int, int] | None:
+        if not self.has_dpad:
+            return None
+        indicies, buttons = zip(*self.buttons.items())
+        if (
+            "D-Pad Up" in buttons
+            and "D-Pad Down" in buttons
+            and "D-Pad Left" in buttons
+            and "D-Pad Right" in buttons
+        ):
+            return (
+                indicies[buttons.index("D-Pad Up")],
+                indicies[buttons.index("D-Pad Down")],
+                indicies[buttons.index("D-Pad Left")],
+                indicies[buttons.index("D-Pad Right")],
+            )
+
+    def get_stick_button(self) -> int | None:
+        indicies, buttons = zip(*self.buttons.items())
+        for button_name in ("Stick Click", "Left Stick Click", "Right Stick Click"):
+            if button_name in buttons:
+                return indicies[buttons.index(button_name)]
 
 
 def get_controller_list() -> list[str]:
     """Returns a list of all supported controllers."""
-    return [controller["name"] for controller in controller_data.values() if controller["supported"]]
+    return [
+        controller["name"]
+        for controller in controller_data.values()
+        if controller["supported"]
+    ]
+
 
 BUTTON_ORDER = [
     "Left Shoulder",

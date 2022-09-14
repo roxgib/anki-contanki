@@ -5,6 +5,7 @@ from __future__ import annotations
 from math import atan
 from os import environ
 from functools import partial
+from re import S
 from typing import Callable
 
 from aqt import gui_hooks
@@ -141,22 +142,7 @@ class Contanki(AnkiWebView):
                 self.icons.set_highlight(i * 2 + 100, axis < -0.5)
             return
 
-        if self.quick_select.is_shown:
-            if self.quick_select.settings["Select with D-Pad"] and any(buttons[12:16]):
-                self.quick_select.dpad_select(state, buttons[12:16])
-                buttons[12:16] = [False, False, False, False]
-                if buttons[0]:
-                    self.quick_select.disappear(True)
-                    buttons[0] = False
-            elif self.profile.controller.has_stick:
-                self.quick_select.stick_select(state, axes[0], axes[1])
-                if (
-                    buttons[10]
-                    and self.quick_select.is_active
-                    and self.quick_select.settings["Do Action on Stick Press"]
-                ):
-                    self.quick_select.disappear(True)
-                    buttons[10] = False
+        self.update_quick_select(state, buttons, axes)
 
         for i, value in enumerate(buttons):
             if value == self.buttons[i]:
@@ -169,6 +155,41 @@ class Contanki(AnkiWebView):
 
         if any(axes) and not self.quick_select.is_shown:
             self.do_axes_actions(state, axes)
+
+    def update_quick_select(
+        self, state: State, buttons: list[bool], axes: list[float]
+    ) -> None:
+        """Update the quick select menu."""
+        if not self.quick_select.is_shown:
+            return
+        
+        if (
+            self.quick_select.settings["Select with D-Pad"]
+            and self.profile.controller.dpad_buttons is not None
+        ):
+            up, down, left, right = self.profile.controller.dpad_buttons
+            dpad_status = buttons[up], buttons[down], buttons[left], buttons[right]
+        else:
+            dpad_status = (False,)
+        if any(dpad_status):
+            self.quick_select.dpad_select(state, dpad_status)
+            buttons[up] = False
+            buttons[down] = False
+            buttons[left] = False
+            buttons[right] = False
+        elif self.profile.controller.has_stick:
+            self.quick_select.stick_select(state, axes[0], axes[1])
+        
+        if (
+            (stick_button := self.profile.controller.stick_button) is not None
+            and self.quick_select.settings["Do Action on Stick Press"]
+            and buttons[stick_button]
+        ):
+            self.quick_select.disappear(True)
+            buttons[stick_button] = False
+        elif buttons[0]:
+            self.quick_select.disappear(True)
+            buttons[0] = False
 
     def show_quick_select(self, state: State) -> None:
         """Shows the quick select menu"""
