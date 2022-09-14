@@ -142,14 +142,21 @@ class Contanki(AnkiWebView):
             return
 
         if self.quick_select.is_shown:
-            self.quick_select.select(state, axes[0], axes[1])
-            if (
-                buttons[10]
-                and self.quick_select.is_active
-                and self.quick_select.settings["Do Action on Stick Press"]
-            ):
-                self.quick_select.disappear(True)
-                buttons[10] = False
+            if self.quick_select.settings["Select with D-Pad"] and any(buttons[12:16]):
+                self.quick_select.dpad_select(state, buttons[12:16])
+                buttons[12:16] = [False, False, False, False]
+                if buttons[0]:
+                    self.quick_select.disappear(True)
+                    buttons[0] = False
+            elif self.profile.controller.has_stick:
+                self.quick_select.stick_select(state, axes[0], axes[1])
+                if (
+                    buttons[10]
+                    and self.quick_select.is_active
+                    and self.quick_select.settings["Do Action on Stick Press"]
+                ):
+                    self.quick_select.disappear(True)
+                    buttons[10] = False
 
         for i, value in enumerate(buttons):
             if value == self.buttons[i]:

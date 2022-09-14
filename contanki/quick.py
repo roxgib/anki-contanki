@@ -17,6 +17,8 @@ from .actions import button_actions
 from .controller import Controller
 
 HALF_PI = pi / 2
+QUARTER_PI = pi / 4
+SIXTEENTH_PI = pi / 16
 assert _mw is not None
 mw = _mw
 
@@ -77,47 +79,38 @@ class QuickSelectMenu:
             if _actions
         }
         self.arcs = {
-            state: self.get_arcs(_actions) for state, _actions in actions.items()
+            state: self.set_geometry(_actions) for state, _actions in actions.items()
         }
 
     def update_icon(self, controller: Controller, button: str):
         """Update the centre icon of the quick select menu."""
         self.centre.setPixmap(get_button_icon(controller, button))
 
-    def get_arcs(self, actions: list[str]) -> list[tuple[float, float]]:
-        """Get the arc size of each button."""
-        if not actions:
-            return []
-        sizes = [sum(self.get_size(action)) for action in actions]
-        total = sum(sizes)
-        angle = -pi * sizes[0] / total
-        _arcs = list()
-        for size in sizes:
-            angle += pi * size / total
-            _arcs.append((tau * size / total, angle))
-            angle += pi * size / total
+    def set_geometry(self, actions: list[str]) -> list[tuple[float, float]]:
+        """Get the arc size of each button when using a dpad."""
+        angles = [
+            0.0,
+            pi,
+            HALF_PI,
+            pi + HALF_PI,
+            QUARTER_PI + pi / 20,
+            HALF_PI + QUARTER_PI - pi / 20,
+            pi + QUARTER_PI + pi / 20,
+            tau - QUARTER_PI - pi / 20,
+        ]
+        angles = sorted(angles[: len(actions)])
 
-        arcs = list()
         distances = list()
-        for (arc, angle), action in zip(_arcs, actions):
+        for action, angle in zip(actions, angles):
+            height, width = self.get_size(action)
             x, y = self.get_cart(angle, 1)
             x, y = abs(x), abs(y)
-            height, width = self.get_size(action)
-            arcs.append(((height * x) ** 2 + (width * y) ** 2) ** 0.5)
             distances.append(
-                10 + width * x // 4 + height * y // 4 + max(len(actions), 6) * 10
+                10
+                + width / 2 * x
+                + height * y / 2
+                + (6 if len(actions) > 4 else 4) * 10
             )
-        total = sum(arcs)
-        arcs = [arc / total * tau for arc in arcs]
-
-        angles = list()
-        angle = 0.0
-        for arc in arcs:
-            angle += arc / 2
-            angles.append(angle)
-            angle += arc / 2
-        _angle = angles[0]
-        angles = [angle - _angle for angle in angles]
 
         return list(zip(angles, distances))
 
@@ -162,20 +155,45 @@ class QuickSelectMenu:
         self.centre.setGeometry(QRect(x, y, 150, 150))
         self.centre.show()
 
-    def select(self, state: State, x: float, y: float) -> None:
-        """Select an action based on stick or D-Pad input."""
+    def dpad_select(self, state, pad: tuple[bool, bool, bool, bool]) -> None:
+        """Select an action based on D-pad input."""
         if state in ("question", "answer"):
             state = "review"
         if not self.is_shown or not self.is_active or state not in self.actions:
             return
+        up, down, left, right = pad
+        angle = self.get_angle(right - left, up - down)
+        distances = [
+            self.get_angle_distance(angle, _angle) for _angle, _ in self.arcs[state]
+        ]
+        if (min_d := min(distances)) < QUARTER_PI :
+            index = distances.index(min_d)
+            self.current_action = self._actions[state][index]
+        else:
+            index = -1
+        self._select(state, index)
+
+    def stick_select(self, state: State, x: float, y: float) -> None:
+        """Select an action based on stick input."""
+        if state in ("question", "answer"):
+            state = "review"
+        if not self.is_shown or not self.is_active or state not in self.actions:
+            return
+        y = -y
         if x ** 2 + y ** 2 > self.activation_distance:
             angle = self.get_angle(x, y)
-            distances = [abs(angle - _angle) for _angle, _ in self.arcs[state]]
-            index = distances.index(min(distances))
-            self.current_action = self._actions[state][index]
+            distances = [
+                self.get_angle_distance(angle, _angle) for _angle, _ in self.arcs[state]
+            ]
+            if (min_d := min(distances)) < QUARTER_PI:
+                index = distances.index(min_d)
+                self.current_action = self._actions[state][index]
+            else:
+                index = -1
         else:
             if (
                 self.settings["Do Action on Stick Release"]
+                and not self.settings["Select with D-Pad"]
                 and self.current_action
                 and x ** 2 + y ** 2 < 0.1
             ):
@@ -183,12 +201,15 @@ class QuickSelectMenu:
                 return
             index = -1
             self.current_action = ""
+        self._select(state, index)
+
+    def _select(self, state: State, index: int) -> None:
         for i, action in enumerate(self.actions[state]):
             action.selected(i == index)
 
     @staticmethod
     def get_size(action: str) -> tuple[int, int]:
-        """Returns the hight and width of the action name."""
+        """Returns the height and width of the action name."""
         _action = action.split(" ")
         return len(_action) * 12 + 30, max(len(word) for word in _action) * 5 + 40
 
@@ -199,17 +220,19 @@ class QuickSelectMenu:
         return radius * cos(angle) + x, radius * sin(angle) + y
 
     @staticmethod
+    def get_angle_distance(angle1: float, angle2: float) -> float:
+        """Get the angular distance."""
+        distance = abs(angle1 - angle2)
+        return min(distance, abs(tau - distance))
+
+    @staticmethod
     def get_angle(x: float, y: float) -> float:
-        """Get the angle from centre from the cartesian coordinates."""
+        """Get the angle from centre for the cartesian coordinates."""
         if not x:
-            return HALF_PI if y > 0 else (3 * HALF_PI)
-        angle = atan(y / x) + HALF_PI
+            return 0.0 if y > 0 else pi
+        angle = HALF_PI - atan(y / x)
         if x < 0:
-            angle += pi if y > 0 else -pi
-        if y < 0:
-            angle += tau
-        if angle > tau:
-            angle -= tau
+            angle += pi
         return angle
 
 

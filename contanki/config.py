@@ -590,6 +590,7 @@ class OptionsPage(QWidget):
                     checkbox.setEnabled(False)
                 else:
                     checkbox.setChecked(value)
+                qconnect(checkbox.stateChanged, partial(self.update_option, option))
                 layout.addRow(option, checkbox)
             self.setLayout(layout)
 

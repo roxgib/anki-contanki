@@ -43,7 +43,7 @@ SCROLL_FACTOR = 50 if is_mac else 5
 
 def check_filter(func: Callable) -> Callable:
     """Wrapper/decorator to check that the current deck is filtered."""
-    def wrapper(self, *args, **kwargs):
+    def wrapper(*args, **kwargs):
         assert mw is not None
         if mw.col.decks.is_filtered(mw.col.decks.get_current_id()):
             func(*args, **kwargs)
