@@ -59,11 +59,12 @@ class QuickSelectMenu:
 
     CENTRE_SIZE = QSize(150, 150)
 
-    def __init__(self, parent, settings: dict[str, Any]):
+    def __init__(self, parent, contanki, settings: dict[str, Any]):
         self.is_active = "Select with Stick" in settings
         self.config = get_config()
         self.activation_distance = 0.75
         self.parent = parent
+        self.contanki = contanki
         self.settings = settings
         self.current_action = ""
         self.is_shown = False
@@ -134,6 +135,8 @@ class QuickSelectMenu:
 
     def disappear(self, do_action: bool = False):
         """Hide the quick select menu."""
+        if not self.is_active:
+            return
         for actions in self.actions.values():
             for action in actions:
                 action.hide()
@@ -146,6 +149,8 @@ class QuickSelectMenu:
         ):
             button_actions[self.current_action]()
         self.current_action = ""
+        if self.contanki.overlay is not None:
+            self.contanki.overlay.disappear()
         self.is_shown = False
 
     def place_centre(self):

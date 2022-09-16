@@ -17,7 +17,7 @@ from .quick import QuickSelectMenu
 from .icons import IconHighlighter
 from .config import ContankiConfig
 from .funcs import get_config, get_state, move_mouse_build, scroll_build
-from .utils import State, get_file
+from .utils import State, get_file, if_connected
 from .overlay import ControlsOverlay
 from .profile import Profile, get_profile, identify_controller, find_profile, convert_profiles
 from .actions import button_actions, release_actions
@@ -31,14 +31,13 @@ move_mouse = move_mouse_build()
 scroll = scroll_build()
 DEBUG = environ.get("DEBUG")
 
-
 class Contanki(AnkiWebView):
     """Main add-on object. The webview contains JavaScript code that interfaces with
     the controller, and this classes functions handle translating the controller's
     input into actions and handling other aspects of the add-on"""
 
     overlay = None
-    quick_select = QuickSelectMenu(mw, {"actions": {}})
+    quick_select = QuickSelectMenu(mw, None, {"actions": {}})
     buttons: list[bool] = []
     axes: list[bool] = []
     len_buttons = 0
@@ -54,11 +53,11 @@ class Contanki(AnkiWebView):
         self.menu_item = QAction("Controller Options", mw)
         qconnect(self.menu_item.triggered, self.on_config)
         convert_profiles()
-
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         script = get_file("controller.js")
         self.stdHtml(f"""<script type="text/javascript">\n{script}\n</script>""")
         self.update_debug_info()
+        self.connected = False
 
         if DEBUG:
             self.setFixedSize(10, 10)
@@ -82,7 +81,7 @@ class Contanki(AnkiWebView):
         if profile is None:
             return
         self.overlay = ControlsOverlay(mw, profile, self.config["Large Overlays"])
-        self.quick_select = QuickSelectMenu(mw, profile.quick_select)
+        self.quick_select = QuickSelectMenu(mw, self, profile.quick_select)
         self.quick_select.update_icon(profile.controller, "Left Stick")  # FIXME
         self.config = get_config()
 
@@ -115,6 +114,7 @@ class Contanki(AnkiWebView):
         """Reinitialises the controller when an error occurs."""
         self.eval("on_controller_disconnect()")
 
+    @if_connected
     def poll(self, input_buttons: str, input_axes: str) -> None:
         """Handles the polling of the controller"""
         state = get_state()
@@ -154,6 +154,7 @@ class Contanki(AnkiWebView):
         if any(axes) and not self.quick_select.is_shown:
             self.do_axes_actions(state, axes)
 
+    @if_connected
     def update_quick_select(
         self, state: State, buttons: list[bool], axes: list[float]
     ) -> None:
@@ -189,6 +190,7 @@ class Contanki(AnkiWebView):
             self.quick_select.disappear(True)
             buttons[0] = False
 
+    @if_connected
     def show_quick_select(self, state: State) -> None:
         """Shows the quick select menu"""
         assert self.overlay is not None
@@ -197,12 +199,14 @@ class Contanki(AnkiWebView):
             if self.config["Enable Control Overlays"]:
                 self.overlay.appear(state)
 
+    @if_connected
     def hide_quick_select(self) -> None:
         assert self.overlay is not None
         self.quick_select.disappear()
         self.overlay.disappear()
         self.axes = [True] * self.len_axes
 
+    @if_connected
     def toggle_quick_select(self, state: State) -> None:
         assert self.quick_select is not None
         if self.quick_select.is_shown:
@@ -210,6 +214,7 @@ class Contanki(AnkiWebView):
         else:
             self.show_quick_select(state)
 
+    @if_connected
     def do_action(self, state: State, button: int) -> None:
         """Calls the appropriate function on button press."""
         if self.profile is None:
@@ -226,6 +231,7 @@ class Contanki(AnkiWebView):
             except Exception as err:  # pylint: disable=broad-except
                 tooltip("Error: " + repr(err))
 
+    @if_connected
     def do_release_action(self, state: State, button: int) -> None:
         """Calls the appropriate function on button release."""
         if self.profile is None:
@@ -240,6 +246,7 @@ class Contanki(AnkiWebView):
             except Exception as err:  # pylint: disable=broad-except
                 tooltip("Error: " + repr(err))
 
+    @if_connected
     def do_axes_actions(self, state: State, axes: list[float]) -> None:
         """Handles actions for axis movement."""
         if self.profile is None:
@@ -300,6 +307,7 @@ class Contanki(AnkiWebView):
 
         mw.form.menuTools.addAction(self.menu_item)
         self.update_debug_info()
+        self.connected = True
 
     def on_disconnect(self, *_) -> None:
         """Called when a controller is disconnected through the JavaScript interface"""
@@ -311,6 +319,7 @@ class Contanki(AnkiWebView):
         self.reset_controller()
         self.update_debug_info()
         tooltip("Controller Disconnected")
+        self.connected = False
 
     def reset_controller(self) -> None:
         """Clears the current controller"""
@@ -361,3 +370,5 @@ class Contanki(AnkiWebView):
             self.debug_info = [
                 con.split("%") for con in controllers.split("%%%") if con
             ]
+
+

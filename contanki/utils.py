@@ -6,7 +6,7 @@ Provides utility functions.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Callable, Literal
 from os.path import join, dirname, abspath, exists
 
 addon_path = dirname(abspath(__file__))
@@ -24,7 +24,7 @@ State = Literal[
 ]
 
 
-def get_file(filename: str) -> str | None:  # refactor this
+def get_file(filename: str) -> str | None:  # FIXME: refactor this
     """Gets a file from the addon folder and returns the contents as a string."""
     paths = [
         addon_path,
@@ -52,3 +52,10 @@ def int_keys(input_dict: dict) -> dict:
         else:
             output_dict[int(key)] = int_keys(value)
     return output_dict
+
+
+def if_connected(func: Callable) -> Callable:
+    def if_connected_wrapper(self, *args, **kwargs):
+        if self.connected:
+            func(self, *args, **kwargs)
+    return if_connected_wrapper
