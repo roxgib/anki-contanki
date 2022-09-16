@@ -9,6 +9,7 @@ file = get_file("controllers.json")
 if file is None:
     raise FileNotFoundError("Could not find controllers.json")
 controller_data = int_keys(json.loads(file))
+CONTROLLERS = list(controller_data.keys())
 
 
 class Controller:

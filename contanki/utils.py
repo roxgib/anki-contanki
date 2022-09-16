@@ -47,7 +47,7 @@ def int_keys(input_dict: dict) -> dict:
     for key, value in input_dict.items():
         try:
             int(key)
-        except ValueError:
+        except (ValueError, TypeError):
             output_dict[key] = int_keys(value)
         else:
             output_dict[int(key)] = int_keys(value)

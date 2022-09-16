@@ -14,10 +14,10 @@ import os
 from os.path import join, exists
 import json
 from typing import Any
+import shutil
 
-from .mappings import BUTTON_NAMES
 from .utils import State, get_file, int_keys
-from .controller import Controller
+from .controller import Controller, CONTROLLERS
 
 addon_path = os.path.dirname(os.path.abspath(__file__))
 user_files_path = join(addon_path, "user_files")
@@ -173,7 +173,7 @@ def identify_controller(
             device_name = controller_ids["devices"][vendor_id][device_id]
             if device_name == "invalid":
                 return None
-            if device_name in BUTTON_NAMES:
+            if device_name in CONTROLLERS:
                 return device_name, device_name + f" ({len_buttons} buttons)"
 
     id_ = id_.lower()
@@ -233,7 +233,9 @@ def get_profile_list(compatibility: str = None, defaults: bool = True) -> list[s
     """Returns a list of all profiles."""
     profiles = list()
     for file_name in os.listdir(user_profile_path):
-        if file_name not in ["placeholder", ".DS_Store"]:
+        if file_name not in ["placeholder", ".DS_Store"] and profile_is_valid(
+            file_name
+        ):
             profiles.append(file_name)
 
     if defaults:
@@ -294,11 +296,14 @@ def find_profile(controller: str, len_buttons: int, len_axes: int) -> Profile:
     with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
         controllers = json.load(file)
     if controller in controllers:
-        if (profile := get_profile(con := controllers[controller])) is not None:
-            return profile
-        raise FileNotFoundError(
-            f"Couldn't find profile '{con}'. Loading default profile instead."
-        )
+        if profile_is_valid(profile_name := controllers[controller]):
+            if (profile := get_profile(profile_name)) is not None:
+                return profile
+            raise FileNotFoundError(
+                f"Couldn't find profile '{profile_name}'. Loading default profile instead."
+            )
+    if profile_is_valid(controller):
+        return get_profile(controller)
     default_profiles = os.listdir(default_profile_path)
     if controller in default_profiles:
         profile_to_copy = controller
@@ -309,7 +314,7 @@ def find_profile(controller: str, len_buttons: int, len_axes: int) -> Profile:
 
     profile = copy_profile(profile_to_copy, controller)
     update_controllers(controller, profile.name)
-    if controller in BUTTON_NAMES:
+    if controller in CONTROLLERS:
         profile.controller = Controller(controller)
         profile.save()
     return profile
@@ -322,3 +327,94 @@ def update_controllers(controller: Controller | str, profile: str):
     controllers[str(controller)] = profile
     with open(join(user_files_path, "controllers"), "w", encoding="utf8") as file:
         json.dump(controllers, file)
+
+
+def profile_is_valid(profile: Profile | dict | str) -> bool:
+    """Checks that a profile is valid."""
+    # try:
+    if isinstance(profile, str):
+        path = join(user_profile_path, profile)
+        if not exists(path):
+            return False
+        if profile == "placeholder":
+            return False
+        with open(path, "r", encoding="utf8") as file:
+            profile = json.load(file)
+    if isinstance(profile, Profile):
+        profile = profile.to_dict()
+    if not (
+        "name" in profile
+        and "size" in profile
+        and "controller" in profile
+        and "quick_select" in profile
+        and "bindings" in profile
+        and "axes_bindings" in profile
+    ):
+        return False
+    for state, value in profile["bindings"].items():
+        if state not in State.__args__ or not isinstance(value, dict):
+            return False
+    Controller(profile["controller"])
+    return True
+    # except:
+    #     return False
+
+
+def convert_profiles() -> None:
+    with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
+        controllers = json.load(file)
+    for controller, profile in controllers.items():
+        if controller in controllers:
+            if profile_is_valid(profile):
+                continue
+            c = Controller(controller)
+            shutil.copyfile(
+                join(user_profile_path, profile), join(user_profile_path, profile + "_")
+            )
+            convert_profile(
+                profile + "_", find_profile(controller, c.num_buttons, c.num_axes)
+            )
+
+    user_profiles = os.listdir(user_profile_path)
+    for profile in user_profiles:
+        if profile == "placeholder" or profile_is_valid(profile):
+            continue
+        with open(join(user_profile_path, profile), "r", encoding="utf8") as file:
+            data = json.load(file)
+            controller = data["controller"]
+            num_buttons, num_axes = data["size"]
+            shutil.copyfile(
+                join(user_profile_path, profile), join(user_profile_path, profile + "_")
+            )
+            convert_profile(
+                profile + "_", find_profile(controller, num_buttons, num_axes)
+            )
+
+
+def convert_profile(old_profile: str, new_profile: Profile) -> None:
+    """Try to save the old profile before updating."""
+    path = join(user_profile_path, old_profile)
+    if not exists(path) or profile_is_valid(old_profile):
+        return
+    with open(path, "r", encoding="utf8") as file:
+        profile = int_keys(json.load(file))
+    bindings = profile["bindings"]
+    bindings = {state: _bindings[0] for state, _bindings in bindings.items()}
+    i = None
+    for state in bindings:
+        for index, action in bindings[state].items():
+            if action == "mod":
+                i = index
+                bindings[state][index] = ""
+    if i:
+        bindings["all"][i] = "Toggle Quick Select"
+
+    profile_dict = new_profile.to_dict()
+    profile_dict["bindings"] = bindings
+    profile_dict["name"] = (
+        profile["name"][:-1] if profile["name"][-1] == "_" else profile["name"]
+    )
+    Profile(profile_dict).save()
+    shutil.move(join(user_profile_path, profile["name"] + "_"), join(user_files_path, profile["name"][:-1] if profile["name"][-1] == "_" else profile["name"]))
+
+

@@ -37,6 +37,36 @@ Shift = Qt.KeyboardModifier.ShiftModifier
 # Internal
 
 
+def get_config() -> dict:
+    standard_config = {
+        "Flags": [1, 2, 3, 4, 5, 6, 7],
+        "Scroll Speed": 10,
+        "Cursor Speed": 10,
+        "Cursor Acceleration": 10,
+        "Stick Deadzone": 5,
+        "Enable Control Overlays": True,
+        "Large Overlays": False,
+        "Overlays Always On": False,
+        "Overlays in Quick Select": True,
+        "Custom Actions": {"AwesomeTTS": "Ctrl+T"},
+    }
+
+    imported_config = mw.addonManager.getConfig(__name__)
+
+    if imported_config is None:
+        raise RuntimeError("Contanki unable to load add-on config.")
+
+    config = {}
+    for config_item in standard_config:
+        if config_item in imported_config:
+            config[config_item] = imported_config[config_item]
+        else:
+            config[config_item] = standard_config[config_item]
+
+    mw.addonManager.writeConfig(__name__, config)
+    return config
+
+
 def get_state() -> State:
     """
     Returns the current state of the Anki window.
@@ -55,6 +85,7 @@ def get_state() -> State:
         return "config"
     else:
         return "NoFocus"
+
 
 def for_states(states: list[State]) -> Callable:
     """
@@ -112,11 +143,10 @@ get_dark_mode = _get_dark_mode()
 def get_custom_actions() -> dict[str, partial[None]]:
     """Gets custom actions from the config file."""
     assert mw is not None
-    config = mw.addonManager.getConfig(__name__)
-    assert config is not None
+    config = get_config()
     custom_actions = config["custom_actions"]
     actions = dict()
-    # FIXME: Improve sanitisation 
+    # FIXME: Improve sanitisation
     for action in custom_actions.keys():
         keys = QKeySequence(custom_actions[action])
         try:
@@ -135,7 +165,7 @@ def get_custom_actions() -> dict[str, partial[None]]:
 # Common
 
 
-def key_press(key: Qt.Key, mod = NoMod) -> None:
+def key_press(key: Qt.Key, mod=NoMod) -> None:
     """Simulates a key press and release."""
     assert mw is not None
     QCoreApplication.sendEvent(mw.app.focusObject(), QKE(QKE.Type.KeyPress, key, mod))
@@ -160,8 +190,7 @@ def scroll_build() -> Callable[[float, float], None]:
     """Builds a function that simulates scrolling, accounting for user settings."""
     if mw is None:  # for out of anki profile tests
         return lambda x, y: None
-    config = mw.addonManager.getConfig(__name__)
-    assert config is not None
+    config = get_config()
     speed = config["Scroll Speed"] / 10
     deadzone = config["Stick Deadzone"] / 100
 
@@ -181,7 +210,7 @@ def move_mouse_build() -> Callable[[float, float], None]:
     """Builds a function that moves the mouse, accounting for user settings."""
     if mw is None:  # for out of anki profile tests
         return lambda x, y: None
-    config = mw.addonManager.getConfig(__name__)
+    config = get_config()
     assert config is not None
     speed = config["Cursor Speed"] / 2
     accel = config["Cursor Acceleration"] / 5
@@ -364,8 +393,7 @@ def change_volume(direction=True):
 def build_cycle_flag() -> Callable:
     """Builds a function that cycles through the configured flags."""
     assert mw is not None
-    config = mw.addonManager.getConfig(__name__)
-    assert config is not None
+    config = get_config()
     flags = config["Flags"]
 
     @for_states(["question", "answer"])
@@ -492,7 +520,9 @@ def collapse_deck() -> None:
         "document.activeElement.parentElement.getElementsByClassName('collapse')[0].click()"  # pylint: disable=line-too-long
     )
 
+
 DEBUG_STRING = """See the <a href="https://ankiweb.net/shared/info/1898790263">add-on page</a> for some tips on using Contanki. If you're having trouble or have found a bug you can post on the <a href="https://forums.ankiweb.net/t/contanki-official-support-thread/">official support thread</a> or the <a href="https://github.com/roxgib/anki-contanki/issues">GitHub issue tracker</a>. <br><br>Please copy and paste the following information into your post:<br><br>"""  # pylint: disable=line-too-long
+
 
 def get_debug_str() -> str:
     """Returns a string with debug information."""

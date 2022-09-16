@@ -11,6 +11,7 @@ from aqt.theme import theme_manager
 from aqt.qt import Qt, QLabel, QRect, QPoint, QSize, QFont
 from aqt import mw as _mw
 
+from .funcs import get_config
 from .utils import State
 from .icons import get_button_icon
 from .actions import button_actions
@@ -59,10 +60,8 @@ class QuickSelectMenu:
     CENTRE_SIZE = QSize(150, 150)
 
     def __init__(self, parent, settings: dict[str, Any]):
-        config = mw.addonManager.getConfig(__name__)
-        assert config is not None
         self.is_active = "Select with Stick" in settings
-        self.config = config
+        self.config = get_config()
         self.activation_distance = 0.75
         self.parent = parent
         self.settings = settings

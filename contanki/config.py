@@ -37,7 +37,7 @@ assert _mw is not None
 mw = _mw
 
 from .controller import get_controller_list
-from .funcs import get_debug_str
+from .funcs import get_config, get_debug_str
 from .profile import (
     Profile,
     create_profile,
@@ -78,9 +78,7 @@ class ContankiConfig(QDialog):
 
         # Initialise internal variables
         self.profile = profile.copy()
-        config = mw.addonManager.getConfig(__name__)
-        assert config is not None
-        self.config = config
+        self.config = get_config()
         self.to_delete: list[str] = list()
         self.profile_hash = hash(profile)
 
@@ -151,8 +149,12 @@ class ContankiConfig(QDialog):
             raise ValueError(f"Profile {profile_name} not found.")
         self.profile = profile
         self.profile_hash = hash(profile)
-        self.options_page.update()
-        self.controls_page.update()
+        self.tab_bar.removeTab(0)
+        self.tab_bar.removeTab(0)
+        self.options_page = OptionsPage(self)
+        self.tab_bar.addTab(self.options_page, "Options")
+        self.controls_page = ControlsPage(self)
+        self.tab_bar.addTab(self.controls_page, "Controls")
 
     def get_custom_actions(self) -> list[str]:
         """Get the names of custom actions."""
@@ -215,7 +217,7 @@ class OptionsPage(QWidget):
         self.reload = parent.reload
         layout = QGridLayout(parent)
         self.options: dict[str, Any] = dict()
-        config = mw.addonManager.getConfig(__name__)
+        config = get_config()
         assert config is not None
         self.config = config
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)

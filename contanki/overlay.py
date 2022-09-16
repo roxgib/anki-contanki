@@ -15,10 +15,10 @@ from aqt.qt import (
     QLayout,
 )
 
-from .mappings import BUTTON_NAMES, BUTTON_ORDER
 from .utils import State
 from .profile import Profile
 from .icons import ButtonIcon
+from .controller import BUTTON_ORDER
 
 
 # FIXME: Must be better way to do this

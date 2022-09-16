@@ -16,10 +16,10 @@ from aqt.webview import AnkiWebView
 from .quick import QuickSelectMenu
 from .icons import IconHighlighter
 from .config import ContankiConfig
-from .funcs import get_state, move_mouse_build, scroll_build
+from .funcs import get_config, get_state, move_mouse_build, scroll_build
 from .utils import State, get_file
 from .overlay import ControlsOverlay
-from .profile import Profile, get_profile, identify_controller, find_profile
+from .profile import Profile, get_profile, identify_controller, find_profile, convert_profiles
 from .actions import button_actions, release_actions
 
 from aqt import mw as _mw
@@ -50,12 +50,10 @@ class Contanki(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
         mw.addonManager.setConfigAction(__name__, self.on_config)
-        config = mw.addonManager.getConfig(__name__)
-        if config is None:
-            raise Exception("Unable to load config")
-        self.config = config
+        self.config = get_config()
         self.menu_item = QAction("Controller Options", mw)
         qconnect(self.menu_item.triggered, self.on_config)
+        convert_profiles()
 
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         script = get_file("controller.js")
@@ -86,7 +84,7 @@ class Contanki(AnkiWebView):
         self.overlay = ControlsOverlay(mw, profile, self.config["Large Overlays"])
         self.quick_select = QuickSelectMenu(mw, profile.quick_select)
         self.quick_select.update_icon(profile.controller, "Left Stick")  # FIXME
-        self.config = mw.addonManager.getConfig(__name__)
+        self.config = get_config()
 
     def on_config(self) -> None:
         """Opens the config dialog"""
