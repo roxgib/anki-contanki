@@ -71,7 +71,7 @@ class QuickSelectMenu:
         self.countdown = -1
         self.centre = QLabel(parent)
         self.centre.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        actions = settings["actions"]
+        actions = settings["actions"][:8]
         self._actions = actions
         self.actions = {
             state: [QuickSelectMenuItem(mw, action) for action in _actions]

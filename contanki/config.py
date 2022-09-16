@@ -723,7 +723,15 @@ class ControlsPage(QTabWidget):
             col = 0
             axes_bindings = parent.profile.axes_bindings
             self.combos: dict[int, QComboBox] = dict()
-            for index, button in parent.profile.controller.buttons.items():
+            buttons = parent.profile.controller.buttons.copy()
+
+            buttons.update(
+                {
+                    index + 100: action
+                    for index, action in parent.profile.controller.axis_buttons.items()
+                }
+            )
+            for index, button in sorted(buttons.items()):
                 if index >= 100:
                     axis = (index - 100) // 2
                     if axis > len(axes_bindings) or axes_bindings[axis] != "Buttons":
