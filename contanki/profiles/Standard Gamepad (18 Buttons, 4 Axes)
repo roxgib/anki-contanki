@@ -7,20 +7,22 @@
     "quick_select": {
         "actions": {
             "deckBrowser": [
-                "Open Browser",
-                "Open Statistics",
-                "Fullscreen"
+                "Undo",
+                "Redo",
+                "Sync",
+                "Fullscreen",
+                "Quit"
             ],
             "overview": [
-                "Open Browser",
-                "Open Statistics",
+                "Undo",
+                "Redo",
+                "Sync",
                 "Fullscreen",
-                "Rebuild",
-                "Empty"
+                "Quit"
             ],
             "review": [
-                "Open Browser",
-                "Open Statistics",
+                "Undo",
+                "Redo",
                 "Fullscreen",
                 "Suspend Card",
                 "Suspend Note",
@@ -34,7 +36,7 @@
         "Select with D-Pad": true,
         "Do Action on Release": true,
         "Do Action on Stick Press": true,
-        "Do Action on Stick Release": true
+        "Do Action on Stick Release": false
     },
     "bindings": {
         "all": {

@@ -34,7 +34,7 @@ from .funcs import (
     _pass,
     Ctrl,
     Shift,
-    RightButton
+    RightButton,
 )
 
 assert mw is not None
@@ -43,13 +43,16 @@ SCROLL_FACTOR = 50 if is_mac else 5
 
 def check_filter(func: Callable) -> Callable:
     """Wrapper/decorator to check that the current deck is filtered."""
+
     def wrapper(*args, **kwargs):
         assert mw is not None
         if mw.col.decks.is_filtered(mw.col.decks.get_current_id()):
             func(*args, **kwargs)
         else:
             tooltip("This action can only be done on filtered decks")
+
     return wrapper
+
 
 # fmt: off
 button_actions: dict[str, Callable[[], Any]] = {
@@ -215,12 +218,21 @@ STATE_ACTIONS = {
 }
 
 QUICK_SELECT_ACTIONS: dict[str, list[str]] = {
-    "deckBrowser": list(),
-    "overview": list(),
+    "deckBrowser": [
+        "Undo",             "Redo",             "Hide Cursor",      "Sync",
+        "Fullscreen",       "Quit",
+    ],
+    
+    "overview": [
+        "Undo",             "Redo",             "Hide Cursor",      "Sync",
+        "Fullscreen",       "Quit",
+    ],
 
     "review": [
+        "Undo",             "Redo",             "Hide Cursor",      "Sync",
+        "Fullscreen",       "Quit",             "Card Info",        "Previous Card Info",
         "Mark Note",        "Edit Note",        "Delete Note",      "Set Due Date",
         "Bury Card",        "Bury Note",        "Suspend Card",     "Suspend Note",
-        "Card Info",        "Previous Card Info",
+        
     ],
 }

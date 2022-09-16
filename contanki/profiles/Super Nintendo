@@ -6,22 +6,36 @@
     ],
     "quick_select": {
         "actions": {
-            "deckBrowser": [],
-            "overview": [],
+            "deckBrowser": [
+                "Undo",
+                "Redo",
+                "Sync",
+                "Fullscreen",
+                "Quit"
+            ],
+            "overview": [
+                "Undo",
+                "Redo",
+                "Sync",
+                "Fullscreen",
+                "Quit"
+            ],
             "review": [
-                "Bury Card",
-                "Bury Note",
+                "Undo",
+                "Redo",
+                "Fullscreen",
                 "Suspend Card",
                 "Suspend Note",
-                "Card Info",
-                "Previous Card Info"
+                "Bury Card",
+                "Bury Note",
+                "Card Info"
             ]
         },
         "Enable Quick Select": true,
         "Select with Stick": false,
         "Select with D-Pad": true,
-        "Do Action on Release": true,
-        "Do Action on Stick Press": true,
+        "Do Action on Release": false,
+        "Do Action on Stick Press": false,
         "Do Action on Stick Release": true
     },
     "bindings": {

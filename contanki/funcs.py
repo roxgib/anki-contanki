@@ -389,7 +389,6 @@ def change_volume(direction=True):
 
 ### Review
 
-
 def build_cycle_flag() -> Callable:
     """Builds a function that cycles through the configured flags."""
     assert mw is not None
