@@ -15,7 +15,7 @@ from .quick import QuickSelectMenu
 from .icons import IconHighlighter
 from .config import ContankiConfig
 from .funcs import get_config, get_state, move_mouse_build, scroll_build
-from .utils import State, get_file, if_connected
+from .utils import State, get_file
 from .overlay import ControlsOverlay
 from .profile import (
     Profile,
@@ -117,6 +117,16 @@ class Contanki(AnkiWebView):
     def on_error(self, _error: str) -> None:
         """Reinitialises the controller when an error occurs."""
         self.eval("on_controller_disconnect()")
+
+    @staticmethod
+    def if_connected(func: Callable) -> Callable:
+        """Checks if the controller is connected before running a function."""
+
+        def if_connected_wrapper(self, *args, **kwargs):
+            if self.connected:
+                func(self, *args, **kwargs)
+
+        return if_connected_wrapper
 
     @if_connected
     def poll(self, input_buttons: str, input_axes: str) -> None:
@@ -357,6 +367,7 @@ class Contanki(AnkiWebView):
             mw.form.menuTools.addAction(controller)
         tooltip(f"{num_controllers} controllers detected - select from the Tools menu.")
 
+    @if_connected
     def change_controller(self, index: int) -> None:
         """Calls JavaScript to change the controller"""
         self._evalWithCallback(

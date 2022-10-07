@@ -3,9 +3,7 @@ Maps states to available actions and actions to functions.
 """
 
 from __future__ import annotations
-from copy import deepcopy
 from functools import partial
-from os import stat
 from typing import Any, Callable
 
 from aqt import mw, Qt
@@ -222,7 +220,7 @@ QUICK_SELECT_ACTIONS: dict[str, list[str]] = {
         "Undo",             "Redo",             "Hide Cursor",      "Sync",
         "Fullscreen",       "Quit",
     ],
-    
+
     "overview": [
         "Undo",             "Redo",             "Hide Cursor",      "Sync",
         "Fullscreen",       "Quit",
@@ -233,6 +231,6 @@ QUICK_SELECT_ACTIONS: dict[str, list[str]] = {
         "Fullscreen",       "Quit",             "Card Info",        "Previous Card Info",
         "Mark Note",        "Edit Note",        "Delete Note",      "Set Due Date",
         "Bury Card",        "Bury Note",        "Suspend Card",     "Suspend Note",
-        
+
     ],
 }

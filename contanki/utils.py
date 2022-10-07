@@ -51,12 +51,3 @@ def int_keys(input_dict: dict) -> dict:
         else:
             output_dict[int(key)] = int_keys(value)
     return output_dict
-
-
-def if_connected(func: Callable) -> Callable:
-    """Decorator to check if the controller is connected before running a function."""
-    def if_connected_wrapper(self, *args, **kwargs):
-        if self.connected:
-            func(self, *args, **kwargs)
-
-    return if_connected_wrapper
