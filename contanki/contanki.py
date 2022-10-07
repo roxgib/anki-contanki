@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from math import atan
 from os import environ
 from functools import partial
-from re import S
-from typing import Callable
+from typing import Any, Callable
 
 from aqt import gui_hooks
 from aqt.qt import QAction, qconnect
@@ -37,7 +35,7 @@ class Contanki(AnkiWebView):
     input into actions and handling other aspects of the add-on"""
 
     overlay = None
-    quick_select = QuickSelectMenu(mw, None, {"actions": {}})
+    quick_select = QuickSelectMenu(None, {})
     buttons: list[bool] = []
     axes: list[bool] = []
     len_buttons = 0
@@ -81,7 +79,7 @@ class Contanki(AnkiWebView):
         if profile is None:
             return
         self.overlay = ControlsOverlay(mw, profile, self.config["Large Overlays"])
-        self.quick_select = QuickSelectMenu(mw, self, profile.quick_select)
+        self.quick_select = QuickSelectMenu(self, profile.quick_select)
         self.quick_select.update_icon(profile.controller, "Left Stick")  # FIXME
         self.config = get_config()
 
@@ -90,7 +88,7 @@ class Contanki(AnkiWebView):
         if focus := current_window():
             ContankiConfig(focus, self.profile)
 
-    def on_receive_message(self, handled: tuple, message: str, _context: str) -> tuple:
+    def on_receive_message(self, handled: tuple, message: str, _) -> tuple[bool, Any]:
         """Called when a message is received from the JavaScript interface"""
         funcs: dict[str, Callable] = {
             "on_connect": self.on_connect,

@@ -19,7 +19,6 @@ from .controller import Controller
 
 HALF_PI = pi / 2
 QUARTER_PI = pi / 4
-SIXTEENTH_PI = pi / 16
 assert _mw is not None
 mw = _mw
 
@@ -56,31 +55,51 @@ class QuickSelectMenu:
     """Quick select menu allowing user to access less common actions."""
 
     # pylint: disable=invalid-name
-
+    settings = {
+        "Enable Quick Select": True,
+        "Select with Stick": True,
+        "Select with D-Pad": True,
+        "Do Action on Release": True,
+        "Do Action on Stick Press": True,
+        "Do Action on Stick Release": False,
+        "actions": {
+            "review": [],
+            "deckBrowser": [],
+            "overview": [],
+        },
+    }
+    buttons = {
+        "review": [],
+        "deckBrowser": [],
+        "overview}": [],
+    }
+    positions = {
+        "review": [],
+        "deckBrowser": [],
+        "overview}": [],
+    }
     CENTRE_SIZE = QSize(150, 150)
+    centre = QLabel(mw)
+    centre.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    centre.hide()
+    config = get_config()
+    countdown = -1
+    is_shown = False
+    current_action = ""
+    activation_distance = 0.75
 
-    def __init__(self, parent, contanki, settings: dict[str, Any]):
-        self.is_active = "Select with Stick" in settings
-        self.config = get_config()
-        self.activation_distance = 0.75
-        self.parent = parent
+    def __init__(self, contanki, settings: dict[str, Any]):
+        self.is_active = contanki is not None
         self.contanki = contanki
-        self.settings = settings
-        self.current_action = ""
-        self.is_shown = False
-        self.countdown = -1
-        self.centre = QLabel(parent)
-        self.centre.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        actions = settings["actions"][:8]
-        self._actions = actions
-        self.actions = {
-            state: [QuickSelectMenuItem(mw, action) for action in _actions]
-            for state, _actions in actions.items()
-            if _actions
-        }
-        self.arcs = {
-            state: self.set_geometry(_actions) for state, _actions in actions.items()
-        }
+        self.settings.update(settings)
+
+        self.actions = self.settings["actions"]
+        for state in ("review", "deckBrowser", "overview"):
+            self.actions[state] = self.actions[state][:8]  # Maximum of 8 actions
+            self.buttons[state] = [
+                QuickSelectButton(mw, action) for action in self.actions[state]
+            ]
+            self.positions[state] = self.set_geometry(self.actions[state])
 
     def update_icon(self, controller: Controller, button: str):
         """Update the centre icon of the quick select menu."""
@@ -119,16 +138,16 @@ class QuickSelectMenu:
         x, y = mw.geometry().width() // 2, mw.geometry().height() - 200
         return [
             QPoint(*self.get_cart(angle, radius, x, y))
-            for angle, radius in self.arcs[state]
+            for angle, radius in self.positions[state]
         ]
 
     def appear(self, state: State):
         """Show the quick select menu."""
         if state in ("question", "answer"):
             state = "review"
-        if self.is_shown or not self.is_active or not self.actions[state]:
+        if self.is_shown or not self.is_active or not self.buttons[state]:
             return
-        for action, location in zip(self.actions[state], self.get_geometry(state)):
+        for action, location in zip(self.buttons[state], self.get_geometry(state)):
             action.place(location)
         self.place_centre()
         self.is_shown = True
@@ -137,7 +156,7 @@ class QuickSelectMenu:
         """Hide the quick select menu."""
         if not self.is_active:
             return
-        for actions in self.actions.values():
+        for actions in self.buttons.values():
             for action in actions:
                 action.hide()
         self.centre.hide()
@@ -163,16 +182,17 @@ class QuickSelectMenu:
         """Select an action based on D-pad input."""
         if state in ("question", "answer"):
             state = "review"
-        if not self.is_shown or not self.is_active or state not in self.actions:
+        if not self.is_shown or not self.is_active or state not in self.buttons:
             return
         up, down, left, right = pad
         angle = self.get_angle(right - left, up - down)
         distances = [
-            self.get_angle_distance(angle, _angle) for _angle, _ in self.arcs[state]
+            self.get_angle_distance(angle, _angle)
+            for _angle, _ in self.positions[state]
         ]
-        if (min_d := min(distances)) < QUARTER_PI :
+        if (min_d := min(distances)) < QUARTER_PI:
             index = distances.index(min_d)
-            self.current_action = self._actions[state][index]
+            self.current_action = self.actions[state][index]
         else:
             index = -1
         self._select(state, index)
@@ -181,17 +201,18 @@ class QuickSelectMenu:
         """Select an action based on stick input."""
         if state in ("question", "answer"):
             state = "review"
-        if not self.is_shown or not self.is_active or state not in self.actions:
+        if not self.is_shown or not self.is_active or state not in self.buttons:
             return
         y = -y
         if x ** 2 + y ** 2 > self.activation_distance:
             angle = self.get_angle(x, y)
             distances = [
-                self.get_angle_distance(angle, _angle) for _angle, _ in self.arcs[state]
+                self.get_angle_distance(angle, _angle)
+                for _angle, _ in self.positions[state]
             ]
             if (min_d := min(distances)) < QUARTER_PI:
                 index = distances.index(min_d)
-                self.current_action = self._actions[state][index]
+                self.current_action = self.actions[state][index]
             else:
                 index = -1
         else:
@@ -208,7 +229,7 @@ class QuickSelectMenu:
         self._select(state, index)
 
     def _select(self, state: State, index: int) -> None:
-        for i, action in enumerate(self.actions[state]):
+        for i, action in enumerate(self.buttons[state]):
             action.selected(i == index)
 
     @staticmethod
@@ -240,7 +261,7 @@ class QuickSelectMenu:
         return angle
 
 
-class QuickSelectMenuItem(QLabel):
+class QuickSelectButton(QLabel):
     """Menu item of QuickSelectMenu."""
 
     standard_font = QFont()
