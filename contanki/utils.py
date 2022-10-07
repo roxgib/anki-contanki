@@ -10,6 +10,10 @@ from typing import Callable, Literal
 from os.path import join, dirname, abspath, exists
 
 addon_path = dirname(abspath(__file__))
+user_files_path = join(addon_path, "user_files")
+user_profile_path = join(user_files_path, "profiles")
+default_profile_path = join(addon_path, "profiles")
+controllers_path = join(addon_path, "controllers")
 
 State = Literal[
     "all",
@@ -26,12 +30,7 @@ State = Literal[
 
 def get_file(filename: str) -> str | None:  # FIXME: refactor this
     """Gets a file from the addon folder and returns the contents as a string."""
-    paths = [
-        addon_path,
-        join(addon_path, "user_files"),
-        join(addon_path, "profiles"),
-        join(addon_path, "user_files", "profiles"),
-    ]
+    paths = [addon_path, user_files_path, user_profile_path, default_profile_path]
     for path in paths:
         if exists(join(path, filename)):
             with open(join(path, filename), "r", encoding="utf8") as file:
@@ -58,4 +57,5 @@ def if_connected(func: Callable) -> Callable:
     def if_connected_wrapper(self, *args, **kwargs):
         if self.connected:
             func(self, *args, **kwargs)
+
     return if_connected_wrapper

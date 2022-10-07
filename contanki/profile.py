@@ -16,14 +16,15 @@ import json
 from typing import Any
 import shutil
 
-from .utils import State, get_file, int_keys
+from .utils import (
+    State,
+    get_file,
+    int_keys,
+    user_files_path,
+    user_profile_path,
+    default_profile_path,
+)
 from .controller import Controller, CONTROLLERS
-
-addon_path = os.path.dirname(os.path.abspath(__file__))
-user_files_path = join(addon_path, "user_files")
-user_profile_path = join(user_files_path, "profiles")
-default_profile_path = join(addon_path, "profiles")
-controllers_path = join(addon_path, "controllers")
 
 
 class Profile:
@@ -415,6 +416,10 @@ def convert_profile(old_profile: str, new_profile: Profile) -> None:
         profile["name"][:-1] if profile["name"][-1] == "_" else profile["name"]
     )
     Profile(profile_dict).save()
-    shutil.move(join(user_profile_path, profile["name"] + "_"), join(user_files_path, profile["name"][:-1] if profile["name"][-1] == "_" else profile["name"]))
-
-
+    shutil.move(
+        join(user_profile_path, profile["name"] + "_"),
+        join(
+            user_files_path,
+            profile["name"][:-1] if profile["name"][-1] == "_" else profile["name"],
+        ),
+    )

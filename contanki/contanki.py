@@ -34,12 +34,13 @@ class Contanki(AnkiWebView):
     the controller, and this classes functions handle translating the controller's
     input into actions and handling other aspects of the add-on"""
 
+    connected = False
+    config = get_config()
     overlay = None
     quick_select = QuickSelectMenu(None, {})
     buttons: list[bool] = []
     axes: list[bool] = []
-    len_buttons = 0
-    len_axes = 0
+    len_buttons = len_axes = 0
     icons = IconHighlighter()
     controllers: list[QAction] = list()
     debug_info: list[list[str]] = []
@@ -47,7 +48,6 @@ class Contanki(AnkiWebView):
     def __init__(self, parent):
         super().__init__(parent=parent)
         mw.addonManager.setConfigAction(__name__, self.on_config)
-        self.config = get_config()
         self.menu_item = QAction("Controller Options", mw)
         qconnect(self.menu_item.triggered, self.on_config)
         convert_profiles()
@@ -55,7 +55,6 @@ class Contanki(AnkiWebView):
         script = get_file("controller.js")
         self.stdHtml(f"""<script type="text/javascript">\n{script}\n</script>""")
         self.update_debug_info()
-        self.connected = False
 
         if DEBUG:
             self.setFixedSize(10, 10)
