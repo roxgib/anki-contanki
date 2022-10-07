@@ -28,7 +28,7 @@ State = Literal[
 ]
 
 
-def get_file(filename: str) -> str | None:  # FIXME: refactor this
+def get_file(filename: str) -> str | None:
     """Gets a file from the addon folder and returns the contents as a string."""
     paths = [addon_path, user_files_path, user_profile_path, default_profile_path]
     for path in paths:
@@ -54,6 +54,7 @@ def int_keys(input_dict: dict) -> dict:
 
 
 def if_connected(func: Callable) -> Callable:
+    """Decorator to check if the controller is connected before running a function."""
     def if_connected_wrapper(self, *args, **kwargs):
         if self.connected:
             func(self, *args, **kwargs)

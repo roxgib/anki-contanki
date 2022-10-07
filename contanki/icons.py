@@ -79,6 +79,7 @@ def get_button_icon(
 
 
 class ButtonIcon(QLabel):
+    """A label that displays a button icon."""
     def __init__(
         self,
         parent: QWidget | None,

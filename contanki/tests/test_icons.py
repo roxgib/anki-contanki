@@ -1,15 +1,12 @@
 # pylint: disable=missing-docstring
 
-from ..icons import get_button_icon, ControlButton
-from ..mappings import BUTTON_NAMES, AXES_NAMES, BUTTON_ORDER
+from ..icons import get_button_icon, ButtonIcon
+from ..controller import Controller, get_controller_list
 from . import test
 
 @test
 def test_can_get_all_button_icons():
-    for controller, buttons in BUTTON_NAMES.items():
-        for _, button in buttons.items():
+    for controller in get_controller_list():
+        for button in Controller(controller).buttons.values():
             get_button_icon(controller, button)
-
-@test
-def test_control_button():
-    control_button = ControlButton('Cross', 'DualShock 4')
+            ButtonIcon(None, button, controller)

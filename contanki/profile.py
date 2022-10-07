@@ -66,10 +66,12 @@ class Profile:
 
     @property
     def name(self) -> str:
+        """Returns the name of the profile."""
         return self._name
 
     @name.setter
     def name(self, name: str):
+        """Sets the name of the profile, sanitising it for saving first."""
         self._name = "".join(
             [char for char in name if char.isalnum() or char in " ()-_"]
         )

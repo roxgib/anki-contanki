@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-from aqt import mw
 
-from contanki.funcs import on_enter
+from ..controller import Controller
 from . import test
+
 # pylint: disable=unused-import
 from ..profile import (
     Profile,
@@ -13,60 +13,74 @@ from ..profile import (
     delete_profile,
 )
 
+
 @test
 def test_get_profile():
-    profile = get_profile('Standard Gamepad (16 Buttons, 4 Axes)')
-    assert profile.name == 'Standard Gamepad (16 Buttons, 4 Axes)'
+    profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
+    assert profile.name == "Standard Gamepad (16 Buttons, 4 Axes)"
     assert profile.len_buttons == 16
     assert profile.len_axes == 4
-    assert profile.mods == [6, 7]
+    assert isinstance(profile.quick_select, dict)
+    assert isinstance(profile.quick_select["actions"]["review"], list)
+    assert profile.quick_select["actions"]["deckBrowser"] == [
+        "Undo",
+        "Redo",
+        "Sync",
+        "Fullscreen",
+        "Quit",
+    ]
 
 
 @test
 def test_profile_bindings():
-    profile = get_profile('Standard Gamepad (16 Buttons, 4 Axes)')
+    profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
     assert profile.bindings["All"][0] == "Enter"
     assert profile.bindings["All"][1] == ""
     assert profile.bindings["deckBrowser"][0] == ""
+    assert profile.get("All", 0) == "Enter"
+    assert profile.get("deckBrowser", 0) == "Enter"
+    assert profile.get("All", 50) == ""
 
-@test
-def test_profile_actions():
-    profile = get_profile('Standard Gamepad (16 Buttons, 4 Axes)')
-    assert profile.actions["All"][0] is on_enter
-    assert profile.bindings["deckBrowser"][0] is on_enter
 
 @test
 def test_update_binding():
-    profile = get_profile('Standard Gamepad (16 Buttons, 4 Axes)')
-    profile.update_binding("All", 0, 0, "Sync", False)
-    assert profile.bindings["All"][0] == "Sync"
-    assert profile.actions["All"][0] is on_enter
-    profile.update_binding("All", 0, 1, "Sync", True)
-    assert profile.actions["All"][0] is mw.onSync
-    assert profile.actions["All"][1] is mw.onSync
+    profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
+    profile.update_binding("All", 0, "Sync")
+    assert profile.get("All", 0) == "Sync"
+    assert profile.get("deckBrowser", 0) == "Sync"
+
 
 @test
 def test_save():
-    profile = get_profile('Standard Gamepad (16 Buttons, 4 Axes)')
-    profile.update_binding("All", 0, 0, "Sync", False)
+    profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
+    profile.update_binding("All", 0, "Sync")
     profile.name = r"Test \/ % :"
     profile.save()
-    profile = get_profile('Test')
-    assert profile.bindings["All"][0][0] == "Sync"
+    profile = get_profile("Test")
+    assert profile.get("All", 0) == "Sync"
+
 
 @test
 def test_delete():
-    profile = get_profile('Standard Gamepad (16 Buttons, 4 Axes)')
+    profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
     profile.name = "test"
     profile.save()
-    profile = get_profile('test')
+    profile = get_profile("test")
     delete_profile(profile)
-    assert get_profile('test') is None
+    assert get_profile("test") is None
+
 
 @test
 def test_copy():
-    profile = get_profile('Standard Gamepad (16 Buttons, 4 Axes)')
+    profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
     profile.name = "test"
     profile.save()
     copy_profile(profile, "test2")
-    assert get_profile('test2') is not None
+    assert get_profile("test2") is not None
+
+@test
+def test_profile_controller():
+    profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
+    assert profile.controller == Controller("DualShock 4")
+    profile.controller = "Xbox 360"
+    assert profile.controller == Controller("Xbox 360")
