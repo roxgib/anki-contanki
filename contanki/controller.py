@@ -38,9 +38,6 @@ class Controller:
     def __getitem__(self, index: int) -> str:
         return self.buttons[index]
 
-    def __len__(self) -> tuple[int, int]:
-        return self.num_buttons, self.num_axes
-
     def axis(self, index: int) -> str:
         """Get the name of an axis."""
         return self.axes[index]
@@ -54,6 +51,7 @@ class Controller:
         return self.buttons[index]
 
     def get_dpad_buttons(self) -> tuple[int, int, int, int] | None:
+        """Get the indicies of the D-pad buttons."""
         if not self.has_dpad:
             return None
         indicies, buttons = zip(*self.buttons.items())
@@ -71,6 +69,7 @@ class Controller:
             )
 
     def get_stick_button(self) -> int | None:
+        """Get the index of the stick button."""
         indicies, buttons = zip(*self.buttons.items())
         for button_name in ("Stick Click", "Left Stick Click", "Right Stick Click"):
             if button_name in buttons:

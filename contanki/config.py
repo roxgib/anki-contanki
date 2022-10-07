@@ -30,11 +30,7 @@ from aqt.qt import (
 )
 from aqt.theme import theme_manager
 from aqt.utils import showInfo, getText, askUser
-
 from aqt import mw as _mw
-
-assert _mw is not None
-mw = _mw
 
 from .controller import get_controller_list
 from .funcs import get_config, get_debug_str
@@ -50,7 +46,11 @@ from .actions import QUICK_SELECT_ACTIONS, STATE_ACTIONS
 from .icons import ButtonIcon, get_button_icon
 from .utils import State
 
-alignment = Qt.AlignmentFlag
+assert _mw is not None
+mw = _mw
+
+
+Alignment = Qt.AlignmentFlag
 
 states: dict[State, str] = {
     "all": "Default",
@@ -90,7 +90,7 @@ class ContankiConfig(QDialog):
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         layout = QVBoxLayout(self)
         layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
-        layout.setAlignment(alignment.AlignTop)
+        layout.setAlignment(Alignment.AlignTop)
 
         # Initialise main tabs (Options, Controls)
         self.tab_bar = QTabWidget()
@@ -112,7 +112,7 @@ class ContankiConfig(QDialog):
         _buttons[0].setDefault(True)
         buttons = Container(self, QHBoxLayout, _buttons)
         buttons.layout().setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
-        buttons.layout().setAlignment(alignment.AlignRight)
+        buttons.layout().setAlignment(Alignment.AlignRight)
         layout.addWidget(buttons)
 
         # Open
@@ -203,7 +203,8 @@ class Container(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         self.setFixedSize(self.sizeHint())
 
-    def addWidget(self, widget: QWidget) -> None:
+    def add_widget(self, widget: QWidget) -> None:
+        """Add a widget to the container."""
         self._layout.addWidget(widget)
 
 
@@ -230,11 +231,11 @@ class OptionsPage(QWidget):
 
         # Profile Bar
         self.profile_bar = self.ProfileBar(parent)
-        layout.addWidget(self.profile_bar, 0, 0, 1, 3, alignment=alignment.AlignTop)
+        layout.addWidget(self.profile_bar, 0, 0, 1, 3, alignment=Alignment.AlignTop)
 
         # Axes & Flags
         self.axis_roles = self.AxisRoleSelector(parent)
-        centre_column.addWidget(self.axis_roles, alignment=alignment.AlignTop)
+        centre_column.addWidget(self.axis_roles, alignment=Alignment.AlignTop)
 
         # Other Options
         form = QGroupBox("Options", self)
@@ -252,29 +253,29 @@ class OptionsPage(QWidget):
             form_layout.addRow(key, widget)
             self.options[key] = widget
         form.setLayout(form_layout)
-        left_column.addWidget(form, alignment=alignment.AlignTop)
+        left_column.addWidget(form, alignment=Alignment.AlignTop)
 
         # Flags
         self.flags = self.FlagsSelector(self, self.config["Flags"])
-        left_column.addWidget(self.flags, alignment=alignment.AlignTop)
+        left_column.addWidget(self.flags, alignment=Alignment.AlignTop)
 
         # Custom Actions
         self.custom_actions = self.CustomActions(parent, self.config["Custom Actions"])
-        centre_column.addWidget(self.custom_actions, alignment=alignment.AlignTop)
+        centre_column.addWidget(self.custom_actions, alignment=Alignment.AlignTop)
 
         # Quick Select
         self.quick_select = self.QuickSelectSettings(parent)
-        right_column.addWidget(self.quick_select, alignment=alignment.AlignTop)
+        right_column.addWidget(self.quick_select, alignment=Alignment.AlignTop)
         self.quick_select_actions: list[self.QuickSelectActions] = list()
         for state, actions in self.profile.quick_select["actions"].items():
             if actions:
                 group = self.QuickSelectActions(parent, state)
                 self.quick_select_actions.append(group)
-                right_column.addWidget(group, alignment=alignment.AlignTop)
+                right_column.addWidget(group, alignment=Alignment.AlignTop)
 
-        layout.addLayout(left_column, 1, 0, alignment=alignment.AlignTop)
-        layout.addLayout(centre_column, 1, 1, alignment=alignment.AlignTop)
-        layout.addLayout(right_column, 1, 2, alignment=alignment.AlignTop)
+        layout.addLayout(left_column, 1, 0, alignment=Alignment.AlignTop)
+        layout.addLayout(centre_column, 1, 1, alignment=Alignment.AlignTop)
+        layout.addLayout(right_column, 1, 2, alignment=Alignment.AlignTop)
 
         # Finish
         self.setLayout(layout)
@@ -379,6 +380,7 @@ class OptionsPage(QWidget):
             return self.controller_combo.currentText()
 
         def update_controller(self, controller: str) -> None:
+            """Updates the dialog to reflect the chosen controller."""
             self.profile.controller = controller
             self.reload()
 
@@ -500,6 +502,7 @@ class OptionsPage(QWidget):
             self.setLayout(layout)
 
         def update_flags(self):
+            """Update the config with the selected flags."""
             self.config["Flags"] = self.get()
 
         def get(self) -> list[int]:
@@ -523,7 +526,7 @@ class OptionsPage(QWidget):
             self.profile = parent.profile
             self.dropdowns: list[QComboBox] = list()
             self.reload = parent.reload
-            self.setAlignment(alignment.AlignTop)
+            self.setAlignment(Alignment.AlignTop)
             self.setup()
 
         def update_binding(self, axis: int, role: str) -> None:
@@ -534,11 +537,11 @@ class OptionsPage(QWidget):
         def setup(self) -> None:
             """Refresh for the current controller."""
             layout = QFormLayout(self)
-            layout.setFormAlignment(alignment.AlignVCenter)
+            layout.setFormAlignment(Alignment.AlignVCenter)
             layout.setFieldGrowthPolicy(
                 QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow
             )
-            layout.setLabelAlignment(alignment.AlignRight | alignment.AlignVCenter)
+            layout.setLabelAlignment(Alignment.AlignRight | Alignment.AlignVCenter)
             self.dropdowns.clear()
             for axis, name in self.profile.controller.axes.items():
                 dropdown = QComboBox()
@@ -599,51 +602,6 @@ class OptionsPage(QWidget):
         def update_option(self, option: str, value: bool) -> None:
             """Update the given option."""
             self.profile.quick_select[option] = value
-
-    class QuickSelectActions(QGroupBox):
-        """Contains checkboxes to add actions to quick select for a state."""
-
-        def __init__(self, parent: ContankiConfig, state: State) -> None:
-            super().__init__("Quick Select Actions: " + states[state], parent)
-            self.state = state
-            self.profile = parent.profile
-            self._parent = parent
-            self.config = parent.config
-            self.setup()
-
-        def setup(self) -> None:
-            """Adds all the checkboxes to the groupbox."""
-            actions = []
-            for action in QUICK_SELECT_ACTIONS[self.state] + list(
-                self.config["Custom Actions"].keys()
-            ):
-                checkbox = QCheckBox(action, self._parent)
-                checkbox.setChecked(
-                    action in self.profile.quick_select["actions"][self.state]
-                )
-                qconnect(checkbox.stateChanged, partial(self.on_change, action))
-                actions.append(checkbox)
-
-            if actions:
-                self.show()
-            else:
-                self.hide()
-
-            layout = QGridLayout(self)
-            for i, action_check in enumerate(actions):
-                layout.addWidget(action_check, i // 2, i % 2)
-            widget = QWidget()
-            widget.setLayout(self.layout())
-            self.setLayout(layout)
-
-        def on_change(self, action: str, checked: bool) -> None:
-            """Returns whether the checkbox is checked."""
-            actions = self.profile.quick_select["actions"][self.state]
-            if checked and action not in actions:
-                actions.append(action)
-            elif not checked and action in actions:
-                actions.remove(action)
-
 
 class ControlsPage(QTabWidget):
     """A widget allowing the user to modify the bindings."""
@@ -756,3 +714,47 @@ class ControlsPage(QTabWidget):
             for column in self.columns:
                 layout.addLayout(column)
             self.setLayout(layout)
+
+    class QuickSelectActions(QGroupBox):
+        """Contains checkboxes to add actions to quick select for a state."""
+
+        def __init__(self, parent: ContankiConfig, state: State) -> None:
+            super().__init__("Quick Select Actions: " + states[state], parent)
+            self.state = state
+            self.profile = parent.profile
+            self._parent = parent
+            self.config = parent.config
+            self.setup()
+
+        def setup(self) -> None:
+            """Adds all the checkboxes to the groupbox."""
+            actions = []
+            for action in QUICK_SELECT_ACTIONS[self.state] + list(
+                self.config["Custom Actions"].keys()
+            ):
+                checkbox = QCheckBox(action, self._parent)
+                checkbox.setChecked(
+                    action in self.profile.quick_select["actions"][self.state]
+                )
+                qconnect(checkbox.stateChanged, partial(self.on_change, action))
+                actions.append(checkbox)
+
+            if actions:
+                self.show()
+            else:
+                self.hide()
+
+            layout = QGridLayout(self)
+            for i, action_check in enumerate(actions):
+                layout.addWidget(action_check, i // 2, i % 2)
+            widget = QWidget()
+            widget.setLayout(self.layout())
+            self.setLayout(layout)
+
+        def on_change(self, action: str, checked: bool) -> None:
+            """Returns whether the checkbox is checked."""
+            actions = self.profile.quick_select["actions"][self.state]
+            if checked and action not in actions:
+                actions.append(action)
+            elif not checked and action in actions:
+                actions.remove(action)

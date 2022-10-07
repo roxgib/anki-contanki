@@ -17,7 +17,13 @@ from .config import ContankiConfig
 from .funcs import get_config, get_state, move_mouse_build, scroll_build
 from .utils import State, get_file, if_connected
 from .overlay import ControlsOverlay
-from .profile import Profile, get_profile, identify_controller, find_profile, convert_profiles
+from .profile import (
+    Profile,
+    get_profile,
+    identify_controller,
+    find_profile,
+    convert_profiles,
+)
 from .actions import button_actions, release_actions
 
 from aqt import mw as _mw
@@ -28,6 +34,7 @@ mw = _mw
 move_mouse = move_mouse_build()
 scroll = scroll_build()
 DEBUG = environ.get("DEBUG")
+
 
 class Contanki(AnkiWebView):
     """Main add-on object. The webview contains JavaScript code that interfaces with
@@ -158,7 +165,7 @@ class Contanki(AnkiWebView):
         """Update the quick select menu."""
         if not self.quick_select.is_shown:
             return
-        
+
         if (
             self.quick_select.settings["Select with D-Pad"]
             and self.profile.controller.dpad_buttons is not None
@@ -175,7 +182,7 @@ class Contanki(AnkiWebView):
             buttons[right] = False
         elif self.profile.controller.has_stick:
             self.quick_select.stick_select(state, axes[0], axes[1])
-        
+
         if (
             (stick_button := self.profile.controller.stick_button) is not None
             and self.quick_select.settings["Do Action on Stick Press"]
@@ -198,14 +205,15 @@ class Contanki(AnkiWebView):
 
     @if_connected
     def hide_quick_select(self) -> None:
-        assert self.overlay is not None
-        self.quick_select.disappear()
-        self.overlay.disappear()
-        self.axes = [True] * self.len_axes
+        """Hides the quick select menu and the overlays if they are shown."""
+        if self.overlay is not None:
+            self.quick_select.disappear()
+            self.overlay.disappear()
+            self.axes = [True] * self.len_axes
 
     @if_connected
     def toggle_quick_select(self, state: State) -> None:
-        assert self.quick_select is not None
+        """Toggles the quick select menu and overlays."""
         if self.quick_select.is_shown:
             self.hide_quick_select()
         else:
@@ -367,5 +375,3 @@ class Contanki(AnkiWebView):
             self.debug_info = [
                 con.split("%") for con in controllers.split("%%%") if con
             ]
-
-
