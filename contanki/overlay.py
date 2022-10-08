@@ -12,7 +12,6 @@ from aqt.qt import (
     QHBoxLayout,
     QSizePolicy,
     QFont,
-    QLayout,
 )
 
 from .utils import State

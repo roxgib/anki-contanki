@@ -143,7 +143,7 @@ class Profile:
     def save(self) -> None:
         """Saves the profile to a file."""
         path = os.path.join(user_profile_path, self.name)
-        with open(path, "w", encoding="utf8") as file:
+        with open(dbg(path), "w", encoding="utf8") as file:
             json.dump(self.to_dict(), file)
 
     def copy(self):
@@ -280,12 +280,16 @@ def create_profile(old_name: str, new_name: str) -> Profile:
 def delete_profile(profile: str | Profile) -> None:
     """Delete a profile from disk."""
     name = profile.name if isinstance(profile, Profile) else profile
-    path = join(default_profile_path, name)
-    dbg(f"Deleting profile {name} from {path}")
-    if exists(path):
-        raise ValueError("Tried to delete built-in profile")
     path = join(user_profile_path, name)
-    os.remove(path)
+    if exists(path):
+        dbg(f"Deleting profile {name} from {path}")
+        os.remove(path)
+    else:
+        dbg(f"Tried to delete profile {name}, but not found at {path}")
+        path = join(default_profile_path, name)
+        if exists(path):
+            dbg(f"Tried to delete built-in profile {name} from {path}")
+            raise ValueError("Tried to delete built-in profile")
 
 
 def copy_profile(profile: str | Profile, new_name: str) -> Profile:
@@ -362,7 +366,7 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
             return False
         with open(path, "r", encoding="utf8") as file:
             profile = json.load(file)
-    if isinstance(profile, Profile):
+    elif isinstance(profile, Profile):
         profile = profile.to_dict()
     if not (
         "name" in profile
@@ -388,23 +392,6 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
 
 def convert_profiles() -> None:
     """Convert profiles from old format to new format."""
-    with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
-        controllers = json.load(file)
-    for controller, profile in controllers.items():
-        if profile_is_valid(profile):
-            continue
-        dbg(f"Converting profile '{profile}' for controller '{controller}'")
-        con = Controller(controller)
-        if get_profile(profile) is None:
-            dbg(f"Profile '{profile}' not found")
-            return
-        shutil.copyfile(
-            join(user_profile_path, profile), join(user_profile_path, profile + "_")
-        )
-        convert_profile(
-            profile + "_", find_profile(controller, con.num_buttons, con.num_axes)
-        )
-
     user_profiles = os.listdir(user_profile_path)
     for profile in user_profiles:
         if profile == "placeholder" or profile_is_valid(profile):
@@ -412,18 +399,18 @@ def convert_profiles() -> None:
         dbg(f"Converting profile '{profile}'")
         with open(join(user_profile_path, profile), "r", encoding="utf8") as file:
             data = json.load(file)
-            controller = data["controller"]
-            num_buttons, num_axes = data["size"]
-            shutil.copyfile(
-                join(user_profile_path, profile), join(user_profile_path, profile + "_")
-            )
-            convert_profile(
-                profile + "_", find_profile(controller, num_buttons, num_axes)
-            )
+        controller = data["controller"]
+        num_buttons, num_axes = data["size"]
+        path = join(user_profile_path, profile)
+        shutil.move(path, path + " (converted)")
+        convert_profile(
+            profile + " (converted)",
+            find_profile(controller, num_buttons, num_axes),
+        )
 
 
 def convert_profile(old_profile: str, new_profile: Profile) -> None:
-    """Try to save the old profile before updating."""
+    """Convert an old style profile"""
     path = join(user_profile_path, old_profile)
     if not exists(path):
         dbg(f"Profile '{old_profile}' not found")
@@ -431,6 +418,7 @@ def convert_profile(old_profile: str, new_profile: Profile) -> None:
     if profile_is_valid(old_profile):
         dbg(f"Profile '{old_profile}' is already valid")
         return
+    shutil.copyfile(path, join(user_files_path, old_profile))
     with open(path, "r", encoding="utf8") as file:
         profile = int_keys(json.load(file))
     bindings = profile["bindings"]
@@ -446,16 +434,6 @@ def convert_profile(old_profile: str, new_profile: Profile) -> None:
 
     profile_dict = new_profile.to_dict()
     profile_dict["bindings"] = bindings
-    profile_dict["name"] = (
-        profile["name"][:-1] if profile["name"][-1] == "_" else profile["name"]
-    )
-    profile["name"] += "(converted)"
+    profile_dict["name"] = old_profile
     Profile(profile_dict).save()
-    shutil.move(
-        join(user_profile_path, profile["name"] + "_"),
-        join(
-            user_files_path,
-            profile["name"][:-1] if profile["name"][-1] == "_" else profile["name"],
-        ),
-    )
     dbg(f"Profile '{old_profile}' converted")
