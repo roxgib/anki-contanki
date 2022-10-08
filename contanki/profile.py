@@ -347,7 +347,6 @@ def update_controllers(controller: Controller | str, profile: str):
 
 def profile_is_valid(profile: Profile | dict | str) -> bool:
     """Checks that a profile is valid."""
-    # try:
     if isinstance(profile, str):
         path = join(user_profile_path, profile)
         if not exists(path):
@@ -372,23 +371,22 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
             return False
     Controller(profile["controller"])
     return True
-    # except:
-    #     return False
 
 
 def convert_profiles() -> None:
+    """Convert profiles from old format to new format."""
     with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
         controllers = json.load(file)
     for controller, profile in controllers.items():
         if controller in controllers:
             if profile_is_valid(profile):
                 continue
-            c = Controller(controller)
+            con = Controller(controller)
             shutil.copyfile(
                 join(user_profile_path, profile), join(user_profile_path, profile + "_")
             )
             convert_profile(
-                profile + "_", find_profile(controller, c.num_buttons, c.num_axes)
+                profile + "_", find_profile(controller, con.num_buttons, con.num_axes)
             )
 
     user_profiles = os.listdir(user_profile_path)
