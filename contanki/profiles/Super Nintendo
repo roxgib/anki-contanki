@@ -36,7 +36,7 @@
         "Select with D-Pad": true,
         "Do Action on Release": false,
         "Do Action on Stick Press": false,
-        "Do Action on Stick Release": true
+        "Do Action on Stick Flick": true
     },
     "bindings": {
         "all": {

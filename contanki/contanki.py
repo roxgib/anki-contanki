@@ -89,7 +89,7 @@ class Contanki(AnkiWebView):
         self.quick_select = QuickSelectMenu(self, profile.quick_select)
         self.quick_select.update_icon(
             profile.controller,
-            "D-Pad" if not profile.controller.has_dpad else "Left Stick",
+            "D-Pad" if not profile.quick_select["Select with Stick"] else "Left Stick",
         )
 
     def on_config(self) -> None:

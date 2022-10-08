@@ -61,7 +61,7 @@ class QuickSelectMenu:
         "Select with D-Pad": True,
         "Do Action on Release": True,
         "Do Action on Stick Press": True,
-        "Do Action on Stick Release": False,
+        "Do Action on Stick Flick": False,
         "actions": {
             "review": [],
             "deckBrowser": [],
@@ -217,7 +217,7 @@ class QuickSelectMenu:
                 index = -1
         else:
             if (
-                self.settings["Do Action on Stick Release"]
+                self.settings["Do Action on Stick Flick"]
                 and not self.settings["Select with D-Pad"]
                 and self.current_action
                 and x ** 2 + y ** 2 < 0.1
