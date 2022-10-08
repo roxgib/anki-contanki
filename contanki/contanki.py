@@ -215,24 +215,29 @@ class Contanki(AnkiWebView):
     @if_connected
     def show_quick_select(self, state: State) -> None:
         """Shows the quick select menu"""
-        assert self.overlay is not None
         if not self.quick_select.is_shown:
             self.quick_select.appear(state)
-            if self.config["Enable Control Overlays"]:
-                self.overlay.appear(state)
+        if (
+            self.overlay is not None
+            and self.config["Enable Control Overlays"]
+            and self.config["Overlays in Quick Select"]
+        ):
+            self.overlay.appear(state)
 
     @if_connected
     def hide_quick_select(self) -> None:
         """Hides the quick select menu and the overlays if they are shown."""
         self.quick_select.disappear()
+        self.axes = [True] * self.len_axes
         if self.overlay is not None:
             self.overlay.disappear()
-            self.axes = [True] * self.len_axes
 
     @if_connected
     def toggle_quick_select(self, state: State) -> None:
         """Toggles the quick select menu and overlays."""
-        if self.quick_select.is_shown:
+        if self.quick_select.is_shown or (
+            self.overlay is not None and self.overlay.is_shown
+        ):
             self.hide_quick_select()
         else:
             self.show_quick_select(state)
