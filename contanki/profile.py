@@ -275,8 +275,9 @@ def create_profile(old_name: str, new_name: str) -> Profile:
     return copy_profile(old_name, new_name)
 
 
-def delete_profile(name: str) -> None:
+def delete_profile(profile: str | Profile) -> None:
     """Delete a profile from disk."""
+    name = profile.name if isinstance(profile, Profile) else profile
     path = join(default_profile_path, name)
     if exists(path):
         raise ValueError("Tried to delete built-in profile")
@@ -284,14 +285,26 @@ def delete_profile(name: str) -> None:
     os.remove(path)
 
 
-def copy_profile(name: str, new_name: str) -> Profile:
+def copy_profile(profile: str | Profile, new_name: str) -> Profile:
     """Copy a profile to a new name and save to disk."""
+    name = profile.name if isinstance(profile, Profile) else profile
+    new_profile = get_profile(name)
+    if new_profile is None:
+        raise FileNotFoundError(f"Tried to copy non-existent profile '{name}'")
+    new_profile.name = new_name
+    new_profile.save()
+    return new_profile
+
+
+def rename_profile(profile: str | Profile, new_name: str) -> None:
+    """Rename a profile saved to disk."""
+    name = profile.name if isinstance(profile, Profile) else profile
     profile = get_profile(name)
     if profile is None:
-        raise FileNotFoundError(f"Tried to copy non-existent profile '{name}'")
+        raise FileNotFoundError(f"Tried to rename non-existent profile '{name}'")
     profile.name = new_name
     profile.save()
-    return profile
+    delete_profile(name)
 
 
 def find_profile(controller: str, len_buttons: int, len_axes: int) -> Profile:
@@ -303,7 +316,7 @@ def find_profile(controller: str, len_buttons: int, len_axes: int) -> Profile:
             if (profile := get_profile(profile_name)) is not None:
                 return profile
             raise FileNotFoundError(
-                f"Couldn't find profile '{profile_name}'. Loading default profile instead."
+                f"Couldn't find profile '{profile_name}'. Loading default profile."
             )
     if profile_is_valid(controller):
         return get_profile(controller)

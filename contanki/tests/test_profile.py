@@ -10,6 +10,7 @@ from ..profile import (
     get_profile_list,
     copy_profile,
     find_profile,
+    rename_profile,
     delete_profile,
 )
 
@@ -61,7 +62,7 @@ def test_save():
 
 
 @test
-def test_delete():
+def test_delete_profile():
     profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
     profile.name = "test"
     profile.save()
@@ -71,12 +72,13 @@ def test_delete():
 
 
 @test
-def test_copy():
+def test_copy_profile():
     profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
     profile.name = "test"
     profile.save()
     copy_profile(profile, "test2")
     assert get_profile("test2") is not None
+
 
 @test
 def test_profile_controller():
@@ -84,3 +86,29 @@ def test_profile_controller():
     assert profile.controller == Controller("DualShock 4")
     profile.controller = "Xbox 360"
     assert profile.controller == Controller("Xbox 360")
+
+
+@test
+def test_remame_profile():
+    profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
+    profile.name = "test"
+    profile.save()
+    rename_profile("test", "test2")
+    profile.save()
+    assert get_profile("test") is None
+    profile = get_profile("test2")
+    assert profile is not None
+    assert profile.name == "test2"
+
+
+@test
+def test_find_profile():
+    profile = find_profile("DualShock 4", 18, 4)
+    assert profile.name == "DualShock 4"
+    profile.name = "test"
+    profile.save()
+    profile = find_profile("DualShock 4", 18, 4)
+    assert profile.name == "test"
+    delete_profile("test")
+    profile = find_profile("DualShock 4", 18, 4)
+    assert profile.name == "DualShock 4"

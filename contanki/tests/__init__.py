@@ -9,6 +9,6 @@ def test(test: Callable) -> Callable:
 
 def run_tests():
     """Run all registered tests."""
-    from . import test_buttons, test_icons
+    from . import test_controller, test_profile, test_utils, test_icons
     for test in tests:
         test()

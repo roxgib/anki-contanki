@@ -118,7 +118,8 @@ class Contanki(AnkiWebView):
         """Reinitialises the controller when an error occurs."""
         self.eval("on_controller_disconnect()")
 
-    @staticmethod
+
+    # pylint: disable=no-self-argument
     def if_connected(func: Callable) -> Callable:
         """Checks if the controller is connected before running a function."""
 
