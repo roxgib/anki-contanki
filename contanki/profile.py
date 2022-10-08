@@ -18,6 +18,7 @@ import shutil
 
 from .utils import (
     State,
+    dbg,
     get_file,
     int_keys,
     user_files_path,
@@ -74,7 +75,7 @@ class Profile:
         """Sets the name of the profile, sanitising it for saving first."""
         self._name = "".join(
             [char for char in name if char.isalnum() or char in " ()-_"]
-        )
+        ).strip()
 
     def get(self, state: State, button: int) -> str:
         """Returns the action for a button or axis."""
@@ -157,6 +158,7 @@ def identify_controller(
     len_axes: int | str,
 ) -> tuple[str, str] | None:
     """Identifies a controller based on the ID name and number of buttons and axes."""
+    dbg(id_)
     len_buttons, len_axes = int(len_buttons), int(len_axes)
     device_name = id_
     vendor_id_search = search(r"Vendor: (\w{4})", id_)
@@ -279,6 +281,7 @@ def delete_profile(profile: str | Profile) -> None:
     """Delete a profile from disk."""
     name = profile.name if isinstance(profile, Profile) else profile
     path = join(default_profile_path, name)
+    dbg(f"Deleting profile {name} from {path}")
     if exists(path):
         raise ValueError("Tried to delete built-in profile")
     path = join(user_profile_path, name)
@@ -288,6 +291,7 @@ def delete_profile(profile: str | Profile) -> None:
 def copy_profile(profile: str | Profile, new_name: str) -> Profile:
     """Copy a profile to a new name and save to disk."""
     name = profile.name if isinstance(profile, Profile) else profile
+    dbg(f"Copying profile {name} to {new_name}")
     new_profile = get_profile(name)
     if new_profile is None:
         raise FileNotFoundError(f"Tried to copy non-existent profile '{name}'")
@@ -299,6 +303,7 @@ def copy_profile(profile: str | Profile, new_name: str) -> Profile:
 def rename_profile(profile: str | Profile, new_name: str) -> None:
     """Rename a profile saved to disk."""
     name = profile.name if isinstance(profile, Profile) else profile
+    dbg(f"Renaming profile {name} to {new_name}")
     profile = get_profile(name)
     if profile is None:
         raise FileNotFoundError(f"Tried to rename non-existent profile '{name}'")
@@ -350,8 +355,10 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
     if isinstance(profile, str):
         path = join(user_profile_path, profile)
         if not exists(path):
+            dbg(f"Profile '{profile}' not found")
             return False
         if profile == "placeholder":
+            dbg(f"Profile '{profile}' is placeholder")
             return False
         with open(path, "r", encoding="utf8") as file:
             profile = json.load(file)
@@ -365,9 +372,15 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
         and "bindings" in profile
         and "axes_bindings" in profile
     ):
+        dbg(f"Profile '{profile['name']}' is missing required keys")
+        dbg(profile)
         return False
     for state, value in profile["bindings"].items():
-        if state not in State.__args__ or not isinstance(value, dict):
+        if state not in State.__args__:
+            dbg(f"Profile '{profile['name']}' has invalid state '{state}'")
+            return False
+        if not isinstance(value, dict):
+            dbg(f"Profile '{profile['name']}' has invalid value {value} for '{state}'")
             return False
     Controller(profile["controller"])
     return True
@@ -378,21 +391,25 @@ def convert_profiles() -> None:
     with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
         controllers = json.load(file)
     for controller, profile in controllers.items():
-        if controller in controllers:
-            if profile_is_valid(profile):
-                continue
-            con = Controller(controller)
-            shutil.copyfile(
-                join(user_profile_path, profile), join(user_profile_path, profile + "_")
-            )
-            convert_profile(
-                profile + "_", find_profile(controller, con.num_buttons, con.num_axes)
-            )
+        if profile_is_valid(profile):
+            continue
+        dbg(f"Converting profile '{profile}' for controller '{controller}'")
+        con = Controller(controller)
+        if get_profile(profile) is None:
+            dbg(f"Profile '{profile}' not found")
+            return
+        shutil.copyfile(
+            join(user_profile_path, profile), join(user_profile_path, profile + "_")
+        )
+        convert_profile(
+            profile + "_", find_profile(controller, con.num_buttons, con.num_axes)
+        )
 
     user_profiles = os.listdir(user_profile_path)
     for profile in user_profiles:
         if profile == "placeholder" or profile_is_valid(profile):
             continue
+        dbg(f"Converting profile '{profile}'")
         with open(join(user_profile_path, profile), "r", encoding="utf8") as file:
             data = json.load(file)
             controller = data["controller"]
@@ -408,7 +425,11 @@ def convert_profiles() -> None:
 def convert_profile(old_profile: str, new_profile: Profile) -> None:
     """Try to save the old profile before updating."""
     path = join(user_profile_path, old_profile)
-    if not exists(path) or profile_is_valid(old_profile):
+    if not exists(path):
+        dbg(f"Profile '{old_profile}' not found")
+        return
+    if profile_is_valid(old_profile):
+        dbg(f"Profile '{old_profile}' is already valid")
         return
     with open(path, "r", encoding="utf8") as file:
         profile = int_keys(json.load(file))
@@ -428,6 +449,7 @@ def convert_profile(old_profile: str, new_profile: Profile) -> None:
     profile_dict["name"] = (
         profile["name"][:-1] if profile["name"][-1] == "_" else profile["name"]
     )
+    profile["name"] += "(converted)"
     Profile(profile_dict).save()
     shutil.move(
         join(user_profile_path, profile["name"] + "_"),
@@ -436,3 +458,4 @@ def convert_profile(old_profile: str, new_profile: Profile) -> None:
             profile["name"][:-1] if profile["name"][-1] == "_" else profile["name"],
         ),
     )
+    dbg(f"Profile '{old_profile}' converted")

@@ -6,8 +6,11 @@ Provides utility functions.
 
 from __future__ import annotations
 
-from typing import Callable, Literal
+from typing import Literal
 from os.path import join, dirname, abspath, exists
+from os import environ
+
+DEBUG = environ.get("DEBUG")
 
 addon_path = dirname(abspath(__file__))
 user_files_path = join(addon_path, "user_files")
@@ -51,3 +54,9 @@ def int_keys(input_dict: dict) -> dict:
         else:
             output_dict[int(key)] = int_keys(value)
     return output_dict
+
+def dbg(value):
+    """Prints a value if in debugging mode. ."""
+    if DEBUG:
+        print(f"Contanki: {value}")
+    return value

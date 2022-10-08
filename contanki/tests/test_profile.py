@@ -1,6 +1,9 @@
 # pylint: disable=missing-docstring
 
+from os.path import join
+
 from ..controller import Controller
+from ..utils import user_files_path
 from . import test
 
 # pylint: disable=unused-import
@@ -13,7 +16,6 @@ from ..profile import (
     rename_profile,
     delete_profile,
 )
-
 
 @test
 def test_get_profile():
@@ -31,6 +33,14 @@ def test_get_profile():
         "Quit",
     ]
 
+@test
+def test_delete_profile():
+    profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
+    profile.name = "test"
+    profile.save()
+    profile = get_profile("test")
+    delete_profile(profile)
+    assert get_profile("test") is None
 
 @test
 def test_profile_bindings():
@@ -59,17 +69,7 @@ def test_save():
     profile.save()
     profile = get_profile("Test")
     assert profile.get("All", 0) == "Sync"
-
-
-@test
-def test_delete_profile():
-    profile = get_profile("Standard Gamepad (16 Buttons, 4 Axes)")
-    profile.name = "test"
-    profile.save()
-    profile = get_profile("test")
-    delete_profile(profile)
-    assert get_profile("test") is None
-
+    delete_profile("Test")
 
 @test
 def test_copy_profile():
@@ -78,6 +78,7 @@ def test_copy_profile():
     profile.save()
     copy_profile(profile, "test2")
     assert get_profile("test2") is not None
+    delete_profile("test2")
 
 
 @test
@@ -99,10 +100,13 @@ def test_remame_profile():
     profile = get_profile("test2")
     assert profile is not None
     assert profile.name == "test2"
+    delete_profile(profile)
 
 
 @test
 def test_find_profile():
+    with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
+        controllers = file.read()
     profile = find_profile("DualShock 4", 18, 4)
     assert profile.name == "DualShock 4"
     profile.name = "test"
@@ -112,3 +116,6 @@ def test_find_profile():
     delete_profile("test")
     profile = find_profile("DualShock 4", 18, 4)
     assert profile.name == "DualShock 4"
+    delete_profile("DualShock 4")
+    with open(join(user_files_path, "controllers"), "w", encoding="utf8") as file:
+        file.write(controllers)

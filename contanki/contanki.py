@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from os import environ
 from functools import partial
 from typing import Any, Callable
 
@@ -15,7 +14,7 @@ from .quick import QuickSelectMenu
 from .icons import IconHighlighter
 from .config import ContankiConfig
 from .funcs import get_config, get_state, move_mouse_build, scroll_build
-from .utils import State, get_file
+from .utils import State, get_file, DEBUG, dbg
 from .overlay import ControlsOverlay
 from .profile import (
     Profile,
@@ -33,7 +32,6 @@ mw = _mw
 
 move_mouse = move_mouse_build()
 scroll = scroll_build()
-DEBUG = environ.get("DEBUG")
 
 
 class Contanki(AnkiWebView):
@@ -86,7 +84,10 @@ class Contanki(AnkiWebView):
             return
         self.overlay = ControlsOverlay(mw, profile, self.config["Large Overlays"])
         self.quick_select = QuickSelectMenu(self, profile.quick_select)
-        self.quick_select.update_icon(profile.controller, "Left Stick")  # FIXME
+        self.quick_select.update_icon(
+            profile.controller,
+            "D-Pad" if not profile.controller.has_dpad else "Left Stick",
+        )
         self.config = get_config()
 
     def on_config(self) -> None:
@@ -118,7 +119,6 @@ class Contanki(AnkiWebView):
         """Reinitialises the controller when an error occurs."""
         self.eval("on_controller_disconnect()")
 
-
     # pylint: disable=no-self-argument
     def if_connected(func: Callable) -> Callable:
         """Checks if the controller is connected before running a function."""
@@ -126,6 +126,8 @@ class Contanki(AnkiWebView):
         def if_connected_wrapper(self, *args, **kwargs):
             if self.connected:
                 func(self, *args, **kwargs)
+            else:
+                dbg(f"Function '{func}' blocked, controller not connected")
 
         return if_connected_wrapper
 
@@ -369,7 +371,7 @@ class Contanki(AnkiWebView):
         tooltip(f"{num_controllers} controllers detected - select from the Tools menu.")
 
     @if_connected
-    def change_controller(self, index: int) -> None:
+    def change_controller(self, index: int, _) -> None:
         """Calls JavaScript to change the controller"""
         self._evalWithCallback(
             f"connect_controller(indices[{index}]);", None  # type: ignore
@@ -387,3 +389,4 @@ class Contanki(AnkiWebView):
             self.debug_info = [
                 con.split("%") for con in controllers.split("%%%") if con
             ]
+        dbg(self.debug_info)
