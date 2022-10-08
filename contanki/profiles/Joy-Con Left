@@ -31,7 +31,6 @@
                 "Card Info"
             ]
         },
-        "Enable Quick Select": true,
         "Select with Stick": true,
         "Select with D-Pad": true,
         "Do Action on Release": true,
