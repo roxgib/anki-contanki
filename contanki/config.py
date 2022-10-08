@@ -722,7 +722,7 @@ class ControlsPage(QTabWidget):
 
         def setup_group(self, state: State) -> QGroupBox | None:
             """Adds all the checkboxes to the groupbox."""
-            group = QGroupBox(state, self)
+            group = QGroupBox(states[state], self)
             actions = []
             for action in QUICK_SELECT_ACTIONS[state] + self.custom_actions:
                 checkbox = QCheckBox(action, self)
