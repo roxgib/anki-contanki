@@ -14,6 +14,7 @@ from aqt.qt import (
     QFont,
 )
 
+from .funcs import get_config, get_state
 from .utils import State
 from .profile import Profile
 from .icons import ButtonIcon
@@ -45,9 +46,11 @@ def get_left_right_centre(button: str) -> int:
 class ControlsOverlay:
     """Overlay that shows the current actions of the gamepad."""
 
-    def __init__(self, parent: QWidget, profile: Profile, is_large: bool = False):
+    def __init__(self, parent: QWidget, profile: Profile):
         self.parent = parent
         self.profile = profile
+        config = get_config()
+        self.always_shown = config["Overlays Always On"]
         self.is_shown = False
 
         left_layout = QVBoxLayout()
@@ -63,7 +66,9 @@ class ControlsOverlay:
             key=lambda inputs: BUTTON_ORDER.index(inputs[1]),
         ):
             on_left = not get_left_right_centre(button)
-            self.controls[index] = OverlayItem(index, self.profile, on_left, is_large)
+            self.controls[index] = OverlayItem(
+                index, self.profile, on_left, config["Large Overlays"]
+            )
             layout = left_layout if on_left else right_layout
             layout.addWidget(self.controls[index])
 
@@ -73,25 +78,36 @@ class ControlsOverlay:
         self.right = QWidget(parent)
         self.left.setLayout(left_layout)
         self.right.setLayout(right_layout)
+        if self.always_shown:
+            self.appear(get_state())
 
     def disappear(self) -> None:
         """Hide the overlay."""
-        self.left.hide()
-        self.right.hide()
-        self.is_shown = False
+        if not self.always_shown:
+            self.left.hide()
+            self.right.hide()
+            self.is_shown = False
 
     def appear(self, state: State) -> None:
         """Show the overlay."""
-        if not self.is_shown:
-            width = self.parent.width() // 2
-            height = self.parent.height() - 10
-            self.left.setGeometry(0, 20, width, height)
-            self.right.setGeometry(width, 20, width, height)
-            self.right.show()
-            self.left.show()
-            for control in self.controls.values():
-                control.appear(state)
-            self.is_shown = True
+        width = self.parent.width() // 2
+        height = self.parent.height() - 10
+        self.left.setGeometry(0, 20, width, height)
+        self.right.setGeometry(width, 20, width, height)
+        self.right.show()
+        self.left.show()
+        for control in self.controls.values():
+            control.appear(state)
+        self.is_shown = True
+
+    def close(self):
+        """
+        Closes the overlay. Needed because if self.always_shown is True,
+        the overlay will remain open even after being replaced by an
+        updated instance.
+        """
+        self.always_shown = False
+        self.disappear()
 
 
 class OverlayItem(QWidget):

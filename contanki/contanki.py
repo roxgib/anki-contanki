@@ -77,18 +77,20 @@ class Contanki(AnkiWebView):
     @profile.setter
     def profile(self, profile: Profile | str | None) -> None:
         """Sets the profile object"""
+        self.config = get_config()
         if isinstance(profile, str):
             profile = get_profile(profile)
-        self._profile = profile
         if profile is None:
             return
-        self.overlay = ControlsOverlay(mw, profile, self.config["Large Overlays"])
+        self._profile = profile
+        if self.overlay is not None:
+            self.overlay.close()
+        self.overlay = ControlsOverlay(mw, profile)
         self.quick_select = QuickSelectMenu(self, profile.quick_select)
         self.quick_select.update_icon(
             profile.controller,
             "D-Pad" if not profile.controller.has_dpad else "Left Stick",
         )
-        self.config = get_config()
 
     def on_config(self) -> None:
         """Opens the config dialog"""
@@ -171,6 +173,9 @@ class Contanki(AnkiWebView):
         if any(axes) and not self.quick_select.is_shown:
             self.do_axes_actions(state, axes)
 
+        if self.config["Overlays Always On"]:
+            self.overlay.appear(state)
+
     @if_connected
     def update_quick_select(
         self, state: State, buttons: list[bool], axes: list[float]
@@ -219,8 +224,8 @@ class Contanki(AnkiWebView):
     @if_connected
     def hide_quick_select(self) -> None:
         """Hides the quick select menu and the overlays if they are shown."""
+        self.quick_select.disappear()
         if self.overlay is not None:
-            self.quick_select.disappear()
             self.overlay.disappear()
             self.axes = [True] * self.len_axes
 

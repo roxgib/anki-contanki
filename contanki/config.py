@@ -126,6 +126,7 @@ class ContankiConfig(QDialog):
         for profile in self.to_delete:
             delete_profile(profile)
 
+        self.config.update(self.options_page.get())
         mw.addonManager.writeConfig(__name__, self.config)
         self.profile.save()
         update_controllers(self.profile.controller, self.profile.name)
@@ -274,10 +275,10 @@ class OptionsPage(QWidget):
         """Returns the currently selected options."""
         options = dict()
         for key, option in self.options.items():
-            if isinstance(self.config[key], int):
-                options[key] = option.value()
-            elif isinstance(self.config[key], bool):
+            if isinstance(self.config[key], bool):
                 options[key] = option.isChecked()
+            elif isinstance(self.config[key], int):
+                options[key] = option.value()
         options["Custom Actions"] = self.custom_actions.get()
         options["Flags"] = self.flags.get()
         return options
