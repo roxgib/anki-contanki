@@ -171,7 +171,7 @@ class ContankiConfig(QDialog):
     def reload(self):
         """Update the controls page."""
         if self.loaded:
-            self.controls_page.update()
+            self.controls_page.update_tabs()
             self.options_page.update()
 
     def update_controls_page(self):
@@ -390,7 +390,8 @@ class OptionsPage(QWidget):
 
             # Table
             self.table = QTableWidget(len(actions), 2, parent)
-            self.table.setColumnWidth(1, 70)
+            self.table.setColumnWidth(0, 150)
+            self.table.setColumnWidth(1, 100)
             self.table.setHorizontalHeaderLabels(["Custom Action", "Shortcut"])
             self.table.horizontalHeader().setSectionResizeMode(
                 0, QHeaderView.ResizeMode.Stretch
@@ -612,12 +613,12 @@ class ControlsPage(QTabWidget):
         self._parent = parent
         self.profile = parent.profile
         self._update_binding = parent.update_binding
-        self.custom_actions = parent.get_custom_actions()
+        self.get_custom_actions = parent.get_custom_actions
         self.setObjectName("controls_page")
         self.setTabPosition(QTabWidget.TabPosition.South)
         self.tabs: dict[str, self.ControlsTab] = dict()
         self.combos: dict[State, dict[int, QComboBox]] = dict()
-        self.update()
+        self.update_tabs()
 
     def update_inheritance(self):
         """Updates action selection dropdowns to reflect inherited values."""
@@ -649,8 +650,9 @@ class ControlsPage(QTabWidget):
                 inherited = action + " (inherited)"
             combo.setItemText(0, inherited)
 
-    def update(self):
+    def update_tabs(self):
         """Redraws each tab to reflect the chosen options."""
+        self.custom_actions = self.get_custom_actions()
         for _ in self.tabs:
             self.removeTab(0)
         self.tabs.clear()
