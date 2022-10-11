@@ -176,7 +176,7 @@ if is_mac:
 UI_ACTIONS = [
     "Enter",            "Select",           "Select Next",      "Select Previous",
     "Forward",          "Back",             "Click",            "Secondary Click",
-    "Scroll Down",      "Scroll Up",        "Hide Cursor",      "Show Quick Select",
+    "Scroll Up",      "Scroll Up",        "Hide Cursor",      "Show Quick Select",
     "Toggle Quick Select",
 ]
 
