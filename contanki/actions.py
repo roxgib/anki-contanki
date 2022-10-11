@@ -191,9 +191,9 @@ REVIEW_ACTIONS = [
 
 STATE_ACTIONS = {
     "all": ["", *COMMON_ACTIONS, *UI_ACTIONS],
-    "review":   ["", *REVIEW_ACTIONS, *COMMON_ACTIONS],
-    "question": ["", *REVIEW_ACTIONS, *COMMON_ACTIONS],
-    "answer":   ["", *REVIEW_ACTIONS, *COMMON_ACTIONS],
+    "review":   ["", *REVIEW_ACTIONS, *COMMON_ACTIONS, *UI_ACTIONS],
+    "question": ["", *REVIEW_ACTIONS, *COMMON_ACTIONS, *UI_ACTIONS],
+    "answer":   ["", *REVIEW_ACTIONS, *COMMON_ACTIONS, *UI_ACTIONS],
 
     "deckBrowser": [
         "",                     "Next Deck",            "Previous Deck",
