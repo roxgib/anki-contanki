@@ -176,7 +176,8 @@ class ContankiConfig(QDialog):
 
     def update_controls_page(self):
         """Update the controls page."""
-        self.controls_page.update()
+        if self.loaded:
+            self.controls_page.update_tabs()
 
 
 class Button(QPushButton):
@@ -520,14 +521,14 @@ class OptionsPage(QWidget):
             super().__init__("Axis Roles", parent)
             self.profile = parent.profile
             self.dropdowns: list[QComboBox] = list()
-            self.reload = parent.update_controls_page
+            self.update_controls_page = parent.update_controls_page
             self.setAlignment(Alignment.AlignTop)
             self.setup()
 
         def update_binding(self, axis: int, role: str) -> None:
             """Update the binding for the given axis."""
             self.profile.axes_bindings[axis] = role
-            self.reload()
+            self.update_controls_page()
 
         def setup(self) -> None:
             """Refresh for the current controller."""
