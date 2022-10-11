@@ -3,6 +3,7 @@ Contanki's configuration dialog and associated classes.
 """
 
 from __future__ import annotations
+from copy import copy
 
 from functools import partial
 from typing import Any, Callable, Iterable, Type
@@ -172,6 +173,10 @@ class ContankiConfig(QDialog):
         if self.loaded:
             self.controls_page.update()
             self.options_page.update()
+
+    def update_controls_page(self):
+        """Update the controls page."""
+        self.controls_page.update()
 
 
 class Button(QPushButton):
@@ -398,11 +403,11 @@ class OptionsPage(QWidget):
                 self.key_edits.append(key_edit)
                 self.table.setCellWidget(row, 1, key_edit)
             layout.addWidget(self.table, 0, 0, 1, 2)
+            qconnect(self.table.cellChanged, self.update_config)
 
             # Buttons
             add_button = Button(self, "Add", self.add_row)
             delete_button = Button(self, "Delete", self.remove_row)
-            qconnect(self.table.cellChanged, self.update_config)
             layout.addWidget(add_button, 1, 0)
             layout.addWidget(delete_button, 1, 1)
 
@@ -514,7 +519,7 @@ class OptionsPage(QWidget):
             super().__init__("Axis Roles", parent)
             self.profile = parent.profile
             self.dropdowns: list[QComboBox] = list()
-            self.reload = parent.reload
+            self.reload = parent.update_controls_page
             self.setAlignment(Alignment.AlignTop)
             self.setup()
 
@@ -551,10 +556,10 @@ class OptionsPage(QWidget):
                 )
                 layout.addRow(label, dropdown)
                 self.dropdowns.append(dropdown)
-            _temp = QWidget()
-            _temp.setLayout(self.layout())
             layout.setSizeConstraint(QFormLayout.SizeConstraint.SetFixedSize)
             self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+            _temp = QWidget()
+            _temp.setLayout(self.layout())
             self.setLayout(layout)
 
         def __getitem__(self, item: int) -> str:
