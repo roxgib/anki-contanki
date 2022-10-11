@@ -685,10 +685,10 @@ class ControlsPage(QTabWidget):
             for index, button in sorted(buttons.items()):
                 if index >= 100:
                     axis = (index - 100) // 2
-                    if axis > len(axes_bindings) or axes_bindings[axis] != "Buttons":
+                    if axis not in axes_bindings or axes_bindings[axis] != "Buttons":
                         continue
                 icon = ButtonIcon(None, button, parent.profile.controller, index)
-                icon.setFixedSize(50, 50)
+                icon.setFixedSize(60, 60)
                 layout.addWidget(icon, row, col)
                 col += 1
                 combo = QComboBox()
