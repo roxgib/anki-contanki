@@ -6,24 +6,9 @@
     ],
     "quick_select": {
         "actions": {
-            "deckBrowser": [
-                "Undo",
-                "Redo",
-                "Sync",
-                "Fullscreen",
-                "Quit"
-            ],
-            "overview": [
-                "Undo",
-                "Redo",
-                "Sync",
-                "Fullscreen",
-                "Quit"
-            ],
+            "deckBrowser": [],
+            "overview": [],
             "review": [
-                "Undo",
-                "Redo",
-                "Fullscreen",
                 "Suspend Card",
                 "Suspend Note",
                 "Bury Card",
