@@ -38,7 +38,8 @@ Shift = Qt.KeyboardModifier.ShiftModifier
 
 
 def get_config() -> dict:
-    standard_config = {
+    """Gets the config from ANki add-on config manager."""
+    config = {
         "Flags": [1, 2, 3, 4, 5, 6, 7],
         "Scroll Speed": 10,
         "Cursor Speed": 10,
@@ -48,20 +49,15 @@ def get_config() -> dict:
         "Large Overlays": False,
         "Overlays Always On": False,
         "Overlays in Quick Select": True,
-        "Custom Actions": {"AwesomeTTS": "Ctrl+T"},
+        "Custom Actions": {},
     }
 
-    imported_config = mw.addonManager.getConfig(__name__)
+    loaded_config = mw.addonManager.getConfig(__name__)
 
-    if imported_config is None:
-        raise RuntimeError("Contanki unable to load add-on config.")
-
-    config = {}
-    for config_item in standard_config:
-        if config_item in imported_config:
-            config[config_item] = imported_config[config_item]
-        else:
-            config[config_item] = standard_config[config_item]
+    if loaded_config is None:
+        tooltip("Contanki was unable to load config, using defaults.")
+    else:
+        config.update(loaded_config)
 
     mw.addonManager.writeConfig(__name__, config)
     return config

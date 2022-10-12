@@ -3,7 +3,6 @@ Contanki's configuration dialog and associated classes.
 """
 
 from __future__ import annotations
-from copy import copy
 
 from functools import partial
 from typing import Any, Callable, Iterable, Type
