@@ -20,7 +20,7 @@ from .profile import (
     Profile,
     get_profile,
     identify_controller,
-    find_profile, 
+    find_profile,
     convert_profiles,
 )
 from .actions import button_actions, release_actions
@@ -236,7 +236,9 @@ class Contanki(AnkiWebView):
     def toggle_quick_select(self, state: State) -> None:
         """Toggles the quick select menu and overlays."""
         if self.quick_select.is_shown or (
-            self.overlay is not None and self.overlay.is_shown
+            self.overlay is not None
+            and self.overlay.is_shown
+            and not self.config["Overlays Always On"]
         ):
             self.hide_quick_select()
         else:
