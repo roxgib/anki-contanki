@@ -86,6 +86,7 @@ class QuickSelectMenu:
     countdown = -1
     is_shown = False
     current_action = ""
+    dpad_pressed = False
     activation_distance = 0.75
 
     def __init__(self, contanki, settings: dict[str, Any]):
@@ -180,6 +181,7 @@ class QuickSelectMenu:
 
     def dpad_select(self, state, pad: tuple[bool, bool, bool, bool]) -> None:
         """Select an action based on D-pad input."""
+        self.dpad_pressed = True
         if state in ("question", "answer"):
             state = "review"
         if not self.is_shown or not self.is_active or state not in self.buttons:
@@ -218,7 +220,7 @@ class QuickSelectMenu:
         else:
             if (
                 self.settings["Do Action on Stick Flick"]
-                and not self.settings["Select with D-Pad"]
+                and not self.dpad_pressed
                 and self.current_action
                 and x ** 2 + y ** 2 < 0.1
             ):
@@ -226,6 +228,7 @@ class QuickSelectMenu:
                 return
             index = -1
             self.current_action = ""
+        self.dpad_pressed = False
         self._select(state, index)
 
     def _select(self, state: State, index: int) -> None:
