@@ -725,28 +725,30 @@ class ControlsPage(QTabWidget):
             self.profile = parent.profile
             self.custom_actions = parent.get_custom_actions()
             layout = QVBoxLayout(self)
+            self.combos = dict()
             for state in ("deckBrowser", "overview", "review"):
                 layout.addWidget(self.setup_group(state))
 
         def setup_group(self, state: State) -> QGroupBox | None:
             """Adds all the checkboxes to the groupbox."""
             group = QGroupBox(states[state], self)
-            actions = []
+            combos = []
             for action in QUICK_SELECT_ACTIONS[state] + self.custom_actions:
                 checkbox = QCheckBox(action, self)
                 checkbox.setChecked(
                     action in self.profile.quick_select["actions"][state]
                 )
                 qconnect(checkbox.stateChanged, partial(self.on_change, action, state))
-                actions.append(checkbox)
+                combos.append(checkbox)
+            self.combos[state] = combos
 
-            if actions:
+            if combos:
                 self.show()
             else:
                 self.hide()
 
             layout = QGridLayout(self)
-            for i, action_check in enumerate(actions):
+            for i, action_check in enumerate(combos):
                 layout.addWidget(
                     action_check, i // self.column_count, i % self.column_count
                 )
@@ -754,9 +756,11 @@ class ControlsPage(QTabWidget):
             return group
 
         def on_change(self, action: str, state: State, checked: bool) -> None:
-            """Returns whether the checkbox is checked."""
+            """Updates the profile with actions to include in the quick select menu."""
             actions = self.profile.quick_select["actions"][state]
             if checked and action not in actions:
                 actions.append(action)
             elif not checked and action in actions:
                 actions.remove(action)
+            for combo in self.combos[state]:
+                combo.setEnabled(len(actions) < 8 or combo.text() in actions)
