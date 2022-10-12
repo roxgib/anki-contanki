@@ -273,8 +273,8 @@
             "7": "Right Trigger",
             "8": "Square",
             "9": "Home",
-            "10": "Left Stick",
-            "11": "Right Stick",
+            "10": "Left Stick Click",
+            "11": "Right Stick Click",
             "12": "D-Pad Up",
             "13": "D-Pad Down",
             "14": "D-Pad Left",
@@ -317,7 +317,7 @@
             "7": "Right Trigger",
             "8": "Back",
             "9": "Start",
-            "10": "Stick",
+            "10": "Stick Click",
             "11": "Right Track",
             "12": "Left Track Up",
             "13": "Left Track Down",
@@ -357,7 +357,7 @@
             "4": "Left Shoulder",
             "5": "Right Shoulder",
             "9": "Plus",
-            "11": "Stick",
+            "11": "Stick Click",
             "12": "Home"
         },
         "axis_buttons": {
@@ -386,7 +386,7 @@
             "4": "Left Shoulder",
             "5": "Right Shoulder",
             "9": "Minus",
-            "11": "Stick",
+            "11": "Stick Click",
             "12": "Capture"
         },
         "axis_buttons": {
@@ -413,7 +413,7 @@
             "2": "Up",
             "3": "Right",
             "9": "Minus",
-            "11": "Left Stick",
+            "11": "Left Stick Click",
             "12": "Capture",
             "14": "Left Shoulder",
             "15": "Left Trigger",
@@ -422,7 +422,7 @@
             "18": "B",
             "19": "Y",
             "24": "Plus",
-            "26": "Right Stick",
+            "26": "Right Stick Click",
             "28": "Home",
             "30": "Right Shoulder",
             "31": "Right Trigger"
