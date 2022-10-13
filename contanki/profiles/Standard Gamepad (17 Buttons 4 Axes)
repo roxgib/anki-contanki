@@ -1,7 +1,7 @@
 {
-    "name": "DualShock 4",
+    "name": "Standard Gamepad (17 Buttons 4 Axes)",
     "size": [
-        18,
+        17,
         4
     ],
     "quick_select": {

@@ -38,6 +38,9 @@ class Controller:
     def __getitem__(self, index: int) -> str:
         return self.buttons[index]
 
+    def __eq__(self, __o: Controller) -> bool:
+        return isinstance(__o, Controller) and self.name == __o.name
+
     def axis(self, index: int) -> str:
         """Get the name of an axis."""
         return self.axes[index]
@@ -90,6 +93,8 @@ BUTTON_ORDER = [
     "Right Shoulder",
     "Left Trigger",
     "Right Trigger",
+    "L1",
+    "R1",
     "L2",
     "R2",
     "Triangle",
@@ -137,6 +142,7 @@ BUTTON_ORDER = [
     "Right Stick Click",
     "Click Left Stick",
     "Click Right Stick",
+    "Stick Click",
     "Stick Up",
     "Stick Down",
     "Stick Left",

@@ -1,5 +1,5 @@
 {
-    "name": "DualShock 4",
+    "name": "Standard Gamepad (18 Buttons 4 Axes)",
     "size": [
         18,
         4
@@ -29,7 +29,7 @@
             "2": "",
             "3": "",
             "4": "Undo",
-            "5": "Sync",
+            "5": "",
             "6": "",
             "7": "Toggle Quick Select",
             "8": "",
@@ -41,6 +41,7 @@
             "14": "",
             "15": "",
             "16": "",
+            "17": "Sync",
             "100": "Back",
             "101": "Forward"
         },
@@ -59,7 +60,8 @@
             "13": "Replay Audio",
             "14": "Flag",
             "15": "Mark Note",
-            "16": ""
+            "16": "",
+            "17": ""
         },
         "question": {
             "0": "Flip Card",

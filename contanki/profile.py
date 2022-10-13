@@ -306,11 +306,12 @@ def copy_profile(profile: str | Profile, new_name: str) -> Profile:
 
 def rename_profile(profile: str | Profile, new_name: str) -> None:
     """Rename a profile saved to disk."""
-    name = profile.name if isinstance(profile, Profile) else profile
-    dbg(f"Renaming profile {name} to {new_name}")
-    profile = get_profile(name)
-    if profile is None:
-        raise FileNotFoundError(f"Tried to rename non-existent profile '{name}'")
+    if isinstance(profile, str):
+        name = profile
+        profile = get_profile(profile)
+        if profile is None:
+            raise FileNotFoundError(f"Tried to rename non-existent profile '{name}'")
+    name = profile.name
     profile.name = new_name
     profile.save()
     delete_profile(name)
@@ -322,20 +323,21 @@ def find_profile(controller: str, len_buttons: int, len_axes: int) -> Profile:
         controllers = json.load(file)
     if controller in controllers:
         if profile_is_valid(profile_name := controllers[controller]):
-            if (profile := get_profile(profile_name)) is not None:
-                return profile
+            return get_profile(profile_name)
+        else:
+            update_controllers(controller, "")
             raise FileNotFoundError(
                 f"Couldn't find profile '{profile_name}'. Loading default profile."
             )
-    if profile_is_valid(controller):
+    elif profile_is_valid(controller):
         return get_profile(controller)
     default_profiles = os.listdir(default_profile_path)
     if controller in default_profiles:
         profile_to_copy = controller
     if f"Standard Gamepad ({len_buttons} Buttons, {len_axes} Axes)" in default_profiles:
-        profile_to_copy = f"Standard Gamepad ({len_buttons} Buttons, {len_axes} Axes)"
+        profile_to_copy = f"Standard Gamepad ({len_buttons} Buttons {len_axes} Axes)"
     else:
-        profile_to_copy = "Standard Gamepad (16 Buttons, 4 Axes)"
+        profile_to_copy = "Standard Gamepad (16 Buttons 4 Axes)"
 
     profile = copy_profile(profile_to_copy, controller)
     update_controllers(controller, profile.name)
@@ -349,7 +351,10 @@ def update_controllers(controller: Controller | str, profile: str):
     """Update the controllers file with the profile."""
     with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
         controllers = json.load(file)
-    controllers[str(controller)] = profile
+    if profile:
+        controllers[str(controller)] = profile
+    else:
+        del controllers[str(controller)]
     with open(join(user_files_path, "controllers"), "w", encoding="utf8") as file:
         json.dump(controllers, file)
 
