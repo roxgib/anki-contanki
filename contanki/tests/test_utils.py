@@ -11,7 +11,8 @@ def test_get_file():
         get_file("controller.js").split("\n")[0]
         == "let polling, index, indices, ready;"
     )
-    assert get_file("Joy-Con Left").split("\n")[1] == '"name": "Joy-Con Left",'
+    print(get_file("Joy-Con Left").split("\n")[1])
+    assert get_file("Joy-Con Left").split("\n")[1] == '    "name": "Joy-Con Left",'
 
 
 def test_int_keys():

@@ -13,6 +13,7 @@ from ..profile import (
     get_profile_list,
     copy_profile,
     find_profile,
+    profile_is_valid,
     rename_profile,
     delete_profile,
     update_controllers,
@@ -126,3 +127,12 @@ def test_find_profile():
     delete_profile("DualShock 4")
     with open(join(user_files_path, "controllers"), "w", encoding="utf8") as file:
         file.write(controllers)
+
+@test
+def test_profile_is_valid():
+    profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
+    profile.name = "test"
+    profile.save()
+    assert profile_is_valid("test")
+    assert not profile_is_valid("test2")
+    delete_profile("test")
