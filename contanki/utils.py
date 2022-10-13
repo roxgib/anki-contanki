@@ -13,6 +13,7 @@ from os import environ
 DEBUG = environ.get("DEBUG")
 
 addon_path = dirname(abspath(__file__))
+tests_path = join(addon_path, "tests")
 user_files_path = join(addon_path, "user_files")
 user_profile_path = join(user_files_path, "profiles")
 default_profile_path = join(addon_path, "profiles")
@@ -58,5 +59,5 @@ def int_keys(input_dict: dict) -> dict:
 def dbg(value):
     """Prints a value if in debugging mode. ."""
     if DEBUG:
-        print(f"Contanki: {value}")
+        print(f"Contanki: {str(value)}")
     return value

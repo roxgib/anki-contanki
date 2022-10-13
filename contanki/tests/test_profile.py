@@ -1,14 +1,16 @@
 # pylint: disable=missing-docstring
 
 from os.path import join
+import shutil
 
 from ..controller import Controller
-from ..utils import user_files_path
+from ..utils import user_files_path, user_profile_path, tests_path
 from . import test
 
 # pylint: disable=unused-import
 from ..profile import (
     Profile,
+    convert_profiles,
     get_profile,
     get_profile_list,
     copy_profile,
@@ -18,6 +20,7 @@ from ..profile import (
     delete_profile,
     update_controllers,
 )
+
 
 @test
 def test_get_profile():
@@ -32,8 +35,9 @@ def test_get_profile():
         "Suspend Note",
         "Bury Card",
         "Bury Note",
-        "Card Info"
+        "Card Info",
     ]
+
 
 @test
 def test_delete_profile():
@@ -46,6 +50,7 @@ def test_delete_profile():
     profile.save()
     delete_profile(profile)
     assert get_profile("test") is None
+
 
 @test
 def test_profile_bindings():
@@ -73,6 +78,7 @@ def test_save():
     profile = get_profile("Test")
     assert profile.get("All", 0) == "Sync"
     delete_profile("Test")
+
 
 @test
 def test_copy_profile():
@@ -110,23 +116,26 @@ def test_rename_profile():
 def test_find_profile():
     with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
         controllers = file.read()
+    print(find_profile("DualShock 4", 18, 4))
     profile = find_profile("DualShock 4", 18, 4)
-    assert profile.name == "DualShock 4"
+    assert profile == "DualShock 4"
+    profile = get_profile(profile)
     profile.name = "test"
     profile.save()
     update_controllers("DualShock 4", "test")
     profile = find_profile("DualShock 4", 18, 4)
-    assert profile.name == "test"
+    assert profile == "test"
     delete_profile("test")
     try:
         profile = find_profile("DualShock 4", 18, 4)
-        assert False # Should raise Exception
+        assert False  # Should raise Exception
     except FileNotFoundError:
-        profile = find_profile("DualShock 4", 18, 4) # Works the second time
-    assert profile.name == "DualShock 4"
+        profile = find_profile("DualShock 4", 18, 4)  # Works the second time
+    assert profile == "DualShock 4"
     delete_profile("DualShock 4")
     with open(join(user_files_path, "controllers"), "w", encoding="utf8") as file:
         file.write(controllers)
+
 
 @test
 def test_profile_is_valid():
@@ -136,3 +145,15 @@ def test_profile_is_valid():
     assert profile_is_valid("test")
     assert not profile_is_valid("test2")
     delete_profile("test")
+
+
+@test
+def test_convert_profile():
+    shutil.copyfile(
+        join(tests_path, "test_profile"),
+        join(user_profile_path, "test_profile"),
+    )
+    convert_profiles()
+    assert profile_is_valid("test_profile (converted)")
+    assert not profile_is_valid("test_profile")
+    delete_profile("test_profile (converted)")

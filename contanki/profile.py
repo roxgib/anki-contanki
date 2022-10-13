@@ -62,7 +62,11 @@ class Profile:
     def controller(self, controller: Controller | str):
         """Sets the controller."""
         if isinstance(controller, str):
-            controller = Controller(controller)
+            if controller in CONTROLLERS:
+                controller = Controller(controller)
+            else:
+                dbg(f"Controller {controller} not found.")
+                return
         self._controller = controller
 
     @property
@@ -92,7 +96,7 @@ class Profile:
 
     def get_inherited_bindings(self) -> dict[str, dict[int, str]]:
         """Returns a dictionary of bindings with inherited actions added."""
-        states = ["deckBrowser", "overview", "question", "answer", "dialog", "config"]
+        states: list[State] = ["deckBrowser", "overview", "question", "answer", "dialog", "config"]
         inherited_bindings: dict[str, dict[int, str]]
         inherited_bindings = defaultdict(dict)
         for state in states:
@@ -308,43 +312,45 @@ def rename_profile(profile: str | Profile, new_name: str) -> None:
     """Rename a profile saved to disk."""
     if isinstance(profile, str):
         name = profile
-        profile = get_profile(profile)
-        if profile is None:
+        _profile = get_profile(profile)
+        if _profile is None:
             raise FileNotFoundError(f"Tried to rename non-existent profile '{name}'")
+        else:
+            profile = _profile  # Keep mypy happy
     name = profile.name
     profile.name = new_name
     profile.save()
     delete_profile(name)
 
 
-def find_profile(controller: str, len_buttons: int, len_axes: int) -> Profile:
+def find_profile(controller: str, buttons: int, axes: int) -> str:
     """Find a profile that matches the controller."""
     with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
         controllers = json.load(file)
     if controller in controllers:
         if profile_is_valid(profile_name := controllers[controller]):
-            return get_profile(profile_name)
+            return profile_name
         else:
             update_controllers(controller, "")
             raise FileNotFoundError(
                 f"Couldn't find profile '{profile_name}'. Loading default profile."
             )
     elif profile_is_valid(controller):
-        return get_profile(controller)
+        return controller  # We don't want to overwrite an existing profile
+
     default_profiles = os.listdir(default_profile_path)
     if controller in default_profiles:
         profile_to_copy = controller
-    if f"Standard Gamepad ({len_buttons} Buttons, {len_axes} Axes)" in default_profiles:
-        profile_to_copy = f"Standard Gamepad ({len_buttons} Buttons {len_axes} Axes)"
+    elif f"Standard Gamepad ({buttons} Buttons {axes} Axes)" in default_profiles:
+        profile_to_copy = f"Standard Gamepad ({buttons} Buttons {axes} Axes)"
     else:
         profile_to_copy = "Standard Gamepad (16 Buttons 4 Axes)"
-
     profile = copy_profile(profile_to_copy, controller)
     update_controllers(controller, profile.name)
     if controller in CONTROLLERS:
-        profile.controller = Controller(controller)
+        profile.controller = controller
         profile.save()
-    return profile
+    return profile.name
 
 
 def update_controllers(controller: Controller | str, profile: str):
@@ -372,18 +378,25 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
         with open(path, "r", encoding="utf8") as file:
             profile = json.load(file)
     elif isinstance(profile, Profile):
-        profile = profile.to_dict()
-    if not (
-        "name" in profile
-        and "size" in profile
-        and "controller" in profile
-        and "quick_select" in profile
-        and "bindings" in profile
-        and "axes_bindings" in profile
-    ):
-        dbg(f"Profile '{profile['name']}' is missing required keys")
-        dbg(profile)
-        return False
+        try:
+            profile = profile.to_dict()
+        except (AttributeError, TypeError, ValueError):
+            return False
+
+    assert isinstance(profile, dict)
+    profile = int_keys(profile)
+
+    for key in [
+        "name",
+        "size",
+        "controller",
+        "quick_select",
+        "bindings",
+        "axes_bindings",
+    ]:
+        if key not in profile:
+            dbg(f"Profile '{profile['name']}' is missing required key {key}")
+            return False
     for state, value in profile["bindings"].items():
         if state not in State.__args__:
             dbg(f"Profile '{profile['name']}' has invalid state '{state}'")
@@ -391,7 +404,11 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
         if not isinstance(value, dict):
             dbg(f"Profile '{profile['name']}' has invalid value {value} for '{state}'")
             return False
-    Controller(profile["controller"])
+    try:
+        Controller(profile["controller"])
+    except ValueError as err:
+        dbg(err)
+        return False
     return True
 
 
@@ -402,21 +419,16 @@ def convert_profiles() -> None:
         if profile == "placeholder" or profile_is_valid(profile):
             continue
         dbg(f"Converting profile '{profile}'")
-        with open(join(user_profile_path, profile), "r", encoding="utf8") as file:
-            data = json.load(file)
-        controller = data["controller"]
-        num_buttons, num_axes = data["size"]
-        path = join(user_profile_path, profile)
-        shutil.move(path, path + " (converted)")
-        convert_profile(
-            profile + " (converted)",
-            find_profile(controller, num_buttons, num_axes),
-        )
+        # try:
+        convert_profile(profile)
+        # except Exception as err:  # pylint: disable=broad-except
+        #     dbg("Failed to convert profile" + str(err))
+        #     continue
 
-
-def convert_profile(old_profile: str, new_profile: Profile) -> None:
+def convert_profile(old_profile: str) -> None:
     """Convert an old style profile"""
     path = join(user_profile_path, old_profile)
+    old_profile += " (converted)"
     if not exists(path):
         dbg(f"Profile '{old_profile}' not found")
         return
@@ -424,7 +436,8 @@ def convert_profile(old_profile: str, new_profile: Profile) -> None:
         dbg(f"Profile '{old_profile}' is already valid")
         return
     shutil.copyfile(path, join(user_files_path, old_profile))
-    with open(path, "r", encoding="utf8") as file:
+    shutil.move(path, path + " (converted)")
+    with open(path + " (converted)", "r", encoding="utf8") as file:
         profile = int_keys(json.load(file))
     bindings = profile["bindings"]
     bindings = {state: _bindings[0] for state, _bindings in bindings.items()}
@@ -434,11 +447,13 @@ def convert_profile(old_profile: str, new_profile: Profile) -> None:
             if action == "mod":
                 i = index
                 bindings[state][index] = ""
-    if i:
+    if i is not None:
         bindings["all"][i] = "Toggle Quick Select"
 
-    profile_dict = new_profile.to_dict()
+    new_profile = find_profile(profile["controller"], *profile["size"])
+    profile_dict = get_profile(new_profile).to_dict()
     profile_dict["bindings"] = bindings
     profile_dict["name"] = old_profile
     Profile(profile_dict).save()
+    assert profile_is_valid(old_profile)
     dbg(f"Profile '{old_profile}' converted")

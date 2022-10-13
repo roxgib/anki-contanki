@@ -16,6 +16,8 @@ class Controller:
     """Represents a controller, gamepad, or other input device."""
 
     def __init__(self, controller: str) -> None:
+        if controller not in controller_data:
+            raise ValueError(f"Invalid controller: {controller}")
         data = controller_data[controller]
         self.name: str = data["name"]
         self.buttons: dict[int, str] = defaultdict(str, data["buttons"])
@@ -38,7 +40,7 @@ class Controller:
     def __getitem__(self, index: int) -> str:
         return self.buttons[index]
 
-    def __eq__(self, __o: Controller) -> bool:
+    def __eq__(self, __o: object) -> bool:
         return isinstance(__o, Controller) and self.name == __o.name
 
     def axis(self, index: int) -> str:
@@ -53,6 +55,7 @@ class Controller:
         """Get the name of a button"""
         return self.buttons[index]
 
+    # FIXME: Needs to handle axis dpads
     def get_dpad_buttons(self) -> tuple[int, int, int, int] | None:
         """Get the indicies of the D-pad buttons."""
         if not self.has_dpad:
@@ -70,6 +73,8 @@ class Controller:
                 indicies[buttons.index("D-Pad Left")],
                 indicies[buttons.index("D-Pad Right")],
             )
+        else:
+            return None
 
     def get_stick_button(self) -> int | None:
         """Get the index of the stick button."""
@@ -77,6 +82,7 @@ class Controller:
         for button_name in ("Stick Click", "Left Stick Click", "Right Stick Click"):
             if button_name in buttons:
                 return indicies[buttons.index(button_name)]
+        return None
 
 
 def get_controller_list() -> list[str]:
