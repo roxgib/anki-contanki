@@ -65,6 +65,7 @@ class Contanki(AnkiWebView):
             self.setFixedSize(10, 10)
             print("Running tests")
             from .tests import run_tests  # pylint: disable=import-outside-toplevel
+
             run_tests()
             print("All tests passed")
         else:
@@ -98,7 +99,9 @@ class Contanki(AnkiWebView):
         if focus := current_window():
             ContankiConfig(focus, self.profile)
 
-    def on_receive_message(self, handled: tuple[bool, Any], message: str, _) -> tuple[bool, Any]:
+    def on_receive_message(
+        self, handled: tuple[bool, Any], message: str, _
+    ) -> tuple[bool, Any]:
         """Called when a message is received from the JavaScript interface"""
         funcs: dict[str, Callable] = {
             "on_connect": self.on_connect,
@@ -122,7 +125,7 @@ class Contanki(AnkiWebView):
         """Reinitialises the controller when an error occurs."""
         self.eval("on_controller_disconnect()")
 
-    def if_connected(func: Callable) -> Callable: # pylint: disable=no-self-argument
+    def if_connected(func: Callable) -> Callable:  # pylint: disable=no-self-argument
         """Checks if the controller is connected before running a function."""
 
         def if_connected_wrapper(self, *args, **kwargs):
@@ -186,20 +189,17 @@ class Contanki(AnkiWebView):
         assert self.overlay is not None
         if not self.quick_select.is_shown:
             return
+
         if (
             self.quick_select.settings["Select with D-Pad"]
             and self.profile.controller.dpad_buttons is not None
+            and any(buttons[index] for index in self.profile.controller.dpad_buttons)
         ):
             up, down, left, right = self.profile.controller.dpad_buttons
             dpad_status = buttons[up], buttons[down], buttons[left], buttons[right]
-        else:
-            dpad_status = False, False, False, False
-        if any(dpad_status):
             self.quick_select.dpad_select(state, dpad_status)
-            buttons[up] = False
-            buttons[down] = False
-            buttons[left] = False
-            buttons[right] = False
+            for index in self.profile.controller.dpad_buttons:
+                self.buttons[index] = buttons[index]
         elif self.profile.controller.has_stick:
             self.quick_select.stick_select(state, axes[0], axes[1])
 
@@ -209,10 +209,10 @@ class Contanki(AnkiWebView):
             and buttons[stick_button]
         ):
             self.quick_select.disappear(True)
-            buttons[stick_button] = False
+            self.buttons[stick_button] = buttons[stick_button]
         elif buttons[0]:
             self.quick_select.disappear(True)
-            buttons[0] = False
+            self.buttons[0] = buttons[0]
 
     @if_connected
     def show_quick_select(self, state: State) -> None:
@@ -334,7 +334,7 @@ class Contanki(AnkiWebView):
             profile = find_profile(controller_id, self.len_buttons, self.len_axes)
             tooltip("Unknown Controller Connected: " + controller_id)
         self.profile = get_profile(profile)
-        
+
         self.buttons = [False] * self.len_buttons
         self.axes = [False] * self.len_axes
 

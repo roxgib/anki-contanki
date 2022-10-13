@@ -181,6 +181,8 @@ class QuickSelectMenu:
 
     def dpad_select(self, state, pad: tuple[bool, bool, bool, bool]) -> None:
         """Select an action based on D-pad input."""
+        if not self.settings["Select with D-Pad"]:
+            return
         self.dpad_pressed = True
         if state in ("question", "answer"):
             state = "review"
@@ -201,6 +203,8 @@ class QuickSelectMenu:
 
     def stick_select(self, state: State, x: float, y: float) -> None:
         """Select an action based on stick input."""
+        if not self.settings["Select with Stick"]:
+            return
         if state in ("question", "answer"):
             state = "review"
         if not self.is_shown or not self.is_active or state not in self.buttons:
