@@ -68,12 +68,12 @@ class QuickSelectMenu:
             "overview": [],
         },
     }
-    buttons = {
+    buttons: dict[str, list[QuickSelectButton]] = {
         "review": [],
         "deckBrowser": [],
         "overview}": [],
     }
-    positions = {
+    positions: dict[str, list[tuple[float, float]]] = {
         "review": [],
         "deckBrowser": [],
         "overview}": [],
@@ -94,7 +94,7 @@ class QuickSelectMenu:
         self.contanki = contanki
         self.settings.update(settings)
 
-        self.actions = self.settings["actions"]
+        self.actions: dict[str, list[str]] = self.settings["actions"]
         for state in ("review", "deckBrowser", "overview"):
             self.actions[state] = self.actions[state][:8]  # Maximum of 8 actions
             self.buttons[state] = [

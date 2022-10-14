@@ -126,11 +126,7 @@ def test_find_profile():
     profile = find_profile("DualShock 4", 18, 4)
     assert profile == "test"
     delete_profile("test")
-    try:
-        profile = find_profile("DualShock 4", 18, 4)
-        assert False  # Should raise Exception
-    except FileNotFoundError:
-        profile = find_profile("DualShock 4", 18, 4)  # Works the second time
+    profile = find_profile("DualShock 4", 18, 4)
     assert profile == "DualShock 4"
     delete_profile("DualShock 4")
     with open(join(user_files_path, "controllers"), "w", encoding="utf8") as file:

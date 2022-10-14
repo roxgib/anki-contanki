@@ -38,8 +38,6 @@ class Profile:
         if isinstance(list(bindings.values())[0], dict):
             self.bindings: dict[tuple[State, int], str] = defaultdict(str)
             for state, state_dict in int_keys(bindings).items():
-                assert isinstance(state_dict, dict)
-                assert isinstance(state, str)
                 for button, action in state_dict.items():
                     if action:
                         self.bindings[(state, button)] = action
@@ -96,7 +94,14 @@ class Profile:
 
     def get_inherited_bindings(self) -> dict[str, dict[int, str]]:
         """Returns a dictionary of bindings with inherited actions added."""
-        states: list[State] = ["deckBrowser", "overview", "question", "answer", "dialog", "config"]
+        states: list[State] = [
+            "deckBrowser",
+            "overview",
+            "question",
+            "answer",
+            "dialog",
+            "config",
+        ]
         inherited_bindings: dict[str, dict[int, str]]
         inherited_bindings = defaultdict(dict)
         for state in states:
@@ -330,14 +335,10 @@ def find_profile(controller: str, buttons: int, axes: int) -> str:
     if controller in controllers:
         if profile_is_valid(profile_name := controllers[controller]):
             return profile_name
-        else:
-            update_controllers(controller, "")
-            raise FileNotFoundError(
-                f"Couldn't find profile '{profile_name}'. Loading default profile."
-            )
-    elif profile_is_valid(controller):
+        update_controllers(controller, "")
+        dbg(f"Profile '{profile_name}' for {controller} invalid or not found.")
+    if profile_is_valid(controller):
         return controller  # We don't want to overwrite an existing profile
-
     default_profiles = os.listdir(default_profile_path)
     if controller in default_profiles:
         profile_to_copy = controller
@@ -348,7 +349,7 @@ def find_profile(controller: str, buttons: int, axes: int) -> str:
     profile = copy_profile(profile_to_copy, controller)
     update_controllers(controller, profile.name)
     if controller in CONTROLLERS:
-        profile.controller = controller
+        profile.controller = Controller(controller)
         profile.save()
     return profile.name
 
@@ -419,11 +420,12 @@ def convert_profiles() -> None:
         if profile == "placeholder" or profile_is_valid(profile):
             continue
         dbg(f"Converting profile '{profile}'")
-        # try:
-        convert_profile(profile)
-        # except Exception as err:  # pylint: disable=broad-except
-        #     dbg("Failed to convert profile" + str(err))
-        #     continue
+        try:
+            convert_profile(profile)
+        except Exception as err:  # pylint: disable=broad-except
+            dbg("Failed to convert profile" + str(err))
+            continue
+
 
 def convert_profile(old_profile: str) -> None:
     """Convert an old style profile"""

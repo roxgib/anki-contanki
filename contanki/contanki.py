@@ -63,11 +63,8 @@ class Contanki(AnkiWebView):
 
         if DEBUG:
             self.setFixedSize(10, 10)
-            print("Running tests")
             from .tests import run_tests  # pylint: disable=import-outside-toplevel
-
             run_tests()
-            print("All tests passed")
         else:
             self.setFixedSize(0, 0)
 
