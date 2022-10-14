@@ -727,11 +727,12 @@ class ControlsPage(QTabWidget):
             self.profile = parent.profile
             self.custom_actions = parent.get_custom_actions()
             layout = QVBoxLayout(self)
-            self.combos = dict()
-            for state in ("deckBrowser", "overview", "review"):
+            self.checkboxes: dict[State, list[QCheckBox]] = dict()
+            states: list[State] = ["deckBrowser", "overview", "review"]
+            for state in states:
                 layout.addWidget(self.setup_group(state))
 
-        def setup_group(self, state: State) -> QGroupBox | None:
+        def setup_group(self, state: State) -> QGroupBox:
             """Adds all the checkboxes to the groupbox."""
             group = QGroupBox(states[state], self)
             combos = []
@@ -742,7 +743,7 @@ class ControlsPage(QTabWidget):
                 )
                 qconnect(checkbox.stateChanged, partial(self.on_change, action, state))
                 combos.append(checkbox)
-            self.combos[state] = combos
+            self.checkboxes[state] = combos
 
             if combos:
                 self.show()
@@ -764,5 +765,5 @@ class ControlsPage(QTabWidget):
                 actions.append(action)
             elif not checked and action in actions:
                 actions.remove(action)
-            for combo in self.combos[state]:
+            for combo in self.checkboxes[state]:
                 combo.setEnabled(len(actions) < 8 or combo.text() in actions)
