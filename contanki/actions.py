@@ -24,7 +24,7 @@ from .funcs import (
     build_cycle_flag,
     collapse_deck,
     choose_deck,
-    scroll,
+    scroll_build,
     hide_cursor,
     select,
     click,
@@ -94,8 +94,8 @@ button_actions: dict[str, Callable[[], Any]] = {
     "Down":                     partial(key_press, Qt.Key.Key_Down),
     "Up by 10":                 partial(key_press, Qt.Key.Key_Up, Ctrl),
     "Down by 10":               partial(key_press, Qt.Key.Key_Down, Ctrl),
-    "Scroll Up":                partial(scroll, 0, -SCROLL_FACTOR),
-    "Scroll Down":              partial(scroll, 0, SCROLL_FACTOR),
+    "Scroll Up":                partial(scroll_build(), 0, -SCROLL_FACTOR),
+    "Scroll Down":              partial(scroll_build(), 0, SCROLL_FACTOR),
     "Options":                  on_options,
 
     # Deck Browser
@@ -160,11 +160,13 @@ release_actions: dict[str, Callable[[], Any]] = {
     "Previous Deck": _pass,
     "Next Due Deck": _pass,
     "Previous Due Deck": _pass,
-
 }
 
 def update_actions():
+    """Update funcs to account for config changes."""
     button_actions["Flag"] = build_cycle_flag()
+    button_actions["Scroll Up"] = partial(scroll_build(), 0, -SCROLL_FACTOR)
+    button_actions["Scroll Down"] = partial(scroll_build(), 0, SCROLL_FACTOR)
 
 COMMON_ACTIONS = [
     "Undo",             "Redo",             "Hide Cursor",      "Sync",
@@ -179,7 +181,7 @@ if is_mac:
 UI_ACTIONS = [
     "Enter",            "Select",           "Select Next",      "Select Previous",
     "Forward",          "Back",             "Click",            "Secondary Click",
-    "Scroll Up",      "Scroll Up",        "Hide Cursor",      "Show Quick Select",
+    "Scroll Up",        "Scroll Up",        "Hide Cursor",      "Show Quick Select",
     "Toggle Quick Select",
 ]
 

@@ -199,9 +199,6 @@ def scroll_build() -> Callable[[float, float], None]:
     return _scroll
 
 
-scroll = scroll_build()
-
-
 def move_mouse_build() -> Callable[[float, float], None]:
     """Builds a function that moves the mouse, accounting for user settings."""
     if mw is None:  # for out of anki profile tests
