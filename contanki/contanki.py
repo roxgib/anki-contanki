@@ -23,7 +23,7 @@ from .profile import (
     find_profile,
     convert_profiles,
 )
-from .actions import button_actions, release_actions
+from .actions import button_actions, release_actions, update_actions
 
 from aqt import mw as _mw
 
@@ -90,6 +90,7 @@ class Contanki(AnkiWebView):
             profile.controller,
             "D-Pad" if not profile.quick_select["Select with Stick"] else "Left Stick",
         )
+        update_actions()
 
     def on_config(self) -> None:
         """Opens the config dialog"""

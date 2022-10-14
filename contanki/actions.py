@@ -21,7 +21,7 @@ from .funcs import (
     click_release,
     previous_card_info,
     card_info,
-    cycle_flag,
+    build_cycle_flag,
     collapse_deck,
     choose_deck,
     scroll,
@@ -127,7 +127,7 @@ button_actions: dict[str, Callable[[], Any]] = {
     "Suspend Note":             mw.reviewer.suspend_current_note,
     "Bury Card":                mw.reviewer.bury_current_card,
     "Bury Note":                mw.reviewer.bury_current_note,
-    "Flag":                     cycle_flag,
+    "Flag":                     build_cycle_flag(),
     "Mark Note":                mw.reviewer.toggle_mark_on_current_note,
     "Delete Note":              mw.reviewer.delete_current_note,
     "Record Voice":             mw.reviewer.onRecordVoice,                  # Not Tested
@@ -162,6 +162,9 @@ release_actions: dict[str, Callable[[], Any]] = {
     "Previous Due Deck": _pass,
 
 }
+
+def update_actions():
+    button_actions["Flag"] = build_cycle_flag()
 
 COMMON_ACTIONS = [
     "Undo",             "Redo",             "Hide Cursor",      "Sync",

@@ -407,9 +407,6 @@ def build_cycle_flag() -> Callable:
     return lambda: _cycle_flag(flags)
 
 
-cycle_flag = build_cycle_flag()
-
-
 def build_previous_card_info() -> Callable[[], None]:
     """Builds a function that returns the previous card's info."""
     assert mw is not None
