@@ -263,7 +263,7 @@ class OptionsPage(QWidget):
         # Axes & Flags
         self.axis_roles = self.AxisRoleSelector(parent)
         centre_column.addWidget(self.axis_roles, alignment=Alignment.AlignTop)
-        self.flags = self.FlagsSelector(self, self.config["Flags"])
+        self.flags = self.FlagsSelector(self._parent)
         centre_column.addWidget(self.flags, alignment=Alignment.AlignTop)
 
         # Custom Actions
@@ -480,7 +480,7 @@ class OptionsPage(QWidget):
     class FlagsSelector(QGroupBox):
         """Lets the user select which flags are cycled when reviewing."""
 
-        def __init__(self, parent: ContankiConfig, flags: list[int]):
+        def __init__(self, parent: ContankiConfig):
             super().__init__("Flags", parent)
             self.config = parent.config
             layout = QFormLayout(self)
@@ -489,20 +489,22 @@ class OptionsPage(QWidget):
             for flag in mw.flags.all():
                 checkbox = QCheckBox(flag.label, self)
                 checkbox.setIcon(theme_manager.icon_from_resources(flag.icon))
-                if flag.index in flags:
-                    checkbox.setChecked(True)
-                qconnect(checkbox.clicked, self.update_flags)
+                checkbox.setChecked(flag.index in self.config["Flags"])
                 layout.addWidget(checkbox)
                 self.checkboxes.append(checkbox)
             self.setLayout(layout)
 
+            for checkbox in self.checkboxes:
+                qconnect(checkbox.stateChanged, self.update_flags)
+
         def update_flags(self):
             """Update the config with the selected flags."""
+            print(self.get())
             self.config["Flags"] = self.get()
 
         def get(self) -> list[int]:
             """Returns the list of checked flags."""
-            return [i for i, cbox in enumerate(self.checkboxes) if cbox.isChecked()]
+            return [i+1 for i, cbox in enumerate(self.checkboxes) if cbox.isChecked()]
 
     class AxisRoleSelector(QGroupBox):
         """Allows the user to select the role for each axis."""
