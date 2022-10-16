@@ -47,7 +47,7 @@ class Profile:
         self.size: tuple[int, int] = profile["size"]
         self.len_buttons, self.len_axes = self.size
         self.controller = profile["controller"]
-        self.axes_bindings: dict[int, str] = profile["axes_bindings"]
+        self.axes_bindings: dict[int, str] = defaultdict(str, profile["axes_bindings"])
         self.bindings[("NoFocus", 0)] = "Focus Main Window"
 
     @property

@@ -11,6 +11,7 @@ contanki.ankiaddon
 test.sh
 contanki/.DS_Store
 deploy.sh
+tested_controllers
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
