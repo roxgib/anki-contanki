@@ -16,10 +16,10 @@ from .config import ContankiConfig
 from .funcs import get_config, get_state, move_mouse_build, scroll_build
 from .utils import State, get_file, DEBUG, dbg
 from .overlay import ControlsOverlay
+from .controller import identify_controller
 from .profile import (
     Profile,
     get_profile,
-    identify_controller,
     find_profile,
     convert_profiles,
 )

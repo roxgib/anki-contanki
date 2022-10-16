@@ -9,17 +9,16 @@ from __future__ import annotations
 from collections import defaultdict
 
 from copy import deepcopy
-from re import search
 import os
 from os.path import join, exists
 import json
+import re
 from typing import Any
 import shutil
 
 from .utils import (
     State,
     dbg,
-    get_file,
     int_keys,
     user_files_path,
     user_profile_path,
@@ -158,90 +157,6 @@ class Profile:
     def copy(self):
         """Returns a deep copy of the profile."""
         return Profile(self.to_dict())
-
-
-# FIXME: this is a mess
-def identify_controller(
-    id_: str,
-    len_buttons: int | str,
-    len_axes: int | str,
-) -> tuple[str, str] | None:
-    """Identifies a controller based on the ID name and number of buttons and axes."""
-    dbg(id_)
-    len_buttons, len_axes = int(len_buttons), int(len_axes)
-    device_name = id_
-    vendor_id_search = search(r"Vendor: (\w{4})", id_)
-    device_id_search = search(r"Product: (\w{4})", id_)
-    if vendor_id_search is not None and device_id_search is not None:
-        vendor_id = vendor_id_search.group(1)
-        device_id = device_id_search.group(1)
-
-        controllers_file = get_file("controllerIDs.json")
-        assert controllers_file is not None
-        controller_ids = json.loads(controllers_file)
-
-        if (
-            vendor_id in controller_ids["vendors"]
-            and device_id in controller_ids["devices"][vendor_id]
-        ):
-            device_name = controller_ids["devices"][vendor_id][device_id]
-            if device_name == "invalid":
-                return None
-            if device_name in CONTROLLERS:
-                return device_name, device_name + f" ({len_buttons} buttons)"
-
-    id_ = id_.lower()
-
-    # this would be a good place to use case match
-    if "dualshock" in id_ or "playstation" or "sony" in id_:
-        if len_axes == 0:
-            device_name = "PlayStation Controller"
-        elif len_buttons == 17:
-            device_name = "DualShock 3"
-        elif "DualSense" in id_:
-            device_name = "DualSense"
-        elif len_buttons == 18:
-            device_name = "DualShock 4"
-    elif "xbox" in id_:
-        if "360" in id_:
-            device_name = "Xbox 360"
-        elif "one" in id_:
-            device_name = "Xbox One"
-        elif "elite" in id_:
-            device_name = "Xbox Series"
-        elif "series" in id_:
-            device_name = "Xbox Series"
-        elif "adaptive" in id_:
-            device_name = "Xbox 360"
-        elif len_buttons == 16:
-            device_name = "Xbox 360"
-        elif len_buttons > 16:
-            device_name = "Xbox Series"
-    elif "joycon" in id_ or "joy-con" in id_ or "switch" in id_:
-        if "pro" in id_:
-            device_name = "Switch Pro"
-        if "left" in id_:
-            device_name = "Joy-Con Left"
-        if "right" in id_:
-            device_name = "Joy-Con Right"
-        else:
-            device_name = "Joy-Con"
-    elif "wii" in id_:
-        if "nunchuck" in id_:
-            device_name = "Wii Nunchuck"
-        else:
-            device_name = "Wii Remote"
-    elif "steam" in id_ or "valve" in id_:
-        device_name = "Steam Controller"
-
-    if "8bitdo" in id_:
-        if "zero" in id_:
-            device_name = "8Bitdo Zero"
-        else:
-            device_name = "8Bitdo Lite"
-
-    return device_name, device_name + f" ({len_buttons} buttons)"
-
 
 def get_profile_list(compatibility: str = None, defaults: bool = True) -> list[str]:
     """Returns a list of all profiles."""

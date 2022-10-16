@@ -1,11 +1,18 @@
 # pylint: disable=missing-docstring
 
-from ..controller import BUTTON_ORDER, Controller, get_controller_list
+from ..controller import (
+    BUTTON_ORDER,
+    Controller,
+    get_controller_list,
+    parse_controller_id,
+    identify_controller,
+)
 from . import test
 
 
 @test
 def test_get_controller_list():
+    print(get_controller_list())
     assert get_controller_list() is not None
     assert get_controller_list() == [
         "DualShock 3",
@@ -23,7 +30,8 @@ def test_get_controller_list():
         "8BitDo Zero",
         "8BitDo Zero (Direct Input)",
         "8BitDo Lite",
-        "8BitDo Pro",
+        "8BitDo Pro (A)",
+        "8BitDo Pro (X)",
     ]
 
 
@@ -70,6 +78,54 @@ def test_controller():
     assert not controller.has_stick
     assert controller.has_dpad
     assert controller.supported
+
+
+test_ids = [
+    "Wireless Controller (STANDARD GAMEPAD Vendor: 054c Product: 0ce6)",
+    "Wireless controller (STANDARD GAMEPAD Vendor: 054c Product: 05c4)",
+    "Pro Controller (STANDARD GAMEPAD Vendor: 057e Product: 2009)",
+    "PS3 GamePad (Vendor: 054c Product: 0268)",
+    "PLAYSTATION(R)3 Controller (Vendor: 054c Product: 0268)",
+    "Unknown Gamepad (STANDARD GAMEPAD Vendor: 054c Product: 09cc)",
+    "Wireless Controller (Vendor: 054c Product: 0ce6)",
+    "PLAYSTATION(R)3 Controller (STANDARD GAMEPAD Vendor: 054c Product: 0268)",
+]
+
+test_ids_parsed = [
+    ("054c", "0ce6"),
+    ("054c", "05c4"),
+    ("057e", "2009"),
+    ("054c", "0268"),
+    ("054c", "0268"),
+    ("054c", "09cc"),
+    ("054c", "0ce6"),
+    ("054c", "0268"),
+]
+
+
+@test
+def test_parse_controller_id():
+    for test_id, (vendor_id, device_id) in zip(test_ids, test_ids_parsed):
+        assert (vendor_id, device_id) == parse_controller_id(test_id)
+
+
+test_controllers = [
+    "DualSense",
+    "DualShock 2",  # 8BitDo?
+    "Switch Pro",
+    "DualShock 3",
+    "DualShock 3",
+    "DualShock 4",  # 8BitDo?
+    "DualSense",
+    "DualShock 3",
+]
+
+
+@test
+def test_identify_controller():
+    for test_id, controller in zip(test_ids, test_controllers):
+        print(identify_controller(test_id, 0, 0), controller)
+        assert identify_controller(test_id, 0, 0)[0] == controller
 
 
 @test

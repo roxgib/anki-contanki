@@ -618,8 +618,8 @@
         "supported": true,
         "has_dpad": true
     },
-    "8BitDo Pro": {
-        "name": "8BitDo Pro",
+    "8BitDo Pro (A)": {
+        "name": "8BitDo Pro (A)",
         "buttons": {
             "0": "A",
             "1": "B",
@@ -661,5 +661,48 @@
         "has_stick": true,
         "supported": true,
         "has_dpad": true
-    }
+    },
+        "8BitDo Pro (X)": {
+            "name": "8BitDo Pro (X)",
+            "buttons": {
+                "0": "A",
+                "1": "B",
+                "2": "X",
+                "3": "Y",
+                "4": "L2",
+                "5": "R2",
+                "6": "L1",
+                "7": "R1",
+                "8": "Start",
+                "9": "Select",
+                "10": "Left Stick Click",
+                "11": "Right Stick Click",
+                "12": "D-Pad Up",
+                "13": "D-Pad Down",
+                "14": "D-Pad Left",
+                "15": "D-Pad Right",
+                "16": "Star"
+            },
+            "axis_buttons": {
+                "0": "Left Stick Left",
+                "1": "Left Stick Right",
+                "2": "Left Stick Up",
+                "3": "Left Stick Down",
+                "4": "Right Stick Left",
+                "5": "Right Stick Right",
+                "6": "Right Stick Up",
+                "7": "Right Stick Down"
+            },
+            "axes": {
+                "0": "Left Stick Horizontal",
+                "1": "Left Stick Vertical",
+                "2": "Right Stick Horizontal",
+                "3": "Right Stick Vertical"
+            },
+            "num_buttons": 17,
+            "num_axes": 4,
+            "has_stick": true,
+            "supported": true,
+            "has_dpad": true
+        }
 }
