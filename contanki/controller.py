@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+from os.path import join
 from collections import defaultdict
 import json
 import re
 
-from .utils import int_keys, get_file
+from .utils import dbg, int_keys, get_file, user_files_path
 
-file = get_file("controllers.json")
-if file is None:
+_file = get_file("controllers.json")
+if _file is None:
     raise FileNotFoundError("Could not find controllers.json")
-controller_data = int_keys(json.loads(file))
+controller_data = int_keys(json.loads(_file))
 CONTROLLERS = list(controller_data.keys())
 
 
@@ -101,7 +102,7 @@ def parse_controller_id(controller_id: str) -> tuple[str | None, str | None] | N
     device_id_search = re.search(r"Product: (\w{4})", controller_id)
     vendor_id = vendor_id_search.group(1) if vendor_id_search is not None else None
     device_id = device_id_search.group(1) if device_id_search is not None else None
-    return (vendor_id, device_id)
+    return (vendor_id.lower(), device_id.lower())
 
 
 def controller_name_tuple(name: str, buttons: int):
@@ -111,31 +112,32 @@ def controller_name_tuple(name: str, buttons: int):
 
 def identify_controller(
     id_: str,
-    num_buttons: int | str,
+    buttons: int | str,
     num_axes: int | str,
 ) -> tuple[str, str] | None:
     """Identifies a controller based on the ID name and number of buttons and axes."""
-    num_buttons, num_axes = int(num_buttons), int(num_axes)
+    dbg(id_)
+    buttons, num_axes = int(buttons), int(num_axes)
     device_name = id_
     vendor_id, device_id = parse_controller_id(id_)
 
     # Identify 8BitDo controllers pretending to be something else
-    if (vendor_id, device_id, num_buttons) == ("054c", "05c4", 18):
-        return controller_name_tuple("8BitDo Pro (A)", num_buttons)
-    # if (vendor_id, device_id, num_buttons) == ("045e", "02E0", 17):
-    #     return "8BitDo Pro (X)", "8BitDo Pro (X) (17 buttons)"
+    if (vendor_id, device_id, buttons) == ("054c", "05c4", 18):
+        return controller_name_tuple("8BitDo Pro (A)", buttons)
+    if (vendor_id, device_id, buttons) == ("045e", "02e0", 17) and "8BitDo Pro" in id_:
+        return controller_name_tuple("8BitDo Pro (X)", buttons)
 
     controllers_file = get_file("controllerIDs.json")
     assert controllers_file is not None
     controller_ids = json.loads(controllers_file)
 
-    if (
-        vendor_id in controller_ids["vendors"]
-        and device_id in controller_ids["devices"][vendor_id]
-    ):
+    try:
         device_name = controller_ids["devices"][vendor_id][device_id]
+    except IndexError:
+        pass
+    else:
         if device_name in CONTROLLERS:
-            return controller_name_tuple(device_name, num_buttons)
+            return controller_name_tuple(device_name, buttons)
         if device_name == "invalid":
             return None
 
@@ -143,22 +145,20 @@ def identify_controller(
 
     # this would be a good place to use case match
     if "dualshock" in id_ or "playstation" in id_ or "sony" in id_:
-        if num_buttons == 17:
+        if buttons == 17:
             device_name = "DualShock 3"
         elif "dualsense" in id_:
             device_name = "DualSense"
-        elif num_buttons == 18:
+        elif buttons == 18:
             device_name = "DualShock 4"
     elif "xbox" in id_ or 'microsoft' in id_:
-        if "360" in id_:
+        if "360" in id_ or "adaptive" in id_:
             device_name = "Xbox 360"
         elif "one" in id_:
             device_name = "Xbox One"
-        elif "elite" in id_ or "series" in id_:
+        elif "series" in id_ or "elite" in id_:
             device_name = "Xbox Series"
-        elif "adaptive" in id_:
-            device_name = "Xbox 360"
-        elif num_buttons == 17:
+        elif buttons == 17:
             device_name = "Xbox 360"
         else:
             device_name = "Xbox Series"
@@ -171,11 +171,6 @@ def identify_controller(
             device_name = "Joy-Con Right"
         else:
             device_name = "Joy-Con"
-    elif "wii" in id_:
-        if "nunchuck" in id_:
-            device_name = "Wii Nunchuck"
-        else:
-            device_name = "Wii Remote"
     elif "steam" in id_ or "valve" in id_:
         device_name = "Steam Controller"
     elif "8bitdo" in id_:
@@ -185,8 +180,14 @@ def identify_controller(
             device_name = "8Bitdo Lite"
         elif "pro" in id_:
             device_name = "8BitDo Pro"
+    elif "ps3" in id_:
+        device_name = "DualShock 3"
+    elif "ps4" in id_:
+        device_name = "DualShock 4"
+    elif "ps5" in id_ or "dualsense" in id_:
+        device_name = "DualSense"
 
-    return controller_name_tuple(device_name, num_buttons)
+    return controller_name_tuple(device_name, buttons)
 
 
 BUTTON_ORDER = [
