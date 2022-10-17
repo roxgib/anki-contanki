@@ -123,9 +123,9 @@ def identify_controller(
 
     # Identify 8BitDo controllers pretending to be something else
     if (vendor_id, device_id, buttons) == ("054c", "05c4", 18):
-        return controller_name_tuple("8BitDo Pro (A)", buttons)
+        return controller_name_tuple("8BitDo Pro", buttons)
     if (vendor_id, device_id, buttons) == ("045e", "02e0", 17) and "8BitDo Pro" in id_:
-        return controller_name_tuple("8BitDo Pro (X)", buttons)
+        return controller_name_tuple("8BitDo Pro", buttons)
 
     controllers_file = get_file("controllerIDs.json")
     assert controllers_file is not None
