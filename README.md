@@ -15,9 +15,7 @@ Features:
 ## Usage Notes
 Connect your controller via USB or Bluetooth, install the add-on, restart Anki, and press any button to get started.
 
-Since Anki has a lot of functions to map, Contanki uses modifier buttons (by default, the triggers (R2 and L2) are used). This mean that the other buttons will trigger different commands according to whether a modifier button is held down, similar to shift, control, etc on a keyboard. Holding down the modifier buttons will also pull up an overlay showing the control binding for the current context. To show the overlay for the unmodified controls, hold down both triggers at once. 
-
-Controls can be reassigned using the add-on's config dialog. You can assign controls for each context (review, deck browser, etc), as well as global settings that are used if a control isn't assigned to a particular context. It is suggested that you try the default control bindings to begin with, and make changes as needed. You can remove any actions you don't need if the controls overlay is too cluttered. 
+Controls can be reassigned using the add-on's config dialog. You can assign controls for each context (review, deck browser, etc), as well as global settings that are used if a control isn't assigned to a particular context. It is suggested that you try the default control bindings to begin with, and make changes as needed. Since Anki has a lot of functions to map, Contanki features a quick select menu, which by default is shown using the right trigger. This will also pull up an overlay showing the control bindings for the current screen. You can remove any actions you don't need if the controls overlay is too cluttered.
 
 Support is provided for 2.1.45 and above, but please note the version specific issues below. 
 
@@ -50,8 +48,8 @@ Platform Specific
  - Cursor control doesn't work on Linux due to a Qt issue
 
 Controller Specific
- - Only a single Joy-Con can be used at a time. Support for using a pair of Joy-Cons as a single controller is planned
- - Certain 8BitDo controllers may have incorrect button mapping or fail to be detect if they are set on the wrong mode. Try a different controller mode if this happens. More info [here](https://support.8bitdo.com)
+ - Using both Joy-Cons at once might be buggy.
+ - 8BitDo controllers should be set to X mode. More info [here](https://support.8bitdo.com)
 
 Add-on compatibility
  - Not compatible with:
@@ -60,6 +58,18 @@ Add-on compatibility
     - Customize Keyboard Shortcuts - a small number of actions rely on simulating a key press, and won't work if you've changed that shortcut. Instead you can create a custom action in the controller options using your assigned shortcut
 
 ## Development log
+
+### Beta 9
+
+Minor fixes to controllers detection + button mappings.
+
+### Beta 8
+
+As with Alpha 11, this release does away with modifier keys and introduces a 'quick select' menu for accessing additional actions. A button can be assigned to show the quick select menu (either while held or to toggle it) and the action can be selected using the left stick or d-pad. The actions that appear in the menu are chosen in the config. The menu can currently hold a maximum of 8 actions, but this limit should be raised in a future update when using the stick to select.
+
+Many other parts of the codebase have been rewritten for this release compared with the last beta, aimed at fixing bugs, improving compatibility, and making the add-on more stable, but due to the extent of the changes it's likely at least a couple of bugs have been introduced. I'll be focused on bug fixing from now, including controller compatibility, since I think all the features I want are pretty much done.
+
+I'll leave this up on here for a couple of days before uploading to AnkiWeb in case any major bugs crept in.
 
 ### Beta 7
 Hotfix release to fix a bug relating to annotations not being available for some users. 
