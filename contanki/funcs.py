@@ -140,11 +140,11 @@ def get_custom_actions() -> dict[str, partial[None]]:
     """Gets custom actions from the config file."""
     assert mw is not None
     config = get_config()
-    custom_actions = config["custom_actions"]
+    custom_actions = config["Custom Actions"]
     actions = dict()
     # FIXME: Improve sanitisation
-    for action in custom_actions.keys():
-        keys = QKeySequence(custom_actions[action])
+    for action, sequence in custom_actions.items():
+        keys = QKeySequence(sequence)
         try:
             key = keys[0].key()
             modifier = keys[0].keyboardModifiers()

@@ -13,7 +13,13 @@ from aqt.webview import AnkiWebView
 from .quick import QuickSelectMenu
 from .icons import IconHighlighter
 from .config import ContankiConfig
-from .funcs import get_config, get_state, move_mouse_build, scroll_build
+from .funcs import (
+    get_config,
+    get_custom_actions,
+    get_state,
+    move_mouse_build,
+    scroll_build,
+)
 from .utils import State, get_file, DEBUG, dbg
 from .overlay import ControlsOverlay
 from .controller import identify_controller
@@ -49,6 +55,7 @@ class Contanki(AnkiWebView):
     icons = IconHighlighter()
     controllers: list[QAction] = list()
     debug_info: list[list[str]] = []
+    custom_actions = get_custom_actions()
 
     def __init__(self, parent):
         super().__init__(parent=parent)
@@ -64,6 +71,7 @@ class Contanki(AnkiWebView):
         if DEBUG:
             self.setFixedSize(10, 10)
             from .tests import run_tests  # pylint: disable=import-outside-toplevel
+
             run_tests()
         else:
             self.setFixedSize(0, 0)
@@ -91,6 +99,7 @@ class Contanki(AnkiWebView):
             "D-Pad" if not profile.quick_select["Select with Stick"] else "Left Stick",
         )
         update_actions()
+        self.custom_actions = get_custom_actions()
 
     def on_config(self) -> None:
         """Opens the config dialog"""
@@ -255,9 +264,12 @@ class Contanki(AnkiWebView):
             self.toggle_quick_select(state)
         elif action == "Show Quick Select":
             self.show_quick_select(state)
-        elif action in button_actions:
+        else:
             try:
-                button_actions[action]()
+                if action in button_actions:
+                    button_actions[action]()
+                elif action in self.custom_actions:
+                    self.custom_actions[action]()
             except Exception as err:  # pylint: disable=broad-except
                 tooltip("Error: " + repr(err))
 
