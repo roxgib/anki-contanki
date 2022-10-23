@@ -101,7 +101,7 @@
         },
         "deckBrowser": {
             "0": "Select",
-            "1": "Collapse/Expand",
+            "1": "Expand/Collapse",
             "2": "Open Browser",
             "3": "Open Statistics",
             "4": "",
