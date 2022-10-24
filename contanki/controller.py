@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from os.path import join
 from collections import defaultdict
 import json
 import re
 
-from .utils import dbg, int_keys, get_file, user_files_path
+from .utils import dbg, int_keys, get_file
 
 _file = get_file("controllers.json")
 if _file is None:
@@ -98,11 +97,11 @@ def get_controller_list() -> list[str]:
 
 def parse_controller_id(controller_id: str) -> tuple[str | None, str | None] | None:
     """Extracts the vendor and device codes from the ID string"""
-    vendor_id_search = re.search(r"Vendor: (\w{4})", controller_id)
-    device_id_search = re.search(r"Product: (\w{4})", controller_id)
-    vendor_id = vendor_id_search.group(1) if vendor_id_search is not None else None
-    device_id = device_id_search.group(1) if device_id_search is not None else None
-    return (vendor_id.lower(), device_id.lower())
+    vendor_search = re.search(r"Vendor: (\w{4})", controller_id)
+    device_search = re.search(r"Product: (\w{4})", controller_id)
+    vendor_id = vendor_search.group(1).lower() if vendor_search is not None else None
+    device_id = device_search.group(1).lower() if device_search is not None else None
+    return (vendor_id, device_id)
 
 
 def controller_name_tuple(name: str, buttons: int):
@@ -151,7 +150,7 @@ def identify_controller(
             device_name = "DualSense"
         elif buttons == 18:
             device_name = "DualShock 4"
-    elif "xbox" in id_ or 'microsoft' in id_:
+    elif "xbox" in id_ or "microsoft" in id_:
         if "360" in id_ or "adaptive" in id_:
             device_name = "Xbox 360"
         elif "one" in id_:
