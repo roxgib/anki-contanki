@@ -59,6 +59,13 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 10 
+
+ - Fix custom actions not being triggered
+ - Fix quick select icon bug for Joy-Cons + Steam Controllers
+ - Fix crash if vendor or device ID not extracted
+ - Fixes to default profiles
+
 ### Beta 9
 
 Minor fixes to controllers detection + button mappings.
