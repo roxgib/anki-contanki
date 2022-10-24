@@ -94,10 +94,7 @@ class Contanki(AnkiWebView):
             self.overlay.close()
         self.overlay = ControlsOverlay(mw, profile)
         self.quick_select = QuickSelectMenu(self, profile.quick_select)
-        self.quick_select.update_icon(
-            profile.controller,
-            "D-Pad" if not profile.quick_select["Select with Stick"] else "Left Stick",
-        )
+        self.quick_select.update_icon(profile.controller)
         update_actions()
         self.custom_actions = get_custom_actions()
 

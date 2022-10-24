@@ -102,8 +102,15 @@ class QuickSelectMenu:
             ]
             self.positions[state] = self.set_geometry(self.actions[state])
 
-    def update_icon(self, controller: Controller, button: str):
+    def update_icon(self, controller: Controller):
         """Update the centre icon of the quick select menu."""
+        button = (
+            "D-Pad"
+            if not self.config["Select with Stick"]
+            else "Left Stick"
+            if controller.num_axes == 4
+            else "Stick"
+        )
         self.centre.setPixmap(get_button_icon(controller, button))
 
     def set_geometry(self, actions: list[str]) -> list[tuple[float, float]]:
