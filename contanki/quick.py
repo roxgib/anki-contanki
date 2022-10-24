@@ -106,7 +106,7 @@ class QuickSelectMenu:
         """Update the centre icon of the quick select menu."""
         button = (
             "D-Pad"
-            if not self.config["Select with Stick"]
+            if not self.settings["Select with Stick"]
             else "Left Stick"
             if controller.num_axes == 4
             else "Stick"
