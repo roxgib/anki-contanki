@@ -12,26 +12,25 @@ from . import test
 
 @test
 def test_get_controller_list():
-    print(get_controller_list())
+    print(sorted(get_controller_list()))
     assert get_controller_list() is not None
-    assert get_controller_list() == [
-        "DualShock 3",
-        "DualShock 4",
-        "DualSense",
-        "Xbox One",
-        "Xbox Series",
-        "Xbox 360",
-        "Switch Pro",
-        "Steam Controller",
-        "Joy-Con Right",
-        "Joy-Con Left",
-        "Joy-Con",
-        "Super Nintendo",
+    assert sorted(get_controller_list()) == [
+        "8BitDo Lite",
+        "8BitDo Pro",
         "8BitDo Zero",
         "8BitDo Zero (Direct Input)",
-        "8BitDo Lite",
-        "8BitDo Pro (A)",
-        "8BitDo Pro (X)",
+        "DualSense",
+        "DualShock 3",
+        "DualShock 4",
+        "Joy-Con",
+        "Joy-Con Left",
+        "Joy-Con Right",
+        "Steam Controller",
+        "Super Nintendo",
+        "Switch Pro",
+        "Xbox 360",
+        "Xbox One",
+        "Xbox Series",
     ]
 
 
@@ -89,6 +88,9 @@ test_ids = [
     "Unknown Gamepad (STANDARD GAMEPAD Vendor: 054c Product: 09cc)",
     "Wireless Controller (Vendor: 054c Product: 0ce6)",
     "PLAYSTATION(R)3 Controller (STANDARD GAMEPAD Vendor: 054c Product: 0268)",
+    "DualShock 3",
+    "Xbox 360 Controller",
+    "Invalid Id",
 ]
 
 test_ids_parsed = [
@@ -100,6 +102,9 @@ test_ids_parsed = [
     ("054c", "09cc"),
     ("054c", "0ce6"),
     ("054c", "0268"),
+    (None, None),
+    (None, None),
+    (None, None),
 ]
 
 
@@ -118,6 +123,9 @@ test_controllers = [
     "DualShock 4",  # 8BitDo?
     "DualSense",
     "DualShock 3",
+    "DualShock 3",
+    "Xbox 360",
+    "Invalid Id",
 ]
 
 
