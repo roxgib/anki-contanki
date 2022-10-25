@@ -158,6 +158,7 @@ class Profile:
         """Returns a deep copy of the profile."""
         return Profile(self.to_dict())
 
+
 def get_profile_list(compatibility: str = None, defaults: bool = True) -> list[str]:
     """Returns a list of all profiles."""
     profiles = list()
@@ -291,8 +292,12 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
         if profile == "placeholder":
             dbg(f"Profile '{profile}' is placeholder")
             return False
-        with open(path, "r", encoding="utf8") as file:
-            profile = json.load(file)
+        try:
+            with open(path, "r", encoding="utf8") as file:
+                profile = json.load(file)
+        except (UnicodeDecodeError, UnicodeError, json.JSONDecodeError):
+            dbg(f"Profile '{profile}' is not valid JSON")
+            return False
     elif isinstance(profile, Profile):
         try:
             profile = profile.to_dict()
