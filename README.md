@@ -59,6 +59,12 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 11
+
+ - Fix crash if vendor or device ID not extracted (actually fixed this time!)
+ - Fix crash if invalid file in user profiles folder
+ - Fix DS4 incorrectly detected as 8BitDo Pro
+
 ### Beta 10 
 
  - Fix custom actions not being triggered
