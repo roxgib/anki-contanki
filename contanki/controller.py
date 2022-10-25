@@ -130,7 +130,7 @@ def identify_controller(
 
     try:
         device_name = controller_ids["devices"][vendor_id][device_id]
-    except IndexError:
+    except KeyError:
         pass
     else:
         if device_name in CONTROLLERS:
