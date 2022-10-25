@@ -121,8 +121,6 @@ def identify_controller(
     vendor_id, device_id = parse_controller_id(id_)
 
     # Identify 8BitDo controllers pretending to be something else
-    if (vendor_id, device_id, buttons) == ("054c", "05c4", 18):
-        return controller_name_tuple("8BitDo Pro", buttons)
     if (vendor_id, device_id, buttons) == ("045e", "02e0", 17) and "8BitDo Pro" in id_:
         return controller_name_tuple("8BitDo Pro", buttons)
 
