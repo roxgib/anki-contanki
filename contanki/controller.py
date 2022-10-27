@@ -113,6 +113,7 @@ def identify_controller(
     id_: str,
     buttons: int | str,
     num_axes: int | str,
+    ebd: bool = False,
 ) -> tuple[str, str] | None:
     """Identifies a controller based on the ID name and number of buttons and axes."""
     dbg(id_)
@@ -121,7 +122,11 @@ def identify_controller(
     vendor_id, device_id = parse_controller_id(id_)
 
     # Identify 8BitDo controllers pretending to be something else
-    if (vendor_id, device_id, buttons) == ("045e", "02e0", 17) and "8BitDo Pro" in id_:
+    if ebd and (vendor_id, device_id, buttons) in [
+        ("054c", "05c4"),
+        ("045e", "02e0"),
+        ("045e", "028e"),
+    ]:
         return controller_name_tuple("8BitDo Pro", buttons)
 
     controllers_file = get_file("controllerIDs.json")

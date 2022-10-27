@@ -49,6 +49,7 @@ def get_config() -> dict:
         "Large Overlays": False,
         "Overlays Always On": False,
         "Overlays in Quick Select": True,
+        "Detect 8BitDo Controllers": False,
         "Custom Actions": {},
     }
 

@@ -327,7 +327,10 @@ class Contanki(AnkiWebView):
         controller_id = "::".join(con)
         self.len_buttons, self.len_axes = int(buttons), int(axes)
         _controller = identify_controller(
-            controller_id, self.len_buttons, self.len_axes
+            controller_id,
+            self.len_buttons,
+            self.len_axes,
+            self.config["Detect 8BitDo Controllers"],
         )
         if _controller is None:
             return
