@@ -384,7 +384,9 @@ class Contanki(AnkiWebView):
             mw.form.menuTools.removeAction(controller_action)
         self.controllers = list()
         for i, controller in enumerate(controllers):
-            con = identify_controller(*(controller.split("%%%")))
+            con = identify_controller(
+                *(controller.split("%%%")), self.config["Detect 8BitDo Controllers"]
+            )
             if con is None:
                 continue
             self.controllers.append(QAction(con[0], mw))
