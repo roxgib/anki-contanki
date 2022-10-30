@@ -67,6 +67,7 @@ class Contanki(AnkiWebView):
         script = get_file("controller.js")
         self.stdHtml(f"""<script type="text/javascript">\n{script}\n</script>""")
         self.update_debug_info()
+        self.profile = None
 
         if DEBUG:
             self.setFixedSize(10, 10)
@@ -87,9 +88,9 @@ class Contanki(AnkiWebView):
         self.config = get_config()
         if isinstance(profile, str):
             profile = get_profile(profile)
+        self._profile = profile
         if profile is None:
             return
-        self._profile = profile
         if self.overlay is not None:
             self.overlay.close()
         self.overlay = ControlsOverlay(mw, profile)
