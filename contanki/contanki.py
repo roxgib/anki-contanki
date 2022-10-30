@@ -108,26 +108,19 @@ class Contanki(AnkiWebView):
         self, handled: tuple[bool, Any], message: str, _
     ) -> tuple[bool, Any]:
         """Called when a message is received from the JavaScript interface"""
-        funcs: dict[str, Callable] = {
-            "on_connect": self.on_connect,
-            "on_disconnect": self.on_disconnect,
-            "poll": self.poll,
-            "register": self.register_controllers,
-            "initialise": lambda *args, **kwargs: None,
-        }
-
         if message[:8] == "contanki":
             _, func, *args = message.split("::")
             if func == "message":
                 tooltip(str("::".join(args)))
-            else:
-                funcs[func](*args)
+            elif func in self.funcs:
+                self.funcs[func](*args)
             return (True, None)
         else:
             return handled
 
     def on_error(self, _error: str) -> None:
         """Reinitialises the controller when an error occurs."""
+        dbg("Error: " + _error)
         self.eval("on_controller_disconnect()")
 
     def if_connected(func: Callable) -> Callable:  # pylint: disable=no-self-argument
@@ -397,6 +390,14 @@ class Contanki(AnkiWebView):
         for controller in self.controllers:
             mw.form.menuTools.addAction(controller)
         tooltip(f"{num_controllers} controllers detected - select from the Tools menu.")
+
+    funcs: dict[str, Callable] = {
+        "on_connect": on_connect,
+        "on_disconnect": on_disconnect,
+        "poll": poll,
+        "register": register_controllers,
+        "initialise": lambda *args, **kwargs: None,
+    }
 
     @if_connected
     def change_controller(self, index: int, _) -> None:
