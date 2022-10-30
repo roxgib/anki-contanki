@@ -163,9 +163,10 @@ class ContankiConfig(QDialog):
 
     def update_binding(self, state: State, button: int, action: str) -> None:
         """Update the binding for the given button."""
-        self.profile.update_binding(state, button, action)
-        if state in ("all", "review"):
-            self.controls_page.update_inheritance()
+        if self.loaded:
+            self.profile.update_binding(state, button, action)
+            if state in ("all", "review"):
+                self.controls_page.update_inheritance()
 
     def reload(self):
         """Update the controls page."""
@@ -670,8 +671,9 @@ class ControlsPage(QTabWidget):
 
     def update_binding(self, state: State, button: int, action: str) -> None:
         """Updates the binding for the given state, mod, and index."""
-        if "inherit" not in action:
-            self._update_binding(state, button, action)
+        if "inherit" in action:
+            action = ""
+        self._update_binding(state, button, action)
 
     class ControlsTab(QWidget):
         """Shows control binding options for a singel state."""
