@@ -12,7 +12,6 @@ from . import test
 
 @test
 def test_get_controller_list():
-    print(sorted(get_controller_list()))
     assert get_controller_list() is not None
     assert sorted(get_controller_list()) == [
         "8BitDo Lite",
@@ -116,11 +115,11 @@ def test_parse_controller_id():
 
 test_controllers = [
     "DualSense",
-    "DualShock 2",  # 8BitDo?
+    "DualShock 4",
     "Switch Pro",
     "DualShock 3",
     "DualShock 3",
-    "DualShock 4",  # 8BitDo?
+    "DualShock 4",
     "DualSense",
     "DualShock 3",
     "DualShock 3",
@@ -132,7 +131,6 @@ test_controllers = [
 @test
 def test_identify_controller():
     for test_id, controller in zip(test_ids, test_controllers):
-        print(identify_controller(test_id, 0, 0), controller)
         assert identify_controller(test_id, 0, 0)[0] == controller
 
 
