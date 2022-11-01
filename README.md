@@ -50,6 +50,7 @@ Platform Specific
 Controller Specific
  - Using both Joy-Cons at once might be buggy.
  - 8BitDo controllers should be set to X mode. More info [here](https://support.8bitdo.com)
+ - If your 8BitDo controller isn't detected correctly try Tools > Controller Options > Detect 8BitDO Controllers
 
 Add-on compatibility
  - Not compatible with:
@@ -58,6 +59,12 @@ Add-on compatibility
     - Customize Keyboard Shortcuts - a small number of actions rely on simulating a key press, and won't work if you've changed that shortcut. Instead you can create a custom action in the controller options using your assigned shortcut
 
 ## Development log
+
+### Beta 12
+
+ - Fix crash when opening config if no controller is connected
+ - Fix inherited actions not saving
+ - Added configuration option to detect 8BitDo controllers
 
 ### Beta 11
 
