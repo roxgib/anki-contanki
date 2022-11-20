@@ -6,6 +6,8 @@ Provides utility functions.
 
 from __future__ import annotations
 
+import unicodedata
+import re
 from typing import Literal
 from os.path import join, dirname, abspath, exists
 from os import environ
@@ -56,8 +58,31 @@ def int_keys(input_dict: dict) -> dict:
             output_dict[int(key)] = int_keys(value)
     return output_dict
 
+
 def dbg(value):
     """Prints a value if in debugging mode. ."""
     if DEBUG:
         print(f"Contanki: {str(value)}")
     return value
+
+
+# Copyright (c) Django Software Foundation and individual contributors.
+# https://github.com/django/django/blob/0dd29209091280ccf34e07c9468746c396b7778e/django/utils/text.py#L400-L417
+def slugify(value, allow_unicode=False):
+    """
+    Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
+    dashes to single dashes. Remove characters that aren't alphanumerics,
+    underscores, or hyphens. Convert to lowercase. Also strip leading and
+    trailing whitespace, dashes, and underscores.
+    """
+    value = str(value)
+    if allow_unicode:
+        value = unicodedata.normalize("NFKC", value)
+    else:
+        value = (
+            unicodedata.normalize("NFKD", value)
+            .encode("ascii", "ignore")
+            .decode("ascii")
+        )
+    value = re.sub(r"[^\w\s-]", "", value.lower())
+    return re.sub(r"[-\s]+", "-", value).strip("-_")

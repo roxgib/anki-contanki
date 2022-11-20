@@ -41,12 +41,8 @@ def run_tests():
             print(f"\t{key}: {error}")
             for line in stack:
                 print(line)
-    
+
         print(f"{len(passed)} test{'s' if len(passed) > 1 else ''} passed")
     else:
         print("All tests passed.")
     print()
-
-
-
-

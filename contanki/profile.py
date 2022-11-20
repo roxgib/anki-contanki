@@ -12,7 +12,6 @@ from copy import deepcopy
 import os
 from os.path import join, exists
 import json
-import re
 from typing import Any
 import shutil
 
@@ -23,6 +22,7 @@ from .utils import (
     user_files_path,
     user_profile_path,
     default_profile_path,
+    slugify,
 )
 from .controller import Controller, CONTROLLERS
 
@@ -66,18 +66,6 @@ class Profile:
                 return
         self._controller = controller
 
-    @property
-    def name(self) -> str:
-        """Returns the name of the profile."""
-        return self._name
-
-    @name.setter
-    def name(self, name: str):
-        """Sets the name of the profile, sanitising it for saving first."""
-        self._name = "".join(
-            [char for char in name if char.isalnum() or char in " ()-_"]
-        ).strip()
-
     def get(self, state: State, button: int) -> str:
         """Returns the action for a button or axis."""
         return (
@@ -120,6 +108,8 @@ class Profile:
 
     def update_binding(self, state: State, button: int, action: str) -> None:
         """Updates the binding for a button or axis."""
+        if state not in State.__args__:
+            raise ValueError(f"State {state} not valid.")
         self.bindings[(state, button)] = action
 
     def get_compatibility(self, controller):
@@ -146,11 +136,11 @@ class Profile:
         return hash(str(self.to_dict()))
 
     def __eq__(self, __o: object) -> bool:
-        return self.to_dict() == __o.to_dict() if isinstance(__o, Profile) else False
+        return isinstance(__o, Profile) and self.__hash__() == __o.__hash__()
 
     def save(self) -> None:
         """Saves the profile to a file."""
-        path = os.path.join(user_profile_path, self.name)
+        path = os.path.join(user_profile_path, slugify(self.name))
         with open(dbg(path), "w", encoding="utf8") as file:
             json.dump(self.to_dict(), file)
 
@@ -168,18 +158,21 @@ def get_profile_list(compatibility: str = None, defaults: bool = True) -> list[s
     return sorted(profiles)
 
 
+def load_profile(name: str) -> str | None:
+    """Loads a profile str from a file."""
+    paths = [join(user_profile_path, name), join(default_profile_path, name)]
+    name = slugify(name)
+    paths += [join(user_profile_path, name), join(default_profile_path, name)]
+    for path in paths:
+        if exists(path):
+            with open(path, "r", encoding="utf8") as file:
+                return file.read()
+
+
 def get_profile(name: str) -> Profile | None:
     """Load a profile from a file."""
-    path = join(default_profile_path, name)
-    if not exists(path):
-        path = join(user_profile_path, name)
-        if not exists(path):
-            return None
-
-    with open(path, "r", encoding="utf8") as file:
-        profile = Profile(json.load(file, object_hook=int_keys))
-
-    return profile
+    if profile_is_valid(name):
+        return Profile(json.loads(load_profile(name), object_hook=int_keys))
 
 
 def create_profile(old_name: str, new_name: str) -> Profile:
@@ -196,6 +189,7 @@ def create_profile(old_name: str, new_name: str) -> Profile:
 def delete_profile(profile: str | Profile) -> None:
     """Delete a profile from disk."""
     name = profile.name if isinstance(profile, Profile) else profile
+    name = slugify(name)
     path = join(user_profile_path, name)
     if exists(path):
         dbg(f"Deleting profile {name} from {path}")
@@ -276,19 +270,19 @@ def update_controllers(controller: Controller | str, profile: str):
 def profile_is_valid(profile: Profile | dict | str) -> bool:
     """Checks that a profile is valid."""
     if isinstance(profile, str):
-        path = join(user_profile_path, profile)
-        if not exists(path):
-            path = join(default_profile_path, profile)
-        if not exists(path):
-            dbg(f"Profile '{profile}' not found")
-            return False
         if profile == "placeholder":
-            dbg(f"Profile '{profile}' is placeholder")
             return False
         try:
-            with open(path, "r", encoding="utf8") as file:
-                profile = json.load(file)
-        except (UnicodeDecodeError, UnicodeError, json.JSONDecodeError):
+            profile = load_profile(profile)
+        except (UnicodeDecodeError, UnicodeError) as err:
+            dbg(f"Error loading '{profile}': {err}")
+            return False
+        if profile is None:
+            dbg(f"Profile '{profile}' not found")
+            return False
+        try:
+            profile = json.loads(profile, object_hook=int_keys)
+        except json.JSONDecodeError:
             dbg(f"Profile '{profile}' is not valid JSON")
             return False
     elif isinstance(profile, Profile):
@@ -328,9 +322,9 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
         dbg(err)
         return False
     try:
-        get_profile(profile['name'])
+        profile = Profile(profile)
     except Exception as err:
-        dbg(f"Profile '{profile}' returned error: {err}")
+        dbg(f"Profile '{profile['name']}' returned error: {err}")
         return False
     return True
 

@@ -89,11 +89,18 @@ def test_update_binding():
 @test
 def test_save():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
-    profile.update_binding("All", 0, "Sync")
+    profile.update_binding("all", 0, "Sync")
     profile.name = r"Test \/ % :"
     profile.save()
+    print(profile.name)
+    assert profile_is_valid(r"Test \/ % :")
+    assert profile_is_valid("Test")
     profile = get_profile("Test")
-    assert profile.get("All", 0) == "Sync"
+    assert profile is not None
+    assert profile.get("all", 0) == "Sync"
+    profile = get_profile(r"Test \/ % :")
+    assert profile is not None
+    assert profile.get("all", 0) == "Sync"
     delete_profile("Test")
 
 
