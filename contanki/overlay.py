@@ -78,6 +78,8 @@ class ControlsOverlay:
         self.right = QWidget(parent)
         self.left.setLayout(left_layout)
         self.right.setLayout(right_layout)
+        self.left.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self.right.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         if self.always_shown:
             self.appear(get_state())
 
