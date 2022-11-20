@@ -57,6 +57,7 @@
             "02ea": "Xbox Series",
             "02fd": "Xbox Series",
             "0b13": "Xbox Series",
+            "02e0": "Xbox 360",
             "07e8": "invalid"
         },
         "0955": {
@@ -87,8 +88,8 @@
             "3106": "8BitDo Pro",
             "2000": "8BitDo Pro",
             "02e0": "8BitDo Pro",
-            "9018": "8BitDo Zero",
-            "3230": "8BitDo Zero"
+            "9018": "8BitDo Zero (X Input)",
+            "3230": "8BitDo Zero (D Input)"
         },
         "0428": {
             "4001": "GamePad Pro"

@@ -1,10 +1,10 @@
 {
-    "name": "8BitDo Zero",
+    "name": "8BitDo Zero (X Input)",
     "size": [
         8,
         2
     ],
-    "controller": "8BitDo Zero",
+    "controller": "8BitDo Zero (X Input)",
     "quick_select": {
         "actions": {
             "deckBrowser": [

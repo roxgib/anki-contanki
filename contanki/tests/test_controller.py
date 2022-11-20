@@ -17,7 +17,7 @@ def test_get_controller_list():
         "8BitDo Lite",
         "8BitDo Pro",
         "8BitDo Zero",
-        "8BitDo Zero (Direct Input)",
+        "8BitDo Zero (D Input)",
         "DualSense",
         "DualShock 3",
         "DualShock 4",

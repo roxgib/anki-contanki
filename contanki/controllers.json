@@ -520,17 +520,17 @@
         "supported": false,
         "has_dpad": true
     },
-    "8BitDo Zero": {
-        "name": "8BitDo Zero",
+    "8BitDo Zero (X Input)": {
+        "name": "8BitDo Zero (X Input)",
         "buttons": {
-            "0": "A",
-            "1": "B",
-            "2": "X",
-            "3": "Y",
+            "0": "B",
+            "1": "A",
+            "2": "Y",
+            "3": "X",
             "4": "Left Shoulder",
             "5": "Right Shoulder",
-            "6": "Select",
-            "7": "Start"
+            "8": "Select",
+            "9": "Start"
         },
         "axis_buttons": {
             "0": "D-Pad Left",
@@ -548,8 +548,8 @@
         "supported": true,
         "has_dpad": true
     },
-    "8BitDo Zero (Direct Input)": {
-        "name": "8BitDo Zero (Direct Input)",
+    "8BitDo Zero (D Input)": {
+        "name": "8BitDo Zero (D Input)",
         "buttons": {
             "0": "A",
             "1": "B",

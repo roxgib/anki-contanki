@@ -124,24 +124,27 @@ def identify_controller(
     # Identify 8BitDo controllers pretending to be something else
     if ebd and (vendor_id, device_id) in [
         ("054c", "05c4"),
-        ("045e", "02e0"),
         ("045e", "028e"),
     ]:
         return controller_name_tuple("8BitDo Pro", buttons)
 
-    controllers_file = get_file("controllerIDs.json")
-    assert controllers_file is not None
-    controller_ids = json.loads(controllers_file)
+    if ebd and (vendor_id, device_id) == ("045e", "02e0"):
+        return controller_name_tuple("8BitDo Zero (X Input)", buttons)
 
-    try:
-        device_name = controller_ids["devices"][vendor_id][device_id]
-    except KeyError:
-        pass
-    else:
-        if device_name in CONTROLLERS:
-            return controller_name_tuple(device_name, buttons)
-        if device_name == "invalid":
-            return None
+    if vendor_id == "2dc8" or not "8bitdo" in id_.lower():
+        controllers_file = get_file("controllerIDs.json")
+        assert controllers_file is not None
+        controller_ids = json.loads(controllers_file)
+
+        try:
+            device_name = controller_ids["devices"][vendor_id][device_id]
+        except KeyError:
+            pass
+        else:
+            if device_name in CONTROLLERS:
+                return controller_name_tuple(device_name, buttons)
+            if device_name == "invalid":
+                return None
 
     id_ = id_.lower()
 
@@ -177,9 +180,12 @@ def identify_controller(
         device_name = "Steam Controller"
     elif "8bitdo" in id_:
         if "zero" in id_:
-            device_name = "8Bitdo Zero"
+            if buttons == 17:
+                device_name = "8BitDo Zero (X Input)"
+            else:
+                device_name = "8BitDo Zero (D Input)"
         elif "lite" in id_:
-            device_name = "8Bitdo Lite"
+            device_name = "8BitDo Lite"
         elif "pro" in id_:
             device_name = "8BitDo Pro"
     elif "ps3" in id_:
