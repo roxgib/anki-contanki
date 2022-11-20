@@ -40,6 +40,23 @@ def test_get_profile():
 
 
 @test
+def test_get_profile_list():
+    profiles = get_profile_list(defaults=True)
+    assert isinstance(profiles, list)
+    assert len(profiles) > 0
+    assert profiles == [
+        "8BitDo Lite",
+        "8BitDo Zero",
+        "Joy-Con Left",
+        "Joy-Con Right",
+        "Standard Gamepad (16 Buttons 4 Axes)",
+        "Standard Gamepad (17 Buttons 4 Axes)",
+        "Standard Gamepad (18 Buttons 4 Axes)",
+        "Super Nintendo",
+    ]
+
+
+@test
 def test_delete_profile():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
     profile.name = "test"

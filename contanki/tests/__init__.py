@@ -1,5 +1,5 @@
 from typing import Callable
-from traceback import format_exception, extract_stack, format_exception_only, format_list, extract_tb
+from traceback import format_list, extract_tb
 import sys
 tests = {}
 
@@ -12,6 +12,12 @@ def test(_test: Callable) -> Callable:
 
 def run_tests():
     """Run all registered tests."""
+    assertions_checked = False
+    assert (assertions_checked := True)
+    if not assertions_checked:
+        print("WARNING: assertions are not enabled, tests will not run")
+        return
+
     from . import test_controller, test_profile, test_utils, test_icons
     passed = list()
     failed = list()

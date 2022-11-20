@@ -161,19 +161,10 @@ class Profile:
 
 def get_profile_list(compatibility: str = None, defaults: bool = True) -> list[str]:
     """Returns a list of all profiles."""
-    profiles = list()
-    for file_name in os.listdir(user_profile_path):
-        if file_name not in ["placeholder", ".DS_Store"] and profile_is_valid(
-            file_name
-        ):
-            profiles.append(file_name)
-
+    files = os.listdir(user_profile_path)
     if defaults:
-        for file_name in os.listdir(default_profile_path):
-            if file_name == str(compatibility) or not compatibility:
-                if file_name not in ["placeholder", ".DS_Store"]:
-                    profiles.append(file_name)
-
+        files += os.listdir(default_profile_path)
+    profiles = [get_profile(file).name for file in files if profile_is_valid(file)]
     return sorted(profiles)
 
 
@@ -287,6 +278,8 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
     if isinstance(profile, str):
         path = join(user_profile_path, profile)
         if not exists(path):
+            path = join(default_profile_path, profile)
+        if not exists(path):
             dbg(f"Profile '{profile}' not found")
             return False
         if profile == "placeholder":
@@ -301,10 +294,14 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
     elif isinstance(profile, Profile):
         try:
             profile = profile.to_dict()
-        except (AttributeError, TypeError, ValueError):
+        except (AttributeError, TypeError, ValueError) as err:
+            dbg(err)
             return False
 
-    assert isinstance(profile, dict)
+    if not isinstance(profile, dict):
+        dbg(dbg(f"Profile '{profile}' not of type dict"))
+        return False
+
     profile = int_keys(profile)
 
     for key in [
@@ -329,6 +326,11 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
         Controller(profile["controller"])
     except ValueError as err:
         dbg(err)
+        return False
+    try:
+        get_profile(profile['name'])
+    except Exception as err:
+        dbg(f"Profile '{profile}' returned error: {err}")
         return False
     return True
 
