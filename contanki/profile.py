@@ -231,16 +231,24 @@ def rename_profile(profile: str | Profile, new_name: str) -> None:
 
 def find_profile(controller: str, buttons: int, axes: int) -> str:
     """Find a profile that matches the controller."""
+    dbg(f"Finding profile for {controller} with {buttons} buttons and {axes} axes")
     with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
         controllers = json.load(file)
     if controller in controllers:
         if profile_is_valid(profile_name := controllers[controller]):
+            dbg(f"Found profile {profile_name} for {controller}")
             return profile_name
         update_controllers(controller, "")
         dbg(f"Profile '{profile_name}' for {controller} invalid or not found.")
     if profile_is_valid(controller):
+        dbg(f"Found profile {controller} for {controller}")
+        try:
+            copy_profile(controller, controller)
+        except FileExistsError:
+            pass
         return controller  # We don't want to overwrite an existing profile
     default_profiles = os.listdir(default_profile_path)
+    dbg("Default profiles: " + default_profiles)
     if controller in default_profiles:
         profile_to_copy = controller
     elif f"Standard Gamepad ({buttons} Buttons {axes} Axes)" in default_profiles:
