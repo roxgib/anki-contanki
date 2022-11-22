@@ -27,7 +27,6 @@ from .profile import (
     Profile,
     get_profile,
     find_profile,
-    convert_profiles,
 )
 from .actions import button_actions, release_actions, update_actions
 
@@ -62,7 +61,6 @@ class Contanki(AnkiWebView):
         mw.addonManager.setConfigAction(__name__, self.on_config)
         self.menu_item = QAction("Controller Options", mw)
         qconnect(self.menu_item.triggered, self.on_config)
-        convert_profiles()
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
         script = get_file("controller.js")
         self.stdHtml(f"""<script type="text/javascript">\n{script}\n</script>""")
