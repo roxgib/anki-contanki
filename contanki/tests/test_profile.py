@@ -10,7 +10,6 @@ from . import test
 # pylint: disable=unused-import
 from ..profile import (
     Profile,
-    convert_profiles,
     get_profile,
     get_profile_list,
     copy_profile,
@@ -46,7 +45,8 @@ def test_get_profile_list():
     assert len(profiles) > 0
     assert profiles == [
         "8BitDo Lite",
-        "8BitDo Zero",
+        "8BitDo Zero (D Input)",
+        "8BitDo Zero (X Input)",
         "Joy-Con Left",
         "Joy-Con Right",
         "Standard Gamepad (16 Buttons 4 Axes)",
@@ -165,15 +165,3 @@ def test_profile_is_valid():
     assert profile_is_valid("test")
     assert not profile_is_valid("test2")
     delete_profile("test")
-
-
-@test
-def test_convert_profile():
-    shutil.copyfile(
-        join(tests_path, "test_profile"),
-        join(user_profile_path, "test_profile"),
-    )
-    convert_profiles()
-    assert profile_is_valid("test_profile (converted)")
-    assert not profile_is_valid("test_profile")
-    delete_profile("test_profile (converted)")
