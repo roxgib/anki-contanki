@@ -177,9 +177,11 @@ def get_profile(name: str) -> Profile | None:
 
 def create_profile(old_name: str, new_name: str) -> Profile:
     """Create a new Profile object using an existing Profile as a template."""
-    if exists(join(user_profile_path, new_name)):
+    if exists(join(user_profile_path, new_name)) or new_name in get_profile_list():
         raise FileExistsError(f"Error: Profile name '{new_name}' already in use")
-    if exists(join(default_profile_path, new_name)):
+
+    path = join(default_profile_path, new_name)
+    if exists(path) or new_name in get_profile_list(defaults=True):
         raise FileExistsError(
             f"Error: Profile name '{new_name}' conflicts with built-in profile"
         )
@@ -204,11 +206,10 @@ def delete_profile(profile: str | Profile) -> None:
 
 def copy_profile(profile: str | Profile, new_name: str) -> Profile:
     """Copy a profile to a new name and save to disk."""
-    name = profile.name if isinstance(profile, Profile) else profile
-    dbg(f"Copying profile {name} to {new_name}")
-    new_profile = get_profile(name)
+    new_profile = get_profile(profile) if isinstance(profile, str) else profile.copy()
     if new_profile is None:
-        raise FileNotFoundError(f"Tried to copy non-existent profile '{name}'")
+        raise FileNotFoundError(f"Tried to copy non-existent profile '{profile}'")
+    dbg(f"Copying profile {new_profile.name} to {new_name}")
     new_profile.name = new_name
     new_profile.save()
     return new_profile

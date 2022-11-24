@@ -125,10 +125,9 @@ class ContankiConfig(QDialog):
         """Save changes, and load them. Used on close."""
         for profile in self.to_delete:
             delete_profile(profile)
-
         self.config.update(self.options_page.get())
+        self.options_page.profile_bar.save_all()
         mw.addonManager.writeConfig(__name__, self.config)
-        self.profile.save()
         update_controllers(self.profile.controller, self.profile.name)
         mw.contanki.profile = self.profile  # type: ignore
         self.close()
@@ -137,25 +136,20 @@ class ContankiConfig(QDialog):
         """Open the Contanki help page."""
         showInfo(get_debug_str(), textFormat="rich")
 
-    def change_profile(self, profile_name: str) -> None:
-        """Used when the user changes the profile in the profile list.
 
-        Will only update the main profile if Save is chosen."""
-        if hash(self.profile) != self.profile_hash and askUser(
-            "Save changes to current profile?", self
-        ):
-            self.profile.save()
-        profile = get_profile(profile_name)
-        if profile is None:
-            raise ValueError(f"Profile {profile_name} not found.")
+    def change_profile(self, profile: Profile) -> None:
+        """Changes which profile is targeted by the config window."""
         self.profile = profile
-        self.profile_hash = hash(profile)
-        self.tab_bar.removeTab(0)
-        self.tab_bar.removeTab(0)
-        self.options_page = OptionsPage(self)
-        self.tab_bar.addTab(self.options_page, "Options")
-        self.controls_page = ControlsPage(self)
-        self.tab_bar.addTab(self.controls_page, "Controls")
+        # self.tab_bar.removeTab(0)
+        # self.tab_bar.removeTab(0)
+        # self.options_page = OptionsPage(self)
+        # self.tab_bar.addTab(self.options_page, "Options")
+        # self.controls_page = ControlsPage(self)
+        # self.tab_bar.addTab(self.controls_page, "Controls")
+
+    def get_profile(self) -> Profile:
+        """Get the currrent profile."""
+        return self.profile
 
     def get_custom_actions(self) -> list[str]:
         """Get the names of custom actions."""
@@ -169,7 +163,7 @@ class ContankiConfig(QDialog):
                 self.controls_page.update_inheritance()
 
     def reload(self):
-        """Update the controls page."""
+        """Updates the page."""
         if self.loaded:
             self.controls_page.update_tabs()
             self.options_page.update()
@@ -221,7 +215,7 @@ class OptionsPage(QWidget):
     def __init__(self, parent: ContankiConfig) -> None:
         super().__init__(parent)
         self._parent = parent
-        self.profile = parent.profile
+        self.get_profile = parent.get_profile
         self.reload = parent.reload
         layout = QGridLayout(parent)
         self.options: dict[str, Any] = dict()
@@ -300,14 +294,18 @@ class OptionsPage(QWidget):
         def __init__(self, parent: ContankiConfig) -> None:
             super().__init__(parent)
             layout = QHBoxLayout()
-            self.profile = parent.profile
+            self.profile = parent.get_profile()
             self.to_delete = parent.to_delete
+            profiles = get_profile_list(None, False)
+            profiles = [p for p in profiles if p not in self.to_delete]
+            self.profiles = [get_profile(name) for name in profiles]
             self.reload = parent.reload
+            self._change_profile = parent.change_profile
 
             self.profile_combo = QComboBox(self)
-            self.profile_combo.addItems(p_list := get_profile_list(defaults=False))
-            self.profile_combo.setCurrentIndex(p_list.index(self.profile.name))
-            qconnect(self.profile_combo.currentTextChanged, parent.change_profile)
+            self.profile_combo.addItems(profiles)
+            self.profile_combo.setCurrentIndex(profiles.index(self.profile.name))
+            qconnect(self.profile_combo.currentIndexChanged, self.change_profile)
 
             # Controller Selection Dropdown
             self.controller_combo = QComboBox(self)
@@ -333,7 +331,7 @@ class OptionsPage(QWidget):
                 get_profile_list(),
                 editable=False,
             )
-            if not (okay1 and old):
+            if not (old and okay1):
                 return
             name, okay2 = QInputDialog().getText(
                 self, "Create New Profile", "Enter the new profile name:"
@@ -343,16 +341,20 @@ class OptionsPage(QWidget):
             new_profile = create_profile(old, name)
             if new_profile is None:
                 return
+            self.profiles.append(new_profile)
             self.profile_combo.addItem(new_profile.name)
             self.profile_combo.setCurrentText(new_profile.name)
 
         def delete_profile(self) -> None:
             """Delete the current profile."""
-            if len(self.profile_combo) == 1:
+            if len(self.profiles) == 1:
                 showInfo("You can't delete the last profile")
                 return
             self.to_delete.append(self.profile.name)
-            self.profile_combo.removeItem(self.profile_combo.currentIndex())
+            index = self.profile_combo.currentIndex()
+            print(index)
+            del self.profiles[index]
+            self.profile_combo.removeItem(index)
 
         def rename_profile(self) -> None:
             """Rename the current profile."""
@@ -366,9 +368,9 @@ class OptionsPage(QWidget):
             self.profile.name = new_name
             self.to_delete.append(old_name)
 
-        def get_profile(self) -> str:
+        def get_profile(self) -> Profile:
             """Returns the currently selected profile."""
-            return self.profile_combo.currentText()
+            return self.profiles[self.profile_combo.currentIndex()]
 
         def get_controller(self) -> str:
             """Returns the currently selected controller."""
@@ -379,13 +381,25 @@ class OptionsPage(QWidget):
             self.profile.controller = controller
             self.reload()
 
+        def change_profile(self, index: int) -> None:
+            """Changes the current profile."""
+            self._change_profile(self.profiles[index])
+            self.profile = self.profiles[index]
+            self.reload()
+
+        def save_all(self) -> None:
+            """Saves all profiles."""
+            for profile in self.profiles:
+                profile.save()
+
+
     class CustomActions(QWidget):
         """A widget allowing the user to modify custom actions."""
 
         def __init__(self, parent: ContankiConfig, actions: dict[str, str]) -> None:
             super().__init__(parent)
             layout = QGridLayout()
-            self.profile = parent.profile
+            self.get_profile = parent.get_profile
             self.config = parent.config
             self.reload = parent.reload
 
@@ -505,7 +519,7 @@ class OptionsPage(QWidget):
 
         def get(self) -> list[int]:
             """Returns the list of checked flags."""
-            return [i+1 for i, cbox in enumerate(self.checkboxes) if cbox.isChecked()]
+            return [i + 1 for i, cbox in enumerate(self.checkboxes) if cbox.isChecked()]
 
     class AxisRoleSelector(QGroupBox):
         """Allows the user to select the role for each axis."""
@@ -521,7 +535,7 @@ class OptionsPage(QWidget):
 
         def __init__(self, parent: ContankiConfig) -> None:
             super().__init__("Axis Roles", parent)
-            self.profile = parent.profile
+            self.get_profile = parent.get_profile
             self.dropdowns: list[QComboBox] = list()
             self.update_controls_page = parent.update_controls_page
             self.setAlignment(Alignment.AlignTop)
@@ -529,7 +543,7 @@ class OptionsPage(QWidget):
 
         def update_binding(self, axis: int, role: str) -> None:
             """Update the binding for the given axis."""
-            self.profile.axes_bindings[axis] = role
+            self.get_profile().axes_bindings[axis] = role
             self.update_controls_page()
 
         def setup(self) -> None:
@@ -541,20 +555,20 @@ class OptionsPage(QWidget):
             )
             layout.setLabelAlignment(Alignment.AlignRight | Alignment.AlignVCenter)
             self.dropdowns.clear()
-            for axis, name in self.profile.controller.axes.items():
+            for axis, name in self.get_profile().controller.axes.items():
                 dropdown = QComboBox()
                 dropdown.setSizePolicy(
                     QSizePolicy.Policy.MinimumExpanding,
                     QSizePolicy.Policy.MinimumExpanding,
                 )
                 dropdown.addItems(self.items)
-                dropdown.setCurrentText(self.profile.axes_bindings[axis])
+                dropdown.setCurrentText(self.get_profile().axes_bindings[axis])
                 qconnect(
                     dropdown.currentTextChanged,
                     partial(self.update_binding, axis),
                 )
                 label = QLabel()
-                pixmap = get_button_icon(self.profile.controller, name)
+                pixmap = get_button_icon(self.get_profile().controller, name)
                 label.setPixmap(
                     pixmap.scaled(40, 40, Qt.AspectRatioMode.KeepAspectRatio)
                 )
@@ -574,7 +588,7 @@ class OptionsPage(QWidget):
 
         def __init__(self, parent: ContankiConfig):
             super().__init__("Quick Select", parent)
-            self.profile = parent.profile
+            self.get_profile = parent.get_profile
             self.config = parent.config
             self._parent = parent
             self.setup()
@@ -582,13 +596,13 @@ class OptionsPage(QWidget):
         def setup(self) -> None:
             """Setup the Quick Select settings."""
             layout = QFormLayout(self._parent)
-            for option, value in self.profile.quick_select.items():
+            for option, value in self.get_profile().quick_select.items():
                 if option == "actions":
                     continue
                 checkbox = QCheckBox(self._parent)
                 if (
                     option == "Select with Stick"
-                    and not self.profile.controller.has_stick
+                    and not self.get_profile().controller.has_stick
                 ):
                     checkbox.setEnabled(False)
                 else:
@@ -599,7 +613,7 @@ class OptionsPage(QWidget):
 
         def update_option(self, option: str, value: bool) -> None:
             """Update the given option."""
-            self.profile.quick_select[option] = value
+            self.get_profile().quick_select[option] = value
 
 
 class ControlsPage(QTabWidget):
@@ -614,7 +628,7 @@ class ControlsPage(QTabWidget):
         super().__init__(parent)
         self.setStyleSheet(self.style_sheet)
         self._parent = parent
-        self.profile = parent.profile
+        self.get_profile = parent.get_profile
         self._update_binding = parent.update_binding
         self.get_custom_actions = parent.get_custom_actions
         self.setObjectName("controls_page")
@@ -635,13 +649,13 @@ class ControlsPage(QTabWidget):
 
         all_bindings = {
             i: action
-            for (state, i), action in self.profile.bindings.items()
+            for (state, i), action in self.get_profile().bindings.items()
             if state == "all"
         }
 
         review_bindings = {
             i: action
-            for (state, i), action in self.profile.bindings.items()
+            for (state, i), action in self.get_profile().bindings.items()
             if state == "review"
         }
 
@@ -680,14 +694,14 @@ class ControlsPage(QTabWidget):
 
         def __init__(self, parent: ControlsPage, state: State) -> None:
             super().__init__()
-            axes_bindings = parent.profile.axes_bindings
+            axes_bindings = parent.get_profile().axes_bindings
             self.combos: dict[int, QComboBox] = dict()
-            buttons = parent.profile.controller.buttons.copy()
+            buttons = parent.get_profile().controller.buttons.copy()
 
             buttons.update(
                 {
                     index + 100: action
-                    for index, action in parent.profile.controller.axis_buttons.items()
+                    for index, action in parent.get_profile().controller.axis_buttons.items()
                 }
             )
             layout = QGridLayout(self)
@@ -698,13 +712,13 @@ class ControlsPage(QTabWidget):
                     axis = (index - 100) // 2
                     if axis not in axes_bindings or axes_bindings[axis] != "Buttons":
                         continue
-                icon = ButtonIcon(None, button, parent.profile.controller, index)
+                icon = ButtonIcon(None, button, parent.get_profile().controller, index)
                 icon.setFixedSize(60, 60)
                 layout.addWidget(icon, row, col)
                 col += 1
                 combo = QComboBox()
                 combo.addItems(STATE_ACTIONS[state] + parent.custom_actions)
-                combo.setCurrentText(parent.profile.bindings[(state, index)])
+                combo.setCurrentText(parent.get_profile().bindings[(state, index)])
                 combo.setMaximumWidth(170)
                 combo.setFixedHeight(30)
                 qconnect(
@@ -726,7 +740,7 @@ class ControlsPage(QTabWidget):
 
         def __init__(self, parent: ContankiConfig) -> None:
             super().__init__(parent)
-            self.profile = parent.profile
+            self.get_profile = parent.get_profile
             self.custom_actions = parent.get_custom_actions()
             layout = QVBoxLayout(self)
             self.checkboxes: dict[State, list[QCheckBox]] = dict()
@@ -741,7 +755,7 @@ class ControlsPage(QTabWidget):
             for action in QUICK_SELECT_ACTIONS[state] + self.custom_actions:
                 checkbox = QCheckBox(action, self)
                 checkbox.setChecked(
-                    action in self.profile.quick_select["actions"][state]
+                    action in self.get_profile().quick_select["actions"][state]
                 )
                 qconnect(checkbox.stateChanged, partial(self.on_change, action, state))
                 combos.append(checkbox)
@@ -762,7 +776,7 @@ class ControlsPage(QTabWidget):
 
         def on_change(self, action: str, state: State, checked: bool) -> None:
             """Updates the profile with actions to include in the quick select menu."""
-            actions = self.profile.quick_select["actions"][state]
+            actions = self.get_profile().quick_select["actions"][state]
             if checked and action not in actions:
                 actions.append(action)
             elif not checked and action in actions:
