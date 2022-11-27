@@ -121,6 +121,10 @@ def identify_controller(
     device_name = id_
     vendor_id, device_id = parse_controller_id(id_)
 
+    # Joy-Cons present twice, only recognise the correct one
+    if id_ == "Joy-Con (L/R) (STANDARD GAMEPAD)":
+        return None
+
     # Identify 8BitDo controllers pretending to be something else
     if ebd and (vendor_id, device_id) in [
         ("054c", "05c4"),
@@ -203,6 +207,12 @@ BUTTON_ORDER = [
     "Right Shoulder",
     "Left Trigger",
     "Right Trigger",
+    "SL",
+    "SR",
+    "ZL",
+    "ZR",
+    "L",
+    "R",
     "L1",
     "R1",
     "L2",

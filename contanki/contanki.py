@@ -321,14 +321,15 @@ class Contanki(AnkiWebView):
                 tooltip("Error: " + str(err))
 
     def on_connect(self, buttons: str, axes: str, *con: str) -> None:
-        """Called when a controller is connects through the JavaScript interface"""
+        """Called when a controller connects through the JavaScript interface"""
         self.reset_controller()
         controller_id = "::".join(con)
-        self.len_buttons, self.len_axes = int(buttons), int(axes)
+        buttons, axes = int(buttons), int(axes)
+        
         _controller = identify_controller(
             controller_id,
-            self.len_buttons,
-            self.len_axes,
+            buttons,
+            axes,
             self.config["Detect 8BitDo Controllers"],
         )
         if _controller is None:
@@ -344,6 +345,7 @@ class Contanki(AnkiWebView):
             tooltip("Unknown Controller Connected: " + controller_id)
         self.profile = get_profile(profile)
 
+        self.len_buttons, self.len_axes = buttons, axes
         self.buttons = [False] * self.len_buttons
         self.axes = [False] * self.len_axes
 
@@ -381,7 +383,7 @@ class Contanki(AnkiWebView):
         assert mw is not None
         for controller_action in self.controllers:
             mw.form.menuTools.removeAction(controller_action)
-        self.controllers = list()
+        self.controllers.clear()
         for i, controller in enumerate(controllers):
             con = identify_controller(
                 *(controller.split("%%%")), self.config["Detect 8BitDo Controllers"]
@@ -390,11 +392,11 @@ class Contanki(AnkiWebView):
                 continue
             self.controllers.append(QAction(con[0], mw))
             qconnect(self.controllers[-1].triggered, partial(self.change_controller, i))
-        if num_controllers := len(self.controllers) <= 1:
+        if len(self.controllers) <= 1:
             return
         for controller in self.controllers:
             mw.form.menuTools.addAction(controller)
-        tooltip(f"{num_controllers} controllers detected - select from the Tools menu.")
+        tooltip(f"{len(self.controllers)} controllers detected - select from the Tools menu.")
 
     @if_connected
     def change_controller(self, index: int, _) -> None:
