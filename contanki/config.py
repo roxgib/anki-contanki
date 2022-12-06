@@ -136,7 +136,6 @@ class ContankiConfig(QDialog):
         """Open the Contanki help page."""
         showInfo(get_debug_str(), textFormat="rich")
 
-
     def change_profile(self, profile: Profile) -> None:
         """Changes which profile is targeted by the config window."""
         self.profile = profile
@@ -392,7 +391,6 @@ class OptionsPage(QWidget):
             for profile in self.profiles:
                 profile.save()
 
-
     class CustomActions(QWidget):
         """A widget allowing the user to modify custom actions."""
 
@@ -600,15 +598,21 @@ class OptionsPage(QWidget):
                 if option == "actions":
                     continue
                 checkbox = QCheckBox(self._parent)
+                checkbox.setChecked(value)
+                qconnect(checkbox.stateChanged, partial(self.update_option, option))
+                layout.addRow(option, checkbox)
                 if (
                     option == "Select with Stick"
                     and not self.get_profile().controller.has_stick
+                ) or (
+                    option == "Select with D-Pad"
+                    and not self.get_profile().controller.has_dpad
                 ):
+                    checkbox.setChecked(False)
                     checkbox.setEnabled(False)
-                else:
-                    checkbox.setChecked(value)
-                qconnect(checkbox.stateChanged, partial(self.update_option, option))
-                layout.addRow(option, checkbox)
+            widget = QWidget()
+            if self.layout():
+                widget.setLayout(self.layout())
             self.setLayout(layout)
 
         def update_option(self, option: str, value: bool) -> None:
