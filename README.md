@@ -60,6 +60,14 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 13
+
+ - Improved compatibility with Joy-Cons
+ - Improved compatibility with 8BitDo Zero and Pro
+ - Fix several profiles bugs in the config menu
+ - Make overlay transparent to mouse events
+ - Various other fixes
+
 ### Beta 12
 
  - Fix crash when opening config if no controller is connected
