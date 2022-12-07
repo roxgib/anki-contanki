@@ -376,7 +376,7 @@
         "num_axes": 2,
         "has_stick": true,
         "supported": true,
-        "has_dpad": true
+        "has_dpad": false
     },
     "Joy-Con Left": {
         "name": "Joy-Con Left",
@@ -407,7 +407,7 @@
         "num_axes": 2,
         "has_stick": true,
         "supported": true,
-        "has_dpad": true
+        "has_dpad": false
     },
     "Joy-Con": {
         "name": "Joy-Con",
