@@ -7,7 +7,12 @@ from functools import partial
 from typing import Any, Callable
 
 from aqt import mw, Qt
-from aqt.utils import tooltip, is_mac
+from aqt.utils import tooltip
+
+try:
+    from aqt.utils import is_mac
+except ImportError:
+    is_mac = False
 
 from .funcs import (
     undo,
