@@ -263,24 +263,24 @@
     "Switch Pro": {
         "name": "Switch Pro",
         "buttons": {
-            "0": "A",
-            "1": "B",
-            "2": "X",
-            "3": "Y",
+            "0": "B",
+            "1": "A",
+            "2": "Y",
+            "3": "X",
             "4": "Left Shoulder",
             "5": "Right Shoulder",
             "6": "Left Trigger",
             "7": "Right Trigger",
-            "8": "Square",
-            "9": "Home",
+            "8": "Minus",
+            "9": "Plus",
             "10": "Left Stick Click",
             "11": "Right Stick Click",
             "12": "D-Pad Up",
             "13": "D-Pad Down",
             "14": "D-Pad Left",
             "15": "D-Pad Right",
-            "16": "Minus",
-            "17": "Plus"
+            "16": "Home",
+            "17": "Square"
         },
         "axis_buttons": {
             "0": "Left Stick Left",
