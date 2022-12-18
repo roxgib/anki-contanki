@@ -95,6 +95,8 @@ class Contanki(AnkiWebView):
         self.quick_select = QuickSelectMenu(self, profile.quick_select)
         self.quick_select.update_icon(profile.controller)
         update_actions()
+        globals()['move_mouse'] = move_mouse_build()
+        globals()['scroll'] = scroll_build()
         self.custom_actions = get_custom_actions()
 
     def on_config(self) -> None:
