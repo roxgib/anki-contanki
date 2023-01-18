@@ -1,10 +1,11 @@
-let polling, index, indices, ready;
+let polling, connected_index, indices, ready;
 initialise()
 
 function initialise() {
     if (ready) { return }
     try {
         bridgeCommand('contanki::initialise::arg');
+        // Causes a lot of console spam if we try to call bridgeCommand too early
     } catch (err) {
         setTimeout(initialise, 1000);
         return;
@@ -14,47 +15,39 @@ function initialise() {
     ready = true;
 }
 
-function on_controller_connect(event) {
-    let controllers = window.navigator.getGamepads(); 
+function on_controller_connect() {
+    let controllers = window.navigator.getGamepads();
     let register = 'contanki::register';
     indices = [];
     for (let i = 0; i < controllers.length; i++) {
-        if (controllers[i] != null && controllers[i].connected) {
+        let con = controllers[i];
+        if (con != null && con.connected) {
             indices.push(i);
-            register = register
-                + `::${controllers[i].id}%%%${controllers[i].buttons.length}%%%${controllers[i].axes.length}`;
+            register += `::${con.id}%%%${con.buttons.length}%%%${con.axes.length}`;
         }
-    }
+    };
     if (indices.length == 0) {
-        bridgeCommand('contanki::message::Error connecting to controller. Please try again.')
-    } else if (indices.length == 1) {
-        connect_controller(indices[0]);
+        bridgeCommand('contanki::message::No controllers detected. Please reconnect your controller and try again.');
     } else {
-        let most = 0;
-        let i = 0;
-        for (con in indices) {
-            if (most < controllers[con].buttons.length) {
-                most = controllers[con].buttons.length;
-                i = con;
-            }
+        if (indices.length > 1) { 
+            bridgeCommand(register); 
         }
-        bridgeCommand(register);
-        connect_controller(i);
+        connect_controller(indices[0]);
     }
 }
 
 function connect_controller(i) {
-    index = i
-    let controllers = window.navigator.getGamepads();
-    bridgeCommand(`contanki::on_connect::${controllers[index].buttons.length}::${controllers[index].axes.length}::${controllers[index].id}`);
     window.clearInterval(polling);
+    let con = window.navigator.getGamepads()[i];
+    bridgeCommand(`contanki::on_connect::${con.buttons.length}::${con.axes.length}::${con.id}`);
+    connected_index = i;
     polling = setInterval(poll, 50);
 }
 
 function on_controller_disconnect(event) {
     bridgeCommand(`contanki::on_disconnect::arg`);
     window.clearInterval(polling);
-    index = null;
+    connected_index = null;
     let controllers = window.navigator.getGamepads();
     for (let i = 0; i < controllers.length; i++) {
         if (controllers[i] != null) {
@@ -65,15 +58,15 @@ function on_controller_disconnect(event) {
 }
 
 function poll() {
-    if (index == null) { 
+    if (connected_index == null) {
         on_controller_disconnect();
         return;
     }
 
-    let controller = window.navigator.getGamepads()[index];
+    let con = window.navigator.getGamepads()[connected_index];
 
     try {
-        if (!controller.connected) {
+        if (!con.connected) {
             on_controller_disconnect();
             return;
         }
@@ -82,26 +75,16 @@ function poll() {
         return;
     }
 
-    let buttons = new Array();
-    let axes = new Array();
-
-    for (let i = 0; i < controller.buttons.length; i++) {
-        buttons.push(controller.buttons[i].pressed.toString());
-    }
-
-    for (let i = 0; i < controller.axes.length; i++) {
-        axes.push(controller.axes[i].toString());
-    }
-
-    bridgeCommand(`contanki::poll::${buttons.toString()}::${axes.toString()}`);
+    let buttons = con.buttons.map(button => button.pressed);
+    bridgeCommand(`contanki::poll::${buttons}::${con.axes}`);
 }
 
 function get_controller_info() {
     let controllers = window.navigator.getGamepads();
     let ids = "";
     for (let i = 0; i < controllers.length; i++) {
-        if (controllers[i] != null && controllers[i].connected) {
-            let con = controllers[i];
+        let con = controllers[i];
+        if (con != null && con.connected) {
             ids += `%%%${con.id}%${con.buttons.length}%${con.axes.length}`;
         }
     }
