@@ -50,6 +50,12 @@ class Profile:
         self.axes_bindings: dict[int, str] = defaultdict(str, profile["axes_bindings"])
         self.bindings[("NoFocus", 0)] = "Focus Main Window"
 
+    def __repr__(self) -> str:
+        return f"Profile({self.name})"
+
+    def __str__(self) -> str:
+        return self.name
+
     @property
     def controller(self) -> Controller:
         """Returns the controller."""
@@ -233,19 +239,21 @@ def rename_profile(profile: str | Profile, new_name: str) -> None:
 def find_profile(controller: str, buttons: int, axes: int) -> str:
     """Find a profile that matches the controller."""
     dbg(f"Finding profile for {controller} with {buttons} buttons and {axes} axes")
-    with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
-        controllers = json.load(file)
+
+    # Check if a profile is already assigned to this controller
+    profile = get_assigned_profile(controller)
+    if profile is not None:
+        dbg(f"Found profile {profile.name} for {controller}")
+        return str(profile)
+
+    # Check if a profile named after the controller exists
     user_profiles = get_profile_list(defaults=False)
-    if controller in controllers:
-        if (profile_name := controllers[controller]) in user_profiles:
-            dbg(f"Found profile {profile_name} for {controller}")
-            return profile_name
-        update_controllers(controller, "")
-        dbg(f"Profile '{profile_name}' for {controller} invalid or not found.")
     if controller in user_profiles:
         dbg(f"Found profile {controller} for {controller}")
-        update_controllers(controller, controller)
+        update_assigned_profiles(controller, controller)
         return controller
+
+    # No profile found, create a default profile for the controller
     default_profiles = get_profile_list(defaults=True)
     if controller in default_profiles:
         profile_to_copy = controller
@@ -254,23 +262,41 @@ def find_profile(controller: str, buttons: int, axes: int) -> str:
     else:
         profile_to_copy = "Standard Gamepad (18 Buttons 4 Axes)"
     profile = copy_profile(profile_to_copy, controller)
-    update_controllers(controller, profile.name)
+    update_assigned_profiles(controller, profile.name)
+
     if controller in CONTROLLERS:
         profile.controller = Controller(controller)
         profile.save()
     return profile.name
 
 
-def update_controllers(controller: Controller | str, profile: str):
+def update_assigned_profiles(controller: Controller | str, profile: Profile | str):
     """Update the controllers file with the profile."""
+    profile = str(profile)
+    controller = str(controller)
     with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
         controllers = json.load(file)
     if profile:
-        controllers[str(controller)] = profile
+        controllers[controller] = profile
     else:
-        del controllers[str(controller)]
+        del controllers[controller]
     with open(join(user_files_path, "controllers"), "w", encoding="utf8") as file:
         json.dump(controllers, file)
+
+
+def get_assigned_profile(controller: Controller | str) -> Profile | None:
+    """Get a list of profiles assigned to controllers."""
+    controller = str(controller)
+    assigned_profiles = get_assigned_profiles()
+    if controller in assigned_profiles:
+        return get_profile(assigned_profiles[controller])
+    return None
+
+
+def get_assigned_profiles() -> dict[str, str]:
+    """Get a list of profiles assigned to controllers."""
+    with open(join(user_files_path, "controllers"), "r", encoding="utf8") as file:
+        return json.load(file)
 
 
 def profile_is_valid(profile: Profile | dict | str) -> bool:

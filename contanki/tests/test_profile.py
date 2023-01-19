@@ -17,7 +17,7 @@ from ..profile import (
     profile_is_valid,
     rename_profile,
     delete_profile,
-    update_controllers,
+    update_assigned_profiles,
 )
 
 
@@ -146,7 +146,7 @@ def test_find_profile():
     profile = get_profile(profile)
     profile.name = "test"
     profile.save()
-    update_controllers("DualShock 4", "test")
+    update_assigned_profiles("DualShock 4", "test")
     profile = find_profile("DualShock 4", 18, 4)
     assert profile == "test"
     delete_profile("test")

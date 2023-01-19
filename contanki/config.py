@@ -40,7 +40,7 @@ from .profile import (
     delete_profile,
     get_profile,
     get_profile_list,
-    update_controllers,
+    update_assigned_profiles,
 )
 from .actions import QUICK_SELECT_ACTIONS, STATE_ACTIONS
 from .icons import ButtonIcon, get_button_icon
@@ -128,7 +128,7 @@ class ContankiConfig(QDialog):
         self.config.update(self.options_page.get())
         self.options_page.profile_bar.save_all()
         mw.addonManager.writeConfig(__name__, self.config)
-        update_controllers(self.profile.controller, self.profile.name)
+        update_assigned_profiles(self.profile.controller, self.profile.name)
         mw.contanki.profile = self.profile  # type: ignore
         self.close()
 
