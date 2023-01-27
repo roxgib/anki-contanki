@@ -60,6 +60,14 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 14
+
+ - Fix profile changes not being saved/profiles being overridden by defaults
+ - Update Switch Pro button mappings
+ - Deadzone and acceleration changes take effect without restart
+
+Apologies for leaving the saving bug unfixed for so long.
+
 ### Beta 13
 
  - Improved compatibility with Joy-Cons
