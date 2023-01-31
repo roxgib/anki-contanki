@@ -77,7 +77,7 @@ class ContankiConfig(QDialog):
         self.loaded = False
 
         # Initialise internal variables
-        self._profile = profile.copy()
+        self._profile = profile.copy() # replaced when ProfileBar initializes
         self.config = get_config()
         self.to_delete: list[str] = list()
         self.profile_hash = hash(profile)
@@ -299,6 +299,8 @@ class OptionsPage(QWidget):
             self.profile_combo = QComboBox(self)
             self.profile_combo.addItems(profiles)
             self.profile_combo.setCurrentIndex(profiles.index(self.profile.name))
+            # We need to point the current profile at our profile list,
+            # not the one that was passed to config on opening
             self.change_profile(self.profile_combo.currentIndex())
             qconnect(self.profile_combo.currentIndexChanged, self.change_profile)
 
