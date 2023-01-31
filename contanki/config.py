@@ -77,7 +77,7 @@ class ContankiConfig(QDialog):
         self.loaded = False
 
         # Initialise internal variables
-        self.profile = profile.copy()
+        self._profile = profile.copy()
         self.config = get_config()
         self.to_delete: list[str] = list()
         self.profile_hash = hash(profile)
@@ -128,8 +128,8 @@ class ContankiConfig(QDialog):
         self.config.update(self.options_page.get())
         self.options_page.profile_bar.save_all()
         mw.addonManager.writeConfig(__name__, self.config)
-        update_assigned_profiles(self.profile.controller, self.profile.name)
-        mw.contanki.profile = self.profile  # type: ignore
+        update_assigned_profiles(self._profile.controller, self._profile.name)
+        mw.contanki.profile = self._profile  # type: ignore
         self.close()
 
     def help(self) -> None:
@@ -138,17 +138,12 @@ class ContankiConfig(QDialog):
 
     def change_profile(self, profile: Profile) -> None:
         """Changes which profile is targeted by the config window."""
-        self.profile = profile
-        # self.tab_bar.removeTab(0)
-        # self.tab_bar.removeTab(0)
-        # self.options_page = OptionsPage(self)
-        # self.tab_bar.addTab(self.options_page, "Options")
-        # self.controls_page = ControlsPage(self)
-        # self.tab_bar.addTab(self.controls_page, "Controls")
+        self._profile = profile
+        self.reload()
 
     def get_profile(self) -> Profile:
         """Get the currrent profile."""
-        return self.profile
+        return self._profile
 
     def get_custom_actions(self) -> list[str]:
         """Get the names of custom actions."""
@@ -157,7 +152,7 @@ class ContankiConfig(QDialog):
     def update_binding(self, state: State, button: int, action: str) -> None:
         """Update the binding for the given button."""
         if self.loaded:
-            self.profile.update_binding(state, button, action)
+            self._profile.update_binding(state, button, action)
             if state in ("all", "review"):
                 self.controls_page.update_inheritance()
 
@@ -304,6 +299,7 @@ class OptionsPage(QWidget):
             self.profile_combo = QComboBox(self)
             self.profile_combo.addItems(profiles)
             self.profile_combo.setCurrentIndex(profiles.index(self.profile.name))
+            self.change_profile(self.profile_combo.currentIndex())
             qconnect(self.profile_combo.currentIndexChanged, self.change_profile)
 
             # Controller Selection Dropdown
@@ -382,9 +378,8 @@ class OptionsPage(QWidget):
 
         def change_profile(self, index: int) -> None:
             """Changes the current profile."""
-            self._change_profile(self.profiles[index])
             self.profile = self.profiles[index]
-            self.reload()
+            self._change_profile(self.profile)
 
         def save_all(self) -> None:
             """Saves all profiles."""
