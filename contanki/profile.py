@@ -164,11 +164,14 @@ def get_profile_list(compatibility: str = None, defaults: bool = True) -> list[s
     return sorted(profiles)
 
 
-def load_profile(name: str) -> str | None:
+def _load_profile(name: str) -> str | None:
     """Loads a profile str from a file."""
-    paths = [join(user_profile_path, name), join(default_profile_path, name)]
-    name = slugify(name)
-    paths += [join(user_profile_path, name), join(default_profile_path, name)]
+    paths = (
+        join(user_profile_path, slugify(name)),
+        join(default_profile_path, slugify(name)),
+        join(user_profile_path, name),
+        join(default_profile_path, name),
+    )
     for path in paths:
         if exists(path):
             with open(path, "r", encoding="utf8") as file:
@@ -178,7 +181,7 @@ def load_profile(name: str) -> str | None:
 def get_profile(name: str) -> Profile | None:
     """Load a profile from a file."""
     if profile_is_valid(name):
-        return Profile(json.loads(load_profile(name), object_hook=int_keys))
+        return Profile(json.loads(_load_profile(name), object_hook=int_keys))
 
 
 def create_profile(old_name: str, new_name: str) -> Profile:
@@ -305,7 +308,7 @@ def profile_is_valid(profile: Profile | dict | str) -> bool:
         if profile == "placeholder":
             return False
         try:
-            profile = load_profile(profile)
+            profile = _load_profile(profile)
         except (UnicodeDecodeError, UnicodeError) as err:
             dbg(f"Error loading '{profile}': {err}")
             return False
