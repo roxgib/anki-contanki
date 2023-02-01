@@ -60,6 +60,11 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 15
+
+ - Fix config not saving profile changes under some circumstances
+ - Some some users upgrading from an older version loading old profile versions
+
 ### Beta 14
 
  - Fix profile changes not being saved/profiles being overridden by defaults
