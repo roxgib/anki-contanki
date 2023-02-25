@@ -170,9 +170,12 @@ class Contanki(AnkiWebView):
         self.update_quick_select(state, buttons, axes)
 
         for i, value in enumerate(buttons):
-            if value == self.buttons[i]:
+            if len(self.buttons) > i and value == self.buttons[i]:
                 continue
-            self.buttons[i] = value
+            if len(self.buttons) <= i:
+                self.buttons.append(value)
+            else:
+                self.buttons[i] = value
             if value:
                 self.do_action(state, i)
             else:
