@@ -1,4 +1,4 @@
-let polling, connected_index, indices, ready;
+let polling, connected_index, indices, ready, last_buttons, last_axes;
 initialise()
 
 function initialise() {
@@ -41,6 +41,8 @@ function connect_controller(i) {
     let con = window.navigator.getGamepads()[i];
     bridgeCommand(`contanki::on_connect::${con.buttons.length}::${con.axes.length}::${con.id}`);
     connected_index = i;
+    last_buttons = new Array(con.buttons.length).fill(false);
+    last_axes = new Array(con.axes.length).fill(0.0);
     polling = setInterval(poll, 50);
 }
 
@@ -76,7 +78,30 @@ function poll() {
     }
 
     let buttons = con.buttons.map(button => button.pressed);
-    bridgeCommand(`contanki::poll::${buttons}::${con.axes}`);
+    for (i = 0; i < con.buttons.length; i++) {
+        if (buttons[i] == last_buttons[i]) {
+            continue
+        } else {
+            button_press(i, value);
+            last_buttons[i] = value;
+        }
+    }
+    for (i = 0; i < con.buttons.length; i++) {
+        if (con.axes[i] == last_buttons[i]) {
+            continue
+        } else {
+            button_press(i, con.axes[i]);
+            last_axes[i] = con.axes[i];
+        }
+    }
+}
+
+function button_press(button, value) {
+    bridgeCommand(`contanki::press::${button}::${value}`);
+}
+
+function axis_press(axis, value) {
+    bridgeCommand(`contanki::axis::${axis}::${value}`);
 }
 
 function get_controller_info() {
