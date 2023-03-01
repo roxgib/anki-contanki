@@ -253,10 +253,10 @@ class QuickSelectMenu:
         return len(_action) * 12 + 30, max(len(word) for word in _action) * 5 + 40
 
     @staticmethod
-    def get_cart(angle: float, radius: float, x=0, y=0) -> tuple[float, float]:
+    def get_cart(angle: float, radius: float, x=0, y=0) -> tuple[int, int]:
         """Convert polar coordinates to cartesian."""
         angle -= HALF_PI
-        return radius * cos(angle) + x, radius * sin(angle) + y
+        return int(radius * cos(angle) + x), int(radius * sin(angle) + y)
 
     @staticmethod
     def get_angle_distance(angle1: float, angle2: float) -> float:
