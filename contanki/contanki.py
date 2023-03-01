@@ -95,8 +95,8 @@ class Contanki(AnkiWebView):
         self.quick_select = QuickSelectMenu(self, profile.quick_select)
         self.quick_select.update_icon(profile.controller)
         update_actions()
-        globals()['move_mouse'] = move_mouse_build()
-        globals()['scroll'] = scroll_build()
+        globals()["move_mouse"] = move_mouse_build()
+        globals()["scroll"] = scroll_build()
         self.custom_actions = get_custom_actions()
 
     def on_config(self) -> None:
@@ -325,12 +325,12 @@ class Contanki(AnkiWebView):
             except Exception as err:  # pylint: disable=broad-except
                 tooltip("Error: " + str(err))
 
-    def on_connect(self, buttons: str, axes: str, *con: str) -> None:
+    def on_connect(self, buttons: str | int, axes: str | int, *con: str) -> None:
         """Called when a controller connects through the JavaScript interface"""
         self.reset_controller()
         controller_id = "::".join(con)
         buttons, axes = int(buttons), int(axes)
-        
+
         _controller = identify_controller(
             controller_id,
             buttons,
@@ -401,7 +401,9 @@ class Contanki(AnkiWebView):
             return
         for controller in self.controllers:
             mw.form.menuTools.addAction(controller)
-        tooltip(f"{len(self.controllers)} controllers detected - select from the Tools menu.")
+        tooltip(
+            f"{len(self.controllers)} controllers detected - select from the Tools menu."
+        )
 
     @if_connected
     def change_controller(self, index: int, _) -> None:
