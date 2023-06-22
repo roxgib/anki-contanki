@@ -145,8 +145,8 @@ class QuickSelectMenu:
         """Get the geometry of the quick select menu."""
         x, y = mw.geometry().width() // 2, mw.geometry().height() - 200
         return [
-            QPoint(*self.get_cart(angle, radius, x, y))
-            for angle, radius in self.positions[state]
+            QPoint(int(round(coord[0])), int(round(coord[1])))
+            for coord in (self.get_cart(angle, radius, x, y) for angle, radius in self.positions[state])
         ]
 
     def appear(self, state: State):
@@ -253,10 +253,10 @@ class QuickSelectMenu:
         return len(_action) * 12 + 30, max(len(word) for word in _action) * 5 + 40
 
     @staticmethod
-    def get_cart(angle: float, radius: float, x=0, y=0) -> tuple[int, int]:
+    def get_cart(angle: float, radius: float, x=0, y=0) -> tuple[float, float]:
         """Convert polar coordinates to cartesian."""
         angle -= HALF_PI
-        return int(radius * cos(angle) + x), int(radius * sin(angle) + y)
+        return radius * cos(angle) + x, radius * sin(angle) + y
 
     @staticmethod
     def get_angle_distance(angle1: float, angle2: float) -> float:
