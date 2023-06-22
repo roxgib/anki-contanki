@@ -145,8 +145,8 @@ class QuickSelectMenu:
         """Get the geometry of the quick select menu."""
         x, y = mw.geometry().width() // 2, mw.geometry().height() - 200
         return [
-            QPoint(int(round(coord[0])), int(round(coord[1])))
-            for coord in (self.get_cart(angle, radius, x, y) for angle, radius in self.positions[state])
+            QPoint(*self.get_cart(angle, radius, x, y))
+            for angle, radius in self.positions[state]
         ]
 
     def appear(self, state: State):
