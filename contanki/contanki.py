@@ -50,11 +50,13 @@ class Contanki(AnkiWebView):
     quick_select = QuickSelectMenu(None, {})
     buttons: list[bool] = []
     axes: list[bool] = []
-    len_buttons = len_axes = 0
+    len_buttons = 0
+    len_axes = 0
     icons = IconHighlighter()
     controllers: list[QAction] = list()
     debug_info: list[list[str]] = []
     custom_actions = get_custom_actions()
+    script: str = get_file("controller.js")
 
     def __init__(self, parent):
         super().__init__(parent=parent)
@@ -62,8 +64,9 @@ class Contanki(AnkiWebView):
         self.menu_item = QAction("Controller Options", mw)
         qconnect(self.menu_item.triggered, self.on_config)
         gui_hooks.webview_did_receive_js_message.append(self.on_receive_message)
-        script = get_file("controller.js")
-        self.stdHtml(f"""<script type="text/javascript">\n{script}\n</script>""")
+        gui_hooks.profile_will_close.append(self.suspend)
+        gui_hooks.profile_did_open.append(self.resume)
+        self.resume()
         self.update_debug_info()
         self.profile = None
 
@@ -74,6 +77,14 @@ class Contanki(AnkiWebView):
             run_tests()
         else:
             self.setFixedSize(0, 0)
+
+    def suspend(self):
+        """Suspends JS execution. Necessary to prevent crash when Anki exits."""
+        self.stdHtml("")
+
+    def resume(self):
+        """Resumes the add-on"""
+        self.stdHtml(f"""<script type="text/javascript">\n{self.script}\n</script>""")
 
     @property
     def profile(self) -> Profile | None:
