@@ -86,11 +86,12 @@
             "ab20": "8BitDo Lite",
             "ab21": "8BitDo Lite",
             "2dc8": "8BitDo Lite",
-            "3106": "8BitDo Pro",
             "2000": "8BitDo Pro",
             "02e0": "8BitDo Pro",
             "9018": "8BitDo Zero (X Input)",
-            "3230": "8BitDo Zero (D Input)"
+            "3230": "8BitDo Zero (D Input)",
+            "3106": "8BitDo Ultimate"
+
         },
         "0428": {
             "4001": "GamePad Pro"
