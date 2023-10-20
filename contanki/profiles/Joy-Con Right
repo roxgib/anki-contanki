@@ -138,5 +138,9 @@
     "axes_bindings": {
         "0": "Buttons",
         "1": "Buttons"
+    },
+    "invert_axis": {
+        "0": false,
+        "1": false
     }
 }

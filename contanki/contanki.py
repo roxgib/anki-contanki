@@ -307,6 +307,8 @@ class Contanki(AnkiWebView):
             self.on_error("No profile")
             return
         mouse_x = mouse_y = scroll_x = scroll_y = 0.0
+        for axis, invert in self.profile.invert_axis.items():
+            axes[axis] *= -1 if invert else 1
         for (axis, assignment), value in zip(self.profile.axes_bindings.items(), axes):
             if assignment == "Unassigned":
                 continue

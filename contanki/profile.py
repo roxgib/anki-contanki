@@ -49,6 +49,11 @@ class Profile:
         self.controller = profile["controller"]
         self.axes_bindings: dict[int, str] = defaultdict(str, profile["axes_bindings"])
         self.bindings[("NoFocus", 0)] = "Focus Main Window"
+        self.invert_axis: dict[int, bool] = (
+            profile["invert_axis"]
+            if "invert_axis" in profile
+            else {i: False for i in range(self.len_axes)}
+        )
 
     def __repr__(self) -> str:
         return f"Profile({self.name})"
@@ -136,6 +141,7 @@ class Profile:
             "quick_select": deepcopy(self.quick_select),
             "bindings": deepcopy(bindings),
             "axes_bindings": deepcopy(self.axes_bindings),
+            "invert_axis": deepcopy(self.invert_axis),
         }
 
     def __hash__(self) -> int:

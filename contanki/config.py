@@ -541,6 +541,10 @@ class OptionsPage(QWidget):
             self.get_profile().axes_bindings[axis] = role
             self.update_controls_page()
 
+        def update_invert_axis(self, axis: int, invert: bool) -> None:
+            """Update the binding for the given axis."""
+            self.get_profile().invert_axis[axis] = invert
+
         def setup(self) -> None:
             """Refresh for the current controller."""
             layout = QFormLayout(self)
@@ -567,7 +571,17 @@ class OptionsPage(QWidget):
                 label.setPixmap(
                     pixmap.scaled(40, 40, Qt.AspectRatioMode.KeepAspectRatio)
                 )
-                layout.addRow(label, dropdown)
+                invert = QCheckBox("Invert")
+                invert.setChecked(self.get_profile().invert_axis[axis])
+                qconnect(
+                    invert.stateChanged,
+                    partial(self.update_invert_axis, axis),
+                )
+                sublayout = QVBoxLayout()
+                sublayout.addWidget(dropdown)
+                sublayout.addWidget(invert)
+                sublayout.setSpacing(3)
+                layout.addRow(label, sublayout)
                 self.dropdowns.append(dropdown)
             layout.setSizeConstraint(QFormLayout.SizeConstraint.SetFixedSize)
             self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
