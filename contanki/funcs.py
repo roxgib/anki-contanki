@@ -23,7 +23,7 @@ from aqt.qt import QKeyEvent as QKE
 from aqt.utils import current_window, tooltip, supportText
 from anki.decks import DeckId
 
-from .utils import State
+from .utils import State, dbg
 
 addon_path = dirname(abspath(__file__))
 assert mw is not None
@@ -209,22 +209,39 @@ def move_mouse_build() -> Callable[[float, float], None]:
     speed = config["Cursor Speed"] / 2
     accel = config["Cursor Acceleration"] / 5
     deadzone = config["Stick Deadzone"] / 100
-
-    def move_mouse(x: float, y: float) -> None:  # pylint: disable=invalid-name
+    multiple_screens = dbg("Multiple screens", len(mw.app.screens()) > 1)
+    
+    def move_mouse(move_x: float, move_y: float) -> None:  # pylint: disable=invalid-name
         assert mw is not None
-        if abs(x) + abs(y) < deadzone:
+        if abs(move_x) + abs(move_y) < deadzone:
             return
         cursor = mw.cursor()
         pos = cursor.pos()  # type: ignore
-        geom = mw.screen().geometry()
+        if multiple_screens:
+            for screen in mw.app.screens():
+                if screen.geometry().contains(pos):
+                    geom = screen.geometry()
+                    break
+            else:
+                return
+        else:
+            geom = mw.screen().geometry()
 
-        y = pos.y() + ((abs(y) * speed) ** (accel + 1)) * y
-        x = pos.x() + ((abs(x) * speed) ** (accel + 1)) * x
-        x, y = max(x, geom.x()), max(y, geom.y())
-        x, y = min(x, geom.width()), min(y, geom.height())
+        x = pos.x() + ((abs(move_x) * speed) ** (accel + 1)) * move_x
+        y = pos.y() + ((abs(move_y) * speed) ** (accel + 1)) * move_y
+        x, y = int(x), int(y)
 
-        pos.setX(int(x))
-        pos.setY(int(y))
+        if not geom.contains(QPoint(x, y)):
+            if multiple_screens:
+                for screen in mw.app.screens():
+                    if screen.geometry().contains(QPoint(x, y)):
+                        geom = screen.geometry()
+                        break
+            x, y = max(x, geom.x()), max(y, geom.y())
+            x, y = min(x, geom.width() + geom.x() - 1), min(y, geom.height() + geom.y() - 1)
+
+        pos.setX(x)
+        pos.setY(y)
         cursor.setPos(pos)  # type: ignore
 
     return move_mouse

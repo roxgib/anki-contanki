@@ -59,10 +59,13 @@ def int_keys(input_dict: dict) -> dict:
     return output_dict
 
 
-def dbg(value):
+def dbg(label, value=None):
     """Prints a value if in debugging mode. ."""
+    if value is None:
+        value = label
+        label = ""
     if DEBUG:
-        print(f"Contanki: {str(value)}")
+        print(f"Contanki: {label + ': ' if label else ''}{str(value)}")
     return value
 
 
