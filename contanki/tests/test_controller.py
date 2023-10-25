@@ -16,6 +16,7 @@ def test_get_controller_list():
     assert sorted(get_controller_list()) == [
         "8BitDo Lite",
         "8BitDo Pro",
+        "8BitDo Ultimate",
         "8BitDo Zero (D Input)",
         "8BitDo Zero (X Input)",
         "DualSense",
