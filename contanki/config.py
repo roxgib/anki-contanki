@@ -27,6 +27,7 @@ from aqt.qt import (
     QKeySequence,
     QLayout,
     QSizePolicy,
+    QFileDialog,
 )
 from aqt.theme import theme_manager
 from aqt.utils import showInfo, getText, askUser
@@ -77,7 +78,7 @@ class ContankiConfig(QDialog):
         self.loaded = False
 
         # Initialise internal variables
-        self._profile = profile.copy() # replaced when ProfileBar initializes
+        self._profile = profile.copy()  # replaced when ProfileBar initializes
         self.config = get_config()
         self.to_delete: list[str] = list()
         self.profile_hash = hash(profile)
@@ -289,6 +290,7 @@ class OptionsPage(QWidget):
             super().__init__(parent)
             layout = QHBoxLayout()
             self.profile = parent.get_profile()
+
             self.to_delete = parent.to_delete
             profiles = get_profile_list(None, False)
             profiles = [p for p in profiles if p not in self.to_delete]
@@ -313,8 +315,11 @@ class OptionsPage(QWidget):
             layout.addWidget(QLabel("Profile", self))
             layout.addWidget(self.profile_combo)
             layout.addWidget(Button(self, "Add Profile", self.add_profile))
-            layout.addWidget(Button(self, "Rename Profile", self.rename_profile))
-            layout.addWidget(Button(self, "Delete Profile", self.delete_profile))
+            layout.addWidget(Button(self, "Rename", self.rename_profile))
+            layout.addWidget(Button(self, "Delete", self.delete_profile))
+            layout.addWidget(Button(self, "Import", self.import_profile))
+            layout.addWidget(Button(self, "Export", self.export_profile))
+
             layout.addWidget(self.controller_combo)
 
             self.setLayout(layout)
@@ -364,6 +369,34 @@ class OptionsPage(QWidget):
             self.profile_combo.setItemText(self.profile_combo.currentIndex(), new_name)
             self.profile.name = new_name
             self.to_delete.append(old_name)
+
+        def import_profile(self) -> None:
+            filename = QFileDialog().getOpenFileName(
+                self,
+                "Import Profile",
+                "",
+                "Contanki Profiles (*.contanki)",
+            )
+            if filename and filename[0]:
+                with open(filename[0], "r") as file:
+                    profile = Profile.from_json(file.read())
+                if profile is None:
+                    showInfo("Invalid profile")
+                    return
+                self.profiles.append(profile)
+                self.profile_combo.addItem(profile.name)
+                self.profile_combo.setCurrentText(profile.name)
+
+        def export_profile(self) -> None:
+            filename = QFileDialog().getSaveFileName(
+                self,
+                "Export Profile",
+                f"{self.profile.name}.contanki",
+                "Contanki Profiles (*.contanki)",
+            )
+            if filename:
+                with open(filename[0], "w") as file:
+                    file.write(self.profile.to_json())
 
         def get_profile(self) -> Profile:
             """Returns the currently selected profile."""

@@ -143,6 +143,24 @@ class Profile:
             "axes_bindings": deepcopy(self.axes_bindings),
             "invert_axis": deepcopy(self.invert_axis),
         }
+    
+    def to_json(self) -> str:
+        """Returns the profile as a JSON string."""
+        return json.dumps(self.to_dict())
+    
+    @staticmethod
+    def from_json(json_str: str) -> Profile | None:
+        """Loads the profile from a JSON string."""
+        try: 
+            profile = json.loads(json_str, object_hook=int_keys)
+        except json.JSONDecodeError as err:
+            dbg(f"Profile '{json_str}' is not valid JSON")
+            dbg(err)
+            return None
+        if not profile_is_valid(profile):
+            dbg(f"Profile '{profile}' is not valid")
+            return None
+        return Profile(profile)
 
     def __hash__(self) -> int:
         return hash(str(self.to_dict()))
