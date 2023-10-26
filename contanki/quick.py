@@ -4,7 +4,7 @@ Quick select menu.
 
 from __future__ import annotations
 
-from math import atan, sin, cos, pi, tau
+from math import atan, sin, cos, pi, tau, sqrt
 from typing import Any
 
 from aqt.theme import theme_manager
@@ -133,11 +133,12 @@ class QuickSelectMenu:
             x, y = self.get_cart(angle, 1)
             x, y = abs(x), abs(y)
             distances.append(
-                10
-                + width / 2 * x
-                + height * y / 2
-                + (6 if len(actions) > 4 else 4) * 10
+                50
+                # + width * int(y) / 2
+                # + height * int(x) / 2
+                + (60 if len(actions) > 4 else 40)
             )
+        print(list(zip(angles, distances)))
 
         return list(zip(angles, distances))
 
