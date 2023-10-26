@@ -102,6 +102,8 @@ class Contanki(AnkiWebView):
             return
         if self.overlay is not None:
             self.overlay.close()
+        if self.quick_select is not None:
+            self.hide_quick_select()
         self.overlay = ControlsOverlay(mw, profile)
         self.quick_select = QuickSelectMenu(self, profile.quick_select)
         self.quick_select.update_icon(profile.controller)
