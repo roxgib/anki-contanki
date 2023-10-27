@@ -49,10 +49,11 @@ class Profile:
         self.controller = profile["controller"]
         self.axes_bindings: dict[int, str] = defaultdict(str, profile["axes_bindings"])
         self.bindings[("NoFocus", 0)] = "Focus Main Window"
-        self.invert_axis: dict[int, bool] = (
+        self.invert_axis: dict[int, bool] = defaultdict(
+            bool,
             profile["invert_axis"]
             if "invert_axis" in profile
-            else {i: False for i in range(self.len_axes)}
+            else {i: False for i in self.axes_bindings},
         )
 
     def __repr__(self) -> str:

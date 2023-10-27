@@ -2,18 +2,20 @@
     "name": "8BitDo Zero (D Input)",
     "size": [
         8,
-        2
+        5
     ],
     "controller": "8BitDo Zero (D Input)",
     "quick_select": {
         "actions": {
             "deckBrowser": [
                 "Fullscreen",
-                "Quit"
+                "Quit",
+                "Hide Cursor"
             ],
             "overview": [
                 "Fullscreen",
-                "Quit"
+                "Quit",
+                "Hide Cursor"
             ],
             "review": [
                 "Suspend Card",
@@ -35,16 +37,19 @@
     "bindings": {
         "all": {
             "0": "Enter",
-            "4": "Undo",
-            "7": "Sync",
+            "4": "",
+            "7": "Show Quick Select",
             "9": "Options",
-            "10": "Select",
-            "11": "Click",
-            "100": "Back",
-            "101": "Forward",
+            "10": "",
+            "11": "Sync",
+            "104": "Back",
+            "105": "Forward",
             "5": "Toggle Quick Select",
-            "102": "",
-            "103": ""
+            "1": "",
+            "3": "",
+            "6": "Undo",
+            "110": "",
+            "111": ""
         },
         "review": {
             "0": "Enter",
@@ -52,52 +57,46 @@
             "13": "Replay Audio",
             "14": "Flag",
             "15": "Mark Note",
-            "100": "",
-            "101": "Flag",
-            "102": "Bury Card",
-            "103": "Replay Audio"
+            "105": "Flag",
+            "110": "Bury Card",
+            "111": "Replay Audio",
+            "1": "",
+            "3": "",
+            "4": "",
+            "6": "",
+            "7": "",
+            "10": "",
+            "11": "",
+            "104": ""
         },
         "question": {
             "0": "Flip Card",
             "1": "",
-            "2": "",
             "3": "",
             "4": "",
-            "5": "",
             "6": "",
             "7": "",
-            "8": "",
-            "9": "",
-            "10": "",
+            "10": "Bury Note",
             "11": "",
-            "12": "",
-            "13": "",
-            "14": "",
-            "100": "",
-            "101": "",
-            "102": "",
-            "103": ""
+            "104": "",
+            "105": "",
+            "110": "",
+            "111": ""
         },
         "answer": {
             "0": "Good",
             "1": "Again",
             "2": "Hard",
             "3": "Easy",
-            "4": "",
-            "5": "",
+            "4": "Hard",
             "6": "",
             "7": "",
-            "8": "",
-            "9": "",
-            "10": "",
+            "10": "Bury Note",
             "11": "",
-            "12": "",
-            "13": "",
-            "14": "",
-            "100": "",
-            "101": "",
-            "102": "",
-            "103": ""
+            "104": "",
+            "105": "",
+            "110": "",
+            "111": ""
         },
         "deckBrowser": {
             "0": "Select",
@@ -108,24 +107,32 @@
             "13": "Next Deck",
             "14": "Previous Due Deck",
             "11": "Next Due Deck",
-            "100": "",
-            "101": "",
-            "102": "Previous Deck",
-            "103": "Next Deck"
+            "110": "Previous Deck",
+            "111": "Next Deck",
+            "4": "",
+            "6": "",
+            "7": "",
+            "10": "",
+            "104": "",
+            "105": ""
         },
         "overview": {
             "0": "Select",
-            "1": "Rebuild",
+            "1": "Empty",
             "2": "Empty",
             "3": "Filter",
             "12": "Previous Deck",
             "13": "Next Deck",
             "14": "Previous Due Deck",
-            "11": "Next Due Deck",
-            "100": "",
-            "101": "",
-            "102": "Previous Deck",
-            "103": "Next Deck"
+            "11": "",
+            "110": "Previous Deck",
+            "111": "Next Deck",
+            "4": "Rebuild",
+            "6": "",
+            "7": "",
+            "10": "",
+            "104": "",
+            "105": ""
         },
         "dialog": {
             "0": "Select",
@@ -134,25 +141,27 @@
             "13": "Down",
             "14": "Select Previous",
             "11": "Select Next",
-            "1": "",
-            "2": "",
-            "3": "",
             "5": "Focus Main Window",
-            "100": "Down",
-            "101": "Up",
-            "102": "Select Previous",
-            "103": "Select Next"
+            "104": "Down",
+            "105": "Up",
+            "110": "Select Previous",
+            "111": "Select Next",
+            "1": "",
+            "3": "",
+            "6": "",
+            "7": "",
+            "10": ""
         },
         "NoFocus": {
             "0": "Focus Main Window"
         }
     },
     "axes_bindings": {
-        "0": "Buttons",
-        "1": "Buttons"
+        "2": "Buttons",
+        "5": "Buttons"
     },
     "invert_axis": {
-        "0": false,
-        "1": false
+        "2": false,
+        "5": false
     }
 }

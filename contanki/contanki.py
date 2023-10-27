@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import partial
 from typing import Any, Callable
+from collections import defaultdict
 
 from aqt import gui_hooks
 from aqt.qt import QAction, qconnect
@@ -305,40 +306,22 @@ class Contanki(AnkiWebView):
     @if_connected
     def do_axes_actions(self, state: State, axes: list[float]) -> None:
         """Handles actions for axis movement."""
-        if self.profile is None:
-            self.on_error("No profile")
-            return
-        mouse_x = mouse_y = scroll_x = scroll_y = 0.0
-        for axis, invert in self.profile.invert_axis.items():
-            axes[axis] *= -1 if invert else 1
-        for (axis, assignment), value in zip(self.profile.axes_bindings.items(), axes):
-            if assignment == "Unassigned":
+        movements = defaultdict(float)
+        for axis, assignment in self.profile.axes_bindings.items():
+            if axis >= len(axes):
                 continue
-            elif assignment == "Buttons":
-                if abs(value) > 0.5:
-                    if not self.axes[axis]:
-                        self.do_action(state, axis * 2 + (value > 0) + 100)
-                        self.axes[axis] = True
-                else:
-                    self.axes[axis] = False
-            elif assignment == "Scroll Horizontal":
-                scroll_x = value
-            elif assignment == "Scroll Vertical":
-                scroll_y = value
-            elif assignment == "Cursor Horizontal":
-                mouse_x = value
-            elif assignment == "Cursor Vertical":
-                mouse_y = value
-        if mouse_x or mouse_y:
-            try:
-                move_mouse(mouse_x, mouse_y)
-            except Exception as err:  # pylint: disable=broad-except
-                tooltip("Error: " + str(err))
-        if scroll_x or scroll_y:
-            try:
-                scroll(scroll_x, scroll_y)
-            except Exception as err:  # pylint: disable=broad-except
-                tooltip("Error: " + str(err))
+            value = axes[axis] * (-1 if self.profile.invert_axis[axis] else 1)
+            if assignment == "Buttons":
+                if abs(value) > 0.5 and not self.axes[axis]:
+                    self.do_action(state, axis * 2 + (value > 0) + 100)
+                self.axes[axis] = abs(value) > 0.5
+            else:
+                movements[assignment] = value
+        try:
+            move_mouse(movements["Cursor Horizontal"], movements["Cursor Vertical"])
+            scroll(movements["Scroll Horizontal"], movements["Scroll Vertical"])
+        except Exception as err:  # pylint: disable=broad-except
+            tooltip("Error: " + str(err))
 
     def on_connect(self, buttons: str | int, axes: str | int, *con: str) -> None:
         """Called when a controller connects through the JavaScript interface"""

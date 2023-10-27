@@ -537,14 +537,14 @@
             "9": "Start"
         },
         "axis_buttons": {
-            "0": "D-Pad Left",
-            "1": "D-Pad Right",
-            "2": "D-Pad Up",
-            "3": "D-Pad Down"
+            "4": "D-Pad Left",
+            "5": "D-Pad Right",
+            "6": "D-Pad Up",
+            "7": "D-Pad Down"
         },
         "axes": {
-            "0": "D-Pad Horizontal",
-            "1": "D-Pad Vertical"
+            "2": "D-Pad Horizontal",
+            "3": "D-Pad Vertical"
         },
         "num_buttons": 8,
         "num_axes": 2,
@@ -565,17 +565,17 @@
             "11": "Start"
         },
         "axis_buttons": {
-            "0": "D-Pad Left",
-            "1": "D-Pad Right",
-            "2": "D-Pad Up",
-            "3": "D-Pad Down"
+            "4": "D-Pad Left",
+            "5": "D-Pad Right",
+            "10": "D-Pad Up",
+            "11": "D-Pad Down"
         },
         "axes": {
-            "0": "D-Pad Horizontal",
-            "1": "D-Pad Vertical"
+            "2": "D-Pad Horizontal",
+            "5": "D-Pad Vertical"
         },
         "num_buttons": 8,
-        "num_axes": 2,
+        "num_axes": 6,
         "has_stick": false,
         "supported": true,
         "has_dpad": true

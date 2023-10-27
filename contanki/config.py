@@ -587,25 +587,26 @@ class OptionsPage(QWidget):
             )
             layout.setLabelAlignment(Alignment.AlignRight | Alignment.AlignVCenter)
             self.dropdowns.clear()
-            for axis, name in self.get_profile().controller.axes.items():
+            profile = self.get_profile()
+            for axis, name in profile.controller.axes.items():
                 dropdown = QComboBox()
                 dropdown.setSizePolicy(
                     QSizePolicy.Policy.MinimumExpanding,
                     QSizePolicy.Policy.MinimumExpanding,
                 )
                 dropdown.addItems(self.items)
-                dropdown.setCurrentText(self.get_profile().axes_bindings[axis])
+                dropdown.setCurrentText(profile.axes_bindings[axis])
                 qconnect(
                     dropdown.currentTextChanged,
                     partial(self.update_binding, axis),
                 )
                 label = QLabel()
-                pixmap = get_button_icon(self.get_profile().controller, name)
+                pixmap = get_button_icon(profile.controller, name)
                 label.setPixmap(
                     pixmap.scaled(40, 40, Qt.AspectRatioMode.KeepAspectRatio)
                 )
                 invert = QCheckBox("Invert")
-                invert.setChecked(self.get_profile().invert_axis[axis])
+                invert.setChecked(profile.invert_axis[axis])
                 qconnect(
                     invert.stateChanged,
                     partial(self.update_invert_axis, axis),

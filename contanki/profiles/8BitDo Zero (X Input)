@@ -2,7 +2,7 @@
     "name": "8BitDo Zero (X Input)",
     "size": [
         8,
-        2
+        4
     ],
     "controller": "8BitDo Zero (X Input)",
     "quick_select": {
@@ -36,15 +36,15 @@
         "all": {
             "0": "Enter",
             "4": "Undo",
-            "7": "Sync",
-            "9": "Options",
+            "8": "Options",
+            "9": "Sync",
             "10": "Select",
             "11": "Click",
-            "100": "Back",
-            "101": "Forward",
+            "104": "Back",
+            "105": "Forward",
             "5": "Toggle Quick Select",
-            "102": "",
-            "103": ""
+            "106": "",
+            "107": ""
         },
         "review": {
             "0": "Enter",
@@ -52,10 +52,10 @@
             "13": "Replay Audio",
             "14": "Flag",
             "15": "Mark Note",
-            "100": "",
-            "101": "Flag",
-            "102": "Bury Card",
-            "103": "Replay Audio"
+            "104": "",
+            "105": "Flag",
+            "106": "Bury Card",
+            "107": "Replay Audio"
         },
         "question": {
             "0": "Flip Card",
@@ -73,10 +73,10 @@
             "12": "",
             "13": "",
             "14": "",
-            "100": "",
-            "101": "",
-            "102": "",
-            "103": ""
+            "104": "",
+            "105": "",
+            "106": "",
+            "107": ""
         },
         "answer": {
             "0": "Good",
@@ -94,10 +94,10 @@
             "12": "",
             "13": "",
             "14": "",
-            "100": "",
-            "101": "",
-            "102": "",
-            "103": ""
+            "104": "",
+            "105": "",
+            "106": "",
+            "107": ""
         },
         "deckBrowser": {
             "0": "Select",
@@ -108,10 +108,10 @@
             "13": "Next Deck",
             "14": "Previous Due Deck",
             "11": "Next Due Deck",
-            "100": "",
-            "101": "",
-            "102": "Previous Deck",
-            "103": "Next Deck"
+            "104": "",
+            "105": "",
+            "106": "Previous Deck",
+            "107": "Next Deck"
         },
         "overview": {
             "0": "Select",
@@ -122,10 +122,10 @@
             "13": "Next Deck",
             "14": "Previous Due Deck",
             "11": "Next Due Deck",
-            "100": "",
-            "101": "",
-            "102": "Previous Deck",
-            "103": "Next Deck"
+            "104": "",
+            "105": "",
+            "106": "Previous Deck",
+            "107": "Next Deck"
         },
         "dialog": {
             "0": "Select",
@@ -138,21 +138,21 @@
             "2": "",
             "3": "",
             "5": "Focus Main Window",
-            "100": "Down",
-            "101": "Up",
-            "102": "Select Previous",
-            "103": "Select Next"
+            "104": "Down",
+            "105": "Up",
+            "106": "Select Previous",
+            "107": "Select Next"
         },
         "NoFocus": {
             "0": "Focus Main Window"
         }
     },
     "axes_bindings": {
-        "0": "Buttons",
-        "1": "Buttons"
+        "2": "Buttons",
+        "3": "Buttons"
     },
     "invert_axis": {
-        "0": false,
-        "1": false
+        "2": false,
+        "3": false
     }
 }
