@@ -310,13 +310,13 @@ class Contanki(AnkiWebView):
         for axis, assignment in self.profile.axes_bindings.items():
             if axis >= len(axes):
                 continue
-            value = axes[axis] * (-1 if self.profile.invert_axis[axis] else 1)
+            value = axes[axis]
             if assignment == "Buttons":
                 if abs(value) > 0.5 and not self.axes[axis]:
                     self.do_action(state, axis * 2 + (value > 0) + 100)
                 self.axes[axis] = abs(value) > 0.5
             else:
-                movements[assignment] = value
+                movements[assignment] = value * (-1 if self.profile.invert_axis[axis] else 1)
         try:
             move_mouse(movements["Cursor Horizontal"], movements["Cursor Vertical"])
             scroll(movements["Scroll Horizontal"], movements["Scroll Vertical"])
