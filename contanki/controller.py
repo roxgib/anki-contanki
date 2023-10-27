@@ -132,9 +132,10 @@ def identify_controller(
     ]:
         return controller_name_tuple("8BitDo Pro", buttons)
 
-    if ebd and (vendor_id, device_id) == ("045e", "02e0"):
+    if (vendor_id, device_id) == ("045e", "02e0") and "Zero" in id_:
         return controller_name_tuple("8BitDo Zero (X Input)", buttons)
 
+    # Fetch controller name from controllerIDs.json
     if vendor_id == "2dc8" or not "8bitdo" in id_.lower():
         controllers_file = get_file("controllerIDs.json")
         assert controllers_file is not None

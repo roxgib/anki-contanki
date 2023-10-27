@@ -78,7 +78,7 @@ class QuickSelectMenu:
         "deckBrowser": [],
         "overview}": [],
     }
-    CENTRE_SIZE = QSize(150, 150)
+    CENTRE_SIZE = 150
     centre = QLabel(mw)
     centre.setAlignment(Qt.AlignmentFlag.AlignCenter)
     centre.hide()
@@ -106,12 +106,19 @@ class QuickSelectMenu:
         """Update the centre icon of the quick select menu."""
         button = (
             "D-Pad"
-            if not self.settings["Select with Stick"]
+            if not self.settings["Select with Stick"] or not controller.has_stick
             else "Left Stick"
             if controller.num_axes == 4
             else "Stick"
         )
-        self.centre.setPixmap(get_button_icon(controller, button))
+        self.centre.setPixmap(
+            get_button_icon(controller, button).scaled(
+                150,
+                150,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
 
     def set_geometry(self, actions: list[str]) -> list[tuple[float, float]]:
         """Get the arc size of each button when using a dpad."""
@@ -218,7 +225,7 @@ class QuickSelectMenu:
         if not self.is_shown or not self.is_active or state not in self.buttons:
             return
         y = -y
-        if x ** 2 + y ** 2 > self.activation_distance:
+        if x**2 + y**2 > self.activation_distance:
             angle = self.get_angle(x, y)
             distances = [
                 self.get_angle_distance(angle, _angle)
@@ -234,7 +241,7 @@ class QuickSelectMenu:
                 self.settings["Do Action on Stick Flick"]
                 and not self.dpad_pressed
                 and self.current_action
-                and x ** 2 + y ** 2 < 0.1
+                and x**2 + y**2 < 0.1
             ):
                 self.disappear(True)
                 return
