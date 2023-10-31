@@ -96,23 +96,21 @@ class Profile:
         states: list[State] = [
             "deckBrowser",
             "overview",
+            "review",
             "question",
             "answer",
             "dialog",
             "config",
         ]
-        inherited_bindings: dict[str, dict[int, str]]
-        inherited_bindings = defaultdict(dict)
+        bindings: dict[str, dict[int, str]] = defaultdict(dict)
         for state in states:
             for button in range(self.len_buttons):
-                inherited_bindings[state][button] = (
-                    self.bindings[(state, button)]
-                    or state in ("question", "answer")
-                    and self.bindings[("all", button)]
-                    or self.bindings[("all", button)]
-                )
-
-        return inherited_bindings
+                bindings[state][button] = self.bindings[("all", button)]
+                if state in ("question", "answer"):
+                    bindings[state][button] = self.bindings[("review", button)]
+                if self.bindings[(state, button)]:
+                    bindings[state][button] = self.bindings[(state, button)]
+        return bindings
 
     def remove_binding(self, state: State, button: int) -> None:
         """Removes a binding."""
@@ -144,15 +142,15 @@ class Profile:
             "axes_bindings": deepcopy(self.axes_bindings),
             "invert_axis": deepcopy(self.invert_axis),
         }
-    
+
     def to_json(self) -> str:
         """Returns the profile as a JSON string."""
         return json.dumps(self.to_dict())
-    
+
     @staticmethod
     def from_json(json_str: str) -> Profile | None:
         """Loads the profile from a JSON string."""
-        try: 
+        try:
             profile = json.loads(json_str, object_hook=int_keys)
         except json.JSONDecodeError as err:
             dbg(f"Profile '{json_str}' is not valid JSON")

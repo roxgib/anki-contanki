@@ -120,7 +120,7 @@ class ContankiConfig(QDialog):
         self.setLayout(layout)
         self.resize(self.sizeHint())
         self.loaded = True
-        self.open()
+        self.show()
 
     def save(self) -> None:
         """Save changes, and load them. Used on close."""
