@@ -174,8 +174,9 @@ class Contanki(AnkiWebView):
 
         if state == "config":
             for i, value in enumerate(buttons):
-                self.buttons[i] = value
-                self.icons.set_highlight(i, value)
+                if self.buttons[i] != value:
+                    self.buttons[i] = value
+                    self.icons.set_highlight(i, value)
             for i, axis in enumerate(axes):
                 self.icons.set_highlight(i * 2 + 101, axis > 0.5)
                 self.icons.set_highlight(i * 2 + 100, axis < -0.5)
