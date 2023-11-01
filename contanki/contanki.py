@@ -299,7 +299,8 @@ class Contanki(AnkiWebView):
     def do_axes_actions(self, state: State, axes: list[float]) -> None:
         """Handles actions for axis movement."""
         movements = defaultdict(float)
-        for (axis, action), value in zip(self.profile.axes_bindings.items(), axes):
+        for (axis, action) in self.profile.axes_bindings.items():
+            value = axes[axis]
             if action == "Buttons":
                 if abs(value) > 0.5 and not self.axes[axis]:
                     self.do_action(state, axis * 2 + (value > 0) + 100)
