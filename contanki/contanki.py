@@ -42,8 +42,8 @@ scroll = scroll_build()
 
 class Contanki(AnkiWebView):
     """Main add-on object. The webview contains JavaScript code that interfaces with
-    the controller, and this classes functions handle translating the controller's
-    input into actions and handling other aspects of the add-on"""
+    the controller, and this class handles translating the controller's input into
+    actions and managing other aspects of the add-on"""
 
     connected = False
     config = get_config()
@@ -68,8 +68,8 @@ class Contanki(AnkiWebView):
         gui_hooks.profile_will_close.append(self.suspend)
         gui_hooks.profile_did_open.append(self.resume)
         self.resume()
-        self.update_debug_info()
         self.profile = None
+        self.update_debug_info()
 
         if DEBUG:
             self.setFixedSize(10, 10)
@@ -104,7 +104,7 @@ class Contanki(AnkiWebView):
         if self.overlay is not None:
             self.overlay.close()
         if self.quick_select is not None:
-            self.hide_quick_select()
+            self.quick_select.disappear()
         self.overlay = ControlsOverlay(mw, profile)
         self.quick_select = QuickSelectMenu(self, profile.quick_select)
         self.quick_select.update_icon(profile.controller)
@@ -142,16 +142,19 @@ class Contanki(AnkiWebView):
 
     def on_error(self, _error: str) -> None:
         """Reinitialises the controller when an error occurs."""
+        dbg(_error)
         self.eval("on_controller_disconnect()")
 
     def if_connected(func: Callable) -> Callable:  # pylint: disable=no-self-argument
         """Checks if the controller is connected before running a function."""
 
         def if_connected_wrapper(self, *args, **kwargs):
-            if self.connected:
-                func(self, *args, **kwargs)
+            if self.profile is None:
+                self.on_error(f"Function '{func}' called with no profile loaded")
+            elif not self.connected:
+                self.on_error(f"Function '{func}' called when controller not connected")
             else:
-                dbg(f"Function '{func}' blocked, controller not connected")
+                func(self, *args, **kwargs)
 
         return if_connected_wrapper
 
@@ -161,9 +164,6 @@ class Contanki(AnkiWebView):
         state = get_state()
         if state == "NoFocus":
             return
-        if self.profile is None:
-            self.on_error("No profile")
-            return
 
         buttons = [button == "true" for button in input_buttons.split(",")]
         axes = [float(axis) for axis in input_axes.split(",")]
@@ -172,11 +172,15 @@ class Contanki(AnkiWebView):
             self.on_error("No buttons")
             return
 
+        while len(self.buttons) < len(buttons):
+            self.buttons.append(buttons[len(self.buttons)])
+
+        changed = [(i, v) for i, v in enumerate(buttons) if v != self.buttons[i]]
+        self.buttons = buttons
+
         if state == "config":
-            for i, value in enumerate(buttons):
-                if self.buttons[i] != value:
-                    self.buttons[i] = value
-                    self.icons.set_highlight(i, value)
+            for i, value in changed:
+                self.icons.set_highlight(i, value)
             for i, axis in enumerate(axes):
                 self.icons.set_highlight(i * 2 + 101, axis > 0.5)
                 self.icons.set_highlight(i * 2 + 100, axis < -0.5)
@@ -184,17 +188,8 @@ class Contanki(AnkiWebView):
 
         self.update_quick_select(state, buttons, axes)
 
-        for i, value in enumerate(buttons):
-            if len(self.buttons) > i and value == self.buttons[i]:
-                continue
-            if len(self.buttons) <= i:
-                self.buttons.append(value)
-            else:
-                self.buttons[i] = value
-            if value:
-                self.do_action(state, i)
-            else:
-                self.do_release_action(state, i)
+        for i, value in changed:
+            self.do_action(state, i, value)
 
         if any(axes) and not self.quick_select.is_shown:
             self.do_axes_actions(state, axes)
@@ -270,11 +265,10 @@ class Contanki(AnkiWebView):
             self.show_quick_select(state)
 
     @if_connected
-    def do_action(self, state: State, button: int) -> None:
+    def do_action(self, state: State, button: int, release: bool = False) -> None:
         """Calls the appropriate function on button press."""
-        if self.profile is None:
-            self.on_error("No profile")
-            return
+        if release:
+            return self.do_release_action(state, button)
         action = self.profile.get(state, button)
         if action == "Toggle Quick Select":
             self.toggle_quick_select(state)
@@ -292,9 +286,6 @@ class Contanki(AnkiWebView):
     @if_connected
     def do_release_action(self, state: State, button: int) -> None:
         """Calls the appropriate function on button release."""
-        if self.profile is None:
-            self.on_error("No profile")
-            return
         action = self.profile.get(state, button)
         if action == "Show Quick Select":
             self.hide_quick_select()
@@ -308,16 +299,13 @@ class Contanki(AnkiWebView):
     def do_axes_actions(self, state: State, axes: list[float]) -> None:
         """Handles actions for axis movement."""
         movements = defaultdict(float)
-        for axis, assignment in self.profile.axes_bindings.items():
-            if axis >= len(axes):
-                continue
-            value = axes[axis]
-            if assignment == "Buttons":
+        for (axis, action), value in zip(self.profile.axes_bindings.items(), axes):
+            if action == "Buttons":
                 if abs(value) > 0.5 and not self.axes[axis]:
                     self.do_action(state, axis * 2 + (value > 0) + 100)
                 self.axes[axis] = abs(value) > 0.5
             else:
-                movements[assignment] = value * (-1 if self.profile.invert_axis[axis] else 1)
+                movements[action] = -value if self.profile.invert_axis[axis] else value
         try:
             move_mouse(movements["Cursor Horizontal"], movements["Cursor Vertical"])
             scroll(movements["Scroll Horizontal"], movements["Scroll Vertical"])

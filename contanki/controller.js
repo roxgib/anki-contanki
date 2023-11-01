@@ -39,6 +39,10 @@ function on_controller_connect() {
 function connect_controller(i) {
     window.clearInterval(polling);
     let con = window.navigator.getGamepads()[i];
+    if (con == null) {
+        bridgeCommand('contanki::message::Could not find controller. Please reconnect your controller and try again.');;
+        return;
+    }
     bridgeCommand(`contanki::on_connect::${con.buttons.length}::${con.axes.length}::${con.id}`);
     connected_index = i;
     polling = setInterval(poll, 50);
