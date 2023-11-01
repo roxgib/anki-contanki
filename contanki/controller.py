@@ -129,7 +129,7 @@ def identify_controller(
     if ebd and (vendor_id, device_id) in [
         ("054c", "05c4"),
         ("045e", "028e"),
-    ]:
+    ] or id_ == "Xbox 360 Controller (XInput STANDARD GAMEPAD)":
         return controller_name_tuple("8BitDo Pro", buttons)
 
     if (vendor_id, device_id) == ("045e", "02e0") and "Zero" in id_:
