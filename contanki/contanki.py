@@ -189,7 +189,7 @@ class Contanki(AnkiWebView):
         self.update_quick_select(state, buttons, axes)
 
         for i, value in changed:
-            self.do_action(state, i, value)
+            self.do_action(state, i, not value)
 
         if any(axes) and not self.quick_select.is_shown:
             self.do_axes_actions(state, axes)
