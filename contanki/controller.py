@@ -126,11 +126,12 @@ def identify_controller(
         return None
 
     # Identify 8BitDo controllers pretending to be something else
-    if ebd and (vendor_id, device_id) in [
-        ("054c", "05c4"),
-        ("045e", "028e"),
-    ] or id_ == "Xbox 360 Controller (XInput STANDARD GAMEPAD)":
-        return controller_name_tuple("8BitDo Pro", buttons)
+    if ebd:
+        if (vendor_id, device_id) in [
+            ("054c", "05c4"),
+            ("045e", "028e"),
+        ] or id_ == "Xbox 360 Controller (XInput STANDARD GAMEPAD)":
+            return controller_name_tuple("8BitDo Pro", buttons)
 
     if (vendor_id, device_id) == ("045e", "02e0") and "Zero" in id_:
         return controller_name_tuple("8BitDo Zero (X Input)", buttons)
