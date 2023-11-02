@@ -521,7 +521,7 @@
         "num_buttons": 17,
         "num_axes": 4,
         "has_stick": true,
-        "supported": false,
+        "supported": true,
         "has_dpad": true
     },
     "8BitDo Zero (X Input)": {
