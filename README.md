@@ -39,18 +39,16 @@ If you encounter an issue, let me know what you were trying to do, what platform
  - Unable to open or close webview context menus
 
 Version Specific:
- - Opening certain menus or dialogs prevents any actions from firing, until it's closed and they fire all at once. This mostly affectts Anki 2.1.49 and below. The above issue is mostly fixed in 2.1.50, but some dialogs may still prevent actions from firing
- - A small number of actions are only supported in 2.1.50+
+ - Due to changes in Anki's toolkit, only version 2.1.66 and beyond are supported. Older versions of the add-on can be found on GitHub for older versions of Anki back to 2.1.45.
 
 Platform Specific
  - Volume controls only work on MacOS
- - Steam Deck is currently unsupported while we wait for Qt to upgrade to a newer Chromium version
- - Cursor control doesn't work on Linux due to a Qt issue
 
 Controller Specific
  - Using both Joy-Cons at once might be buggy.
  - 8BitDo controllers should be set to X mode. More info [here](https://support.8bitdo.com)
- - If your 8BitDo controller isn't detected correctly try Tools > Controller Options > Detect 8BitDO Controllers
+ - If your 8BitDo controller isn't detected correctly try Tools > Controller Options > Detect 8BitDo Controllers
+ - Steam Deck might not work at all
 
 Add-on compatibility
  - Not compatible with:
@@ -59,6 +57,17 @@ Add-on compatibility
     - Customize Keyboard Shortcuts - a small number of actions rely on simulating a key press, and won't work if you've changed that shortcut. Instead you can create a custom action in the controller options using your assigned shortcut
 
 ## Development log
+
+### Beta 16
+ It's been a while! Finally had time to pull it together and get an update out. Unfortunatly while a lot of issues are easy to fix, getting an update out involves a lot of testing to make sure new bugs haven't be introduced, and I keep starting without finishing.
+ - Support for 8BitDo Ultimate
+ - Tentative support for Steam Deck
+ - Option to invert axes
+ - Added option to export and import profiles
+ - Cursor now controllable accross multiple screens
+ - Various bug and crash fixes
+
+Due to changes in Anki's toolkit, only version 2.1.66 and beyond are supported. Older versions of the add-on can be found on GitHub for older versions of Anki back to 2.1.45.
 
 ### Beta 15
 
