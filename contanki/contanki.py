@@ -306,7 +306,7 @@ class Contanki(AnkiWebView):
                     self.do_action(state, axis * 2 + (value > 0) + 100)
                 self.axes[axis] = abs(value) > 0.5
             else:
-                movements[action] = -value if self.profile.invert_axis[axis] else value
+                movements[action] += -value if self.profile.invert_axis[axis] else value
         try:
             move_mouse(movements["Cursor Horizontal"], movements["Cursor Vertical"])
             scroll(movements["Scroll Horizontal"], movements["Scroll Vertical"])
