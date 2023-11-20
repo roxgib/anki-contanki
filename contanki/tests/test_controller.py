@@ -26,6 +26,7 @@ def test_get_controller_list():
         "Joy-Con Left",
         "Joy-Con Right",
         "Steam Controller",
+        "Steam Deck",
         "Super Nintendo",
         "Switch Pro",
         "Xbox 360",
