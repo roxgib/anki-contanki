@@ -61,8 +61,10 @@ class ControlsOverlay:
         left_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.controls: dict[int, OverlayItem] = dict()
+        buttons = list(self.profile.controller.buttons.items())
+        axes = [(i + 100, b) for i, b in self.profile.controller.axis_buttons.items()]
         for index, button in sorted(
-            self.profile.controller.buttons.items(),
+            buttons + axes,
             key=lambda inputs: BUTTON_ORDER.index(inputs[1]),
         ):
             on_left = not get_left_right_centre(button)
@@ -80,6 +82,8 @@ class ControlsOverlay:
         self.right.setLayout(right_layout)
         self.left.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.right.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self.appear(get_state())
+        self.disappear()
         if self.always_shown:
             self.appear(get_state())
 
@@ -118,7 +122,11 @@ class OverlayItem(QWidget):
     def __init__(self, button: int, profile: Profile, on_left=True, is_large=False):
         super().__init__()
         self.button = button
-        button_name = profile.controller.buttons[button]
+        button_name = (
+            profile.controller.buttons[button]
+            if button in profile.controller.buttons
+            else profile.controller.axis_buttons[button - 100]
+        )
         self.is_large = is_large
         self.profile = profile
         self.setMaximumHeight(120 if is_large else 80)
