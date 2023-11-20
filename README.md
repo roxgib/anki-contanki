@@ -58,6 +58,10 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 17
+ - Axis buttons now appear overlay (other axis assignments still don't appear)
+ - Fix axis assignments not being recognised when multiple axes are assigned the same axis
+
 ### Beta 16
  It's been a while! Finally had time to pull it together and get an update out. Unfortunatly while a lot of issues are easy to fix, getting an update out involves a lot of testing to make sure new bugs haven't be introduced, and I keep starting without finishing.
  - Support for 8BitDo Ultimate
