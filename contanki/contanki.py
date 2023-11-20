@@ -332,17 +332,18 @@ class Contanki(AnkiWebView):
             self.config["Detect 8BitDo Controllers"],
         )
         if _controller is None:
+            dbg(f"identify_controller returned None for {controller_id}, {buttons}, {axes}" )
             return
         else:
-            controller = _controller[0]
+            controller = _controller[0] or controller_id
 
-        if controller:
-            profile = find_profile(controller, self.len_buttons, self.len_axes)
-            tooltip(f"{controller} Connected")
-        else:
-            profile = find_profile(controller_id, self.len_buttons, self.len_axes)
-            tooltip("Unknown Controller Connected: " + controller_id)
+        profile = find_profile(controller, buttons, axes)
         self.profile = get_profile(profile)
+
+        if self.profile is None:
+            dbg(f"Error: get_profile returned None for {profile}")
+            tooltip(f"Error: Unable to load profile {profile}")
+            return
 
         self.len_buttons, self.len_axes = buttons, axes
         self.buttons = [False] * self.len_buttons
@@ -351,6 +352,7 @@ class Contanki(AnkiWebView):
         mw.form.menuTools.addAction(self.menu_item)
         self.update_debug_info()
         self.connected = True
+        tooltip(f"{controller} Connected")
 
     def on_disconnect(self, *_) -> None:
         """Called when a controller is disconnected through the JavaScript interface"""
