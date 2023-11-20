@@ -178,12 +178,13 @@ class Profile:
         return Profile(self.to_dict())
 
 
-def get_profile_list(compatibility: str = None, defaults: bool = True) -> list[str]:
+def get_profile_list(compatibility: str | None = None, defaults: bool = True) -> list[str]:
     """Returns a list of all profiles."""
     files = os.listdir(user_profile_path)
     if defaults:
         files += os.listdir(default_profile_path)
-    profiles = [get_profile(file).name for file in files if profile_is_valid(file)]
+    profiles = [get_profile(file) for file in files if profile_is_valid(file)]
+    profiles = [profile.name for profile in profiles if profile is not None]
     return sorted(profiles)
 
 
@@ -204,7 +205,11 @@ def _load_profile(name: str) -> str | None:
 def get_profile(name: str) -> Profile | None:
     """Load a profile from a file."""
     if profile_is_valid(name):
-        return Profile(json.loads(_load_profile(name), object_hook=int_keys))
+        raw_profile = _load_profile(name)
+        if raw_profile is None:
+            return None
+        return Profile(json.loads(raw_profile, object_hook=int_keys))
+    return None
 
 
 def create_profile(old_name: str, new_name: str) -> Profile:
@@ -325,9 +330,11 @@ def get_assigned_profiles() -> dict[str, str]:
         return json.load(file)
 
 
-def profile_is_valid(profile: Profile | dict | str) -> bool:
+def profile_is_valid(profile: Profile | dict | str | None) -> bool:
     """Checks that a profile is valid."""
     if isinstance(profile, str):
+        if profile is None:
+            return False
         if profile == "placeholder":
             return False
         try:
