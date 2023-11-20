@@ -57,7 +57,10 @@ class Contanki(AnkiWebView):
     controllers: list[QAction] = list()
     debug_info: list[list[str]] = []
     custom_actions = get_custom_actions()
-    script: str = get_file("controller.js")
+    _script = get_file("controller.js")
+    if _script is None:
+        raise FileNotFoundError("controller.js not found")
+    script = _script
 
     def __init__(self, parent):
         super().__init__(parent=parent)
@@ -267,6 +270,7 @@ class Contanki(AnkiWebView):
     @if_connected
     def do_action(self, state: State, button: int, release: bool = False) -> None:
         """Calls the appropriate function on button press."""
+        assert self.profile is not None
         if release:
             return self.do_release_action(state, button)
         action = self.profile.get(state, button)
@@ -286,6 +290,7 @@ class Contanki(AnkiWebView):
     @if_connected
     def do_release_action(self, state: State, button: int) -> None:
         """Calls the appropriate function on button release."""
+        assert self.profile is not None
         action = self.profile.get(state, button)
         if action == "Show Quick Select":
             self.hide_quick_select()
@@ -298,8 +303,9 @@ class Contanki(AnkiWebView):
     @if_connected
     def do_axes_actions(self, state: State, axes: list[float]) -> None:
         """Handles actions for axis movement."""
+        assert self.profile is not None
         movements = defaultdict(float)
-        for (axis, action) in self.profile.axes_bindings.items():
+        for axis, action in self.profile.axes_bindings.items():
             value = axes[axis]
             if action == "Buttons":
                 if abs(value) > 0.5 and not self.axes[axis]:
@@ -378,8 +384,9 @@ class Contanki(AnkiWebView):
             mw.form.menuTools.removeAction(controller_action)
         self.controllers.clear()
         for i, controller in enumerate(controllers):
+            id_, buttons, axes, *_ = controller.split("%%%")
             con = identify_controller(
-                *(controller.split("%%%")), self.config["Detect 8BitDo Controllers"]
+                id_, buttons, axes, self.config["Detect 8BitDo Controllers"]
             )
             if con is None:
                 continue
