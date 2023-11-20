@@ -38,7 +38,7 @@ class Profile:
             self.bindings: dict[tuple[State, int], str] = defaultdict(str)
             for state, state_dict in int_keys(bindings).items():
                 for button, action in state_dict.items():
-                    if action:
+                    if action and 'inherit' not in action.lower():
                         self.bindings[(state, button)] = action
         else:
             self.bindings = bindings
