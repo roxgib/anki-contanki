@@ -354,6 +354,7 @@ class Contanki(AnkiWebView):
         self.len_buttons, self.len_axes = buttons, axes
         self.buttons = [False] * self.len_buttons
         self.axes = [False] * self.len_axes
+        self.controller_id = controller_id
 
         mw.form.menuTools.addAction(self.menu_item)
         self.update_debug_info()

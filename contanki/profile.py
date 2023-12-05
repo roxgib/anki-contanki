@@ -24,7 +24,7 @@ from .utils import (
     default_profile_path,
     slugify,
 )
-from .controller import Controller, CONTROLLERS
+from .controller import Controller, get_updated_controller_list
 
 
 class Profile:
@@ -71,7 +71,7 @@ class Profile:
     def controller(self, controller: Controller | str):
         """Sets the controller."""
         if isinstance(controller, str):
-            if controller in CONTROLLERS:
+            if controller in get_updated_controller_list():
                 controller = Controller(controller)
             else:
                 dbg(f"Controller {controller} not found.")
@@ -295,7 +295,7 @@ def find_profile(controller: str, buttons: int, axes: int) -> str:
     profile = copy_profile(profile_to_copy, controller)
     update_assigned_profiles(controller, profile.name)
 
-    if controller in CONTROLLERS:
+    if controller in get_updated_controller_list():
         profile.controller = Controller(controller)
         profile.save()
     return profile.name

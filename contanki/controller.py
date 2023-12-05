@@ -7,49 +7,41 @@ import re
 
 from .utils import dbg, int_keys, get_file, user_files_path
 
-_file = get_file("controllers.json")
-if _file is None:
-    raise FileNotFoundError("Could not find controllers.json")
-controller_data = int_keys(json.loads(_file))
-for file in os.listdir(os.path.join(user_files_path, "custom_controllers")):
-    if file.endswith(".json"):
-        with open(os.path.join(user_files_path, "custom_controllers", file)) as f:
-            controller_data.update(int_keys(json.load(f)))
-CONTROLLERS = list(controller_data.keys())
 
-
-def get_updated_controller_list() -> tuple[list[str], list[str], list[str]]:
+def get_controller_data() -> dict[str, dict]:
     _file = get_file("controllers.json")
     if _file is None:
         raise FileNotFoundError("Could not find controllers.json")
     controller_data = int_keys(json.loads(_file))
+    for c in controller_data.values():
+        c["is_custom"] = False
     for file in os.listdir(os.path.join(user_files_path, "custom_controllers")):
         if file.endswith(".json"):
             with open(os.path.join(user_files_path, "custom_controllers", file)) as f:
-                new_controller = int_keys(json.load(f))
+                new_controller = int_keys(input_dict=json.load(f))
+                new_controller['is_custom'] = True
                 controller_data[new_controller["name"]] = new_controller
-    CONTROLLERS = list(controller_data.keys())
-    BUILTIN_CONTROLLERS = list(
-        controller["name"]
-        for controller in controller_data.values()
-        if "is_custom" in controller and not controller["is_custom"]
-    )
-    CUSTOM_CONTROLLERS = list(
-        controller["name"]
-        for controller in controller_data.values()
-        if "is_custom" in controller and controller["is_custom"]
-    )
-    return (
-        CONTROLLERS,
-        BUILTIN_CONTROLLERS,
-        CUSTOM_CONTROLLERS,
-    )
+    return controller_data
+
+
+DEFAULT_CONTROLLERS = [
+    c["name"]
+    for c in get_controller_data().values()
+    if c["supported"] and not c["is_custom"]
+]
+
+
+def get_updated_controller_list() -> list[str]:
+    """Returns a list of all supported controllers."""
+    controller_data = get_controller_data()
+    return list(controller_data.keys())
 
 
 class Controller:
     """Represents a controller, gamepad, or other input device."""
 
     def __init__(self, controller: str) -> None:
+        controller_data = get_controller_data()
         if controller not in controller_data:
             raise ValueError(f"Invalid controller: {controller}")
         data = controller_data[controller]
@@ -64,7 +56,8 @@ class Controller:
         self.dpad_buttons = self.get_dpad_buttons()
         self.stick_button = self.get_stick_button()
         self.supported: bool = data["supported"]
-        self.is_custom = False
+        self.is_custom = "is_custom" in data and data["is_custom"]
+        self.parent = Controller(data["parent"]) if self.is_custom else self
 
     def __str__(self) -> str:
         return self.name
@@ -133,12 +126,14 @@ class Controller:
                 "has_dpad": self.has_dpad,
                 "supported": self.supported,
                 "is_custom": self.is_custom,
+                "parent": self.parent.name,
             }
         )
 
 
 def get_controller_list() -> list[str]:
     """Returns a list of all supported controllers."""
+    controller_data = get_controller_data()
     return [
         controller["name"]
         for controller in controller_data.values()
@@ -201,7 +196,7 @@ def identify_controller(
         except KeyError:
             pass
         else:
-            if device_name in CONTROLLERS:
+            if device_name in DEFAULT_CONTROLLERS:
                 return controller_name_tuple(device_name, buttons)
             if device_name == "invalid":
                 return None
