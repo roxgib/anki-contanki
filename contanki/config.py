@@ -993,7 +993,7 @@ class ControllerPage(QWidget):
                 self.index = axis
             else:
                 raise ValueError("Must provide either button or axis")
-            self.addItem("Unassigned")
+            self.addItem("Not Assigned")
             items_to_add = (
                 self._parent.controller.parent.buttons
                 if self.is_button
@@ -1008,7 +1008,7 @@ class ControllerPage(QWidget):
             if self.index in items_to_assign:
                 self.setCurrentText(items_to_assign[self.index])
             else:
-                self.setCurrentText("Unassigned")
+                self.setCurrentText("Not Assigned")
             for i in range(self.count() - 1):
                 i += 1
                 self.setItemIcon(
@@ -1030,12 +1030,16 @@ class ControllerPage(QWidget):
                 self._parent.controller.parent,
                 self.index if self.is_button else self.index + 200,
             )
-            if assignment == "Unassigned":
+            if assignment == "Not Assigned":
                 assignment = ""
-            if self.is_button:
-                self._parent.controller.buttons[self.index] = assignment
-            else:
+            if assignment and self.is_button:
+                    self._parent.controller.buttons[self.index] = assignment
+            elif assignment:
                 self._parent.controller.axes[self.index] = assignment
+            elif self.is_button and self.index in self._parent.controller.buttons:
+                del self._parent.controller.buttons[self.index]
+            elif self.index in self._parent.controller.axes:
+                del self._parent.controller.axes[self.index]
             layout.replaceWidget(self.icon, new_icon)
             new_icon.setFixedHeight(60)
             self.icon.deleteLater()
