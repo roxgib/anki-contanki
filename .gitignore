@@ -144,3 +144,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 contanki/.DS_Store
+deploy_api.sh
