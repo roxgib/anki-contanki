@@ -2,15 +2,48 @@ from __future__ import annotations
 
 from collections import defaultdict
 import json
+import os
 import re
 
-from .utils import dbg, int_keys, get_file
+from .utils import dbg, int_keys, get_file, user_files_path
 
 _file = get_file("controllers.json")
 if _file is None:
     raise FileNotFoundError("Could not find controllers.json")
 controller_data = int_keys(json.loads(_file))
+for file in os.listdir(os.path.join(user_files_path, "custom_controllers")):
+    if file.endswith(".json"):
+        with open(os.path.join(user_files_path, "custom_controllers", file)) as f:
+            controller_data.update(int_keys(json.load(f)))
 CONTROLLERS = list(controller_data.keys())
+
+
+def get_updated_controller_list() -> tuple[list[str], list[str], list[str]]:
+    _file = get_file("controllers.json")
+    if _file is None:
+        raise FileNotFoundError("Could not find controllers.json")
+    controller_data = int_keys(json.loads(_file))
+    for file in os.listdir(os.path.join(user_files_path, "custom_controllers")):
+        if file.endswith(".json"):
+            with open(os.path.join(user_files_path, "custom_controllers", file)) as f:
+                new_controller = int_keys(json.load(f))
+                controller_data[new_controller["name"]] = new_controller
+    CONTROLLERS = list(controller_data.keys())
+    BUILTIN_CONTROLLERS = list(
+        controller["name"]
+        for controller in controller_data.values()
+        if "is_custom" in controller and not controller["is_custom"]
+    )
+    CUSTOM_CONTROLLERS = list(
+        controller["name"]
+        for controller in controller_data.values()
+        if "is_custom" in controller and controller["is_custom"]
+    )
+    return (
+        CONTROLLERS,
+        BUILTIN_CONTROLLERS,
+        CUSTOM_CONTROLLERS,
+    )
 
 
 class Controller:
@@ -85,21 +118,23 @@ class Controller:
             if button_name in buttons:
                 return indicies[buttons.index(button_name)]
         return None
-    
+
     def to_json(self) -> str:
         """Converts the controller to a JSON string."""
-        return json.dumps({
-            "name": self.name,
-            "buttons": self.buttons,
-            "axis_buttons": self.axis_buttons,
-            "axes": self.axes,
-            "num_buttons": self.num_buttons,
-            "num_axes": self.num_axes,
-            "has_stick": self.has_stick,
-            "has_dpad": self.has_dpad,
-            "supported": self.supported,
-            "is_custom": self.is_custom,
-        })
+        return json.dumps(
+            {
+                "name": self.name,
+                "buttons": self.buttons,
+                "axis_buttons": self.axis_buttons,
+                "axes": self.axes,
+                "num_buttons": self.num_buttons,
+                "num_axes": self.num_axes,
+                "has_stick": self.has_stick,
+                "has_dpad": self.has_dpad,
+                "supported": self.supported,
+                "is_custom": self.is_custom,
+            }
+        )
 
 
 def get_controller_list() -> list[str]:
