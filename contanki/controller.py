@@ -31,6 +31,7 @@ class Controller:
         self.dpad_buttons = self.get_dpad_buttons()
         self.stick_button = self.get_stick_button()
         self.supported: bool = data["supported"]
+        self.is_custom = False
 
     def __str__(self) -> str:
         return self.name
@@ -84,6 +85,21 @@ class Controller:
             if button_name in buttons:
                 return indicies[buttons.index(button_name)]
         return None
+    
+    def to_json(self) -> str:
+        """Converts the controller to a JSON string."""
+        return json.dumps({
+            "name": self.name,
+            "buttons": self.buttons,
+            "axis_buttons": self.axis_buttons,
+            "axes": self.axes,
+            "num_buttons": self.num_buttons,
+            "num_axes": self.num_axes,
+            "has_stick": self.has_stick,
+            "has_dpad": self.has_dpad,
+            "supported": self.supported,
+            "is_custom": self.is_custom,
+        })
 
 
 def get_controller_list() -> list[str]:

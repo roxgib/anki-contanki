@@ -4,10 +4,11 @@ Contanki's configuration dialog and associated classes.
 
 from __future__ import annotations
 
+import copy, os
 from functools import partial
 from typing import Any, Callable, Iterable, Type
 
-from aqt import qconnect
+from aqt import QIcon, qconnect
 from aqt.qt import QTableWidget, QTableWidgetItem, QComboBox, QFormLayout, QHeaderView
 from aqt.qt import (
     QDialog,
@@ -28,12 +29,13 @@ from aqt.qt import (
     QLayout,
     QSizePolicy,
     QFileDialog,
+    QTextEdit,
 )
 from aqt.theme import theme_manager
 from aqt.utils import showInfo, getText, askUser
 from aqt import mw as _mw
 
-from .controller import get_controller_list
+from .controller import get_controller_list, Controller, CONTROLLERS
 from .funcs import get_config, get_debug_str
 from .profile import (
     Profile,
@@ -45,7 +47,7 @@ from .profile import (
 )
 from .actions import QUICK_SELECT_ACTIONS, STATE_ACTIONS
 from .icons import ButtonIcon, get_button_icon
-from .utils import State
+from .utils import State, slugify, user_files_path, dbg
 
 assert _mw is not None
 mw = _mw
@@ -102,6 +104,8 @@ class ContankiConfig(QDialog):
         self.tab_bar.addTab(self.options_page, "Options")
         self.controls_page = ControlsPage(self)
         self.tab_bar.addTab(self.controls_page, "Controls")
+        self.controller_page = ControllerPage(self, profile.controller)
+        self.tab_bar.addTab(self.controller_page, "Controller")
         layout.addWidget(self.tab_bar)
 
         # Add buttons
@@ -162,6 +166,9 @@ class ContankiConfig(QDialog):
         if self.loaded:
             self.controls_page.update_tabs()
             self.options_page.update()
+            self.tab_bar.removeTab(2)
+            self.controller_page = ControllerPage(self, self._profile.controller)
+            self.tab_bar.addTab(self.controller_page, "Controller")
 
     def update_controls_page(self):
         """Update the controls page."""
@@ -832,3 +839,119 @@ class ControlsPage(QTabWidget):
                 actions.remove(action)
             for combo in self.checkboxes[state]:
                 combo.setEnabled(len(actions) < 8 or combo.text() in actions)
+
+
+class ControllerPage(QWidget):
+    """A widget allowing the user to modify the bindings."""
+
+    def __init__(self, parent: ContankiConfig, controller: Controller) -> None:
+        super().__init__(parent)
+        self._parent = parent
+        self.get_profile = parent.get_profile
+        self.setObjectName("controller_page")
+        self.controller = copy.deepcopy(controller)
+        layout = QGridLayout(self)
+        controller_name = self.controller.name
+        if controller_name in CONTROLLERS:
+            controller_name += " (Custom)"
+        self.controller_name = QTextEdit(self.controller.name, self)
+        self.delete_button = Button(self, "Delete", self.delete)
+        self.fill_grid(layout)
+        self.setLayout(layout)
+
+    def fill_grid(self, layout: QGridLayout):
+        row = 1
+        col = 0
+        for button in range(mw.contanki.len_buttons):
+            layout.addWidget(self.ButtonControl(self, button=button), row, col)
+            col += 1
+            if col == 6:
+                col = 0
+                row += 1
+        for axis in range(mw.contanki.len_axes):
+            layout.addWidget(self.ButtonControl(self, axis=axis), row, col)
+            col += 1
+            if col == 6:
+                col = 0
+                row += 1
+
+    def save(self):
+        """Save changes, and load them. Used on close."""
+        path = os.path.join(
+            user_files_path, "controllers", slugify(self.controller_name.toPlainText())
+        )
+        with open(dbg(path), "w", encoding="utf8") as file:
+            file.write(self.controller.to_json())
+
+    def delete(self):
+        """Delete the current controller."""
+        os.remove(self.path)
+        self._parent.reload()
+
+    @property
+    def path(self):
+        """Return the path to the current controller."""
+        return os.path.join(
+            user_files_path, "controllers", slugify(self.controller_name.toPlainText())
+        )
+
+    class ButtonControl(QWidget):
+        """Shows control binding options for a single button index."""
+
+        def __init__(
+            self,
+            parent: ControllerPage,
+            button: int | None = None,
+            axis: int | None = None,
+        ) -> None:
+            super().__init__(parent)
+            self._parent = parent
+            self.is_button = button is not None
+            if button is not None:
+                self.index = button
+            elif axis is not None:
+                self.index = axis
+            else:
+                raise ValueError("Must provide either button or axis")
+            layout = QHBoxLayout(self)
+            dropdown = QComboBox(self)
+            dropdown.addItem("Unassigned")
+            if self.is_button:
+                dropdown.addItems(self._parent.controller.buttons.values())
+                dropdown.setCurrentText(self._parent.controller.buttons[self.index])
+            else:
+                dropdown.addItems(self._parent.controller.axes.values())
+                dropdown.setCurrentText(self._parent.controller.axes[self.index])
+            for i in range(dropdown.count() - 1):
+                i += 1
+                dropdown.setItemIcon(
+                    i,
+                    QIcon(
+                        get_button_icon(self._parent.controller, dropdown.itemText(i))
+                    ),
+                )
+            icon = ButtonIcon(
+                self,
+                self._parent.controller.buttons[self.index],
+                self._parent.controller,
+                self.index if self.is_button else self.index + 200,
+            )
+            layout.addWidget(icon)
+            layout.addWidget(dropdown)
+            self.icon = icon
+            self.dropdown = dropdown
+            self.setLayout(layout)
+
+        def update_icon(self):
+            """Update the button icon and dropdown."""
+            new_icon = ButtonIcon(
+                self,
+                self.dropdown.currentText(),
+                self._parent.controller,
+                self.index,
+            )
+            layout = self.layout()
+            if layout is None:
+                return
+            layout.replaceWidget(self.icon, new_icon)
+            self.icon = new_icon

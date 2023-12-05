@@ -85,7 +85,7 @@ class ButtonIcon(QLabel):
         parent: QWidget | None,
         button: str,
         controller: Controller,
-        index: int = None,
+        index: int | None = None,
         is_large=False,
     ) -> None:
         super().__init__(parent)
@@ -99,7 +99,7 @@ class ButtonIcon(QLabel):
             IconHighlighter.register_icon(index, self)
         self.refresh()
 
-    def refresh(self, glow=False):
+    def refresh(self, glow = False):
         """Updates the icon for size and glow."""
         size = self.height()
         if glow:

@@ -185,8 +185,9 @@ class Contanki(AnkiWebView):
             for i, value in changed:
                 self.icons.set_highlight(i, value)
             for i, axis in enumerate(axes):
-                self.icons.set_highlight(i * 2 + 101, axis > 0.5)
-                self.icons.set_highlight(i * 2 + 100, axis < -0.5)
+                self.icons.set_highlight(i * 2 + 101, axis > 0.5)  # ControlsPage
+                self.icons.set_highlight(i * 2 + 100, axis < -0.5)  # ControlsPage
+                self.icons.set_highlight(i + 200, abs(axis) > 0.5) # ControllerPage
             return
 
         self.update_quick_select(state, buttons, axes)
