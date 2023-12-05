@@ -58,6 +58,9 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 18
+This beta adds a new tab to the config allowing users to fix issues with their controller mappings. It should be considered very much a beta feature and has not yet been extensively tested.
+
 ### Beta 17
  - Axis buttons now appear overlay (other axis assignments still don't appear)
  - Fix axis assignments not being recognised when multiple axes are assigned the same axis
