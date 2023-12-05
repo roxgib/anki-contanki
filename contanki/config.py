@@ -941,14 +941,14 @@ class ControllerPage(QWidget):
             self.controller.name += " (Custom)"
         with open(dbg(self.path), "w", encoding="utf8") as file:
             file.write(self.controller.to_json())
-        with open(os.path.join(user_files_path, "custom_controller_ids")) as file:
-            custom_controllers: dict[str, str] = json.load(file)
-        custom_controllers[mw.contanki.controller_id] = self.controller.name
-        with open(os.path.join(user_files_path, "custom_controller_ids"), "w") as file:
-            json.dump(custom_controllers, file)
         self._parent._profile.controller = self.controller
-        if askUser("Would you be willing to share your controller configuration with the developer?"):
-            r = requests.post(
+        if askUser(
+            "Would you be willing to share your controller configuration with the developer? "
+            "This makes it easier to support this controller out of the box.",
+            parent=self,
+            title="Contanki",
+        ):
+            requests.post(
                 "https://sambradshaw.dev/api",
                 json={
                     "controller": self.controller.to_json(),
@@ -994,8 +994,16 @@ class ControllerPage(QWidget):
             else:
                 raise ValueError("Must provide either button or axis")
             self.addItem("Unassigned")
-            items_to_add = self._parent.controller.parent.buttons if self.is_button else self._parent.controller.parent.axes
-            items_to_assign = self._parent.controller.buttons if self.is_button else self._parent.controller.axes
+            items_to_add = (
+                self._parent.controller.parent.buttons
+                if self.is_button
+                else self._parent.controller.parent.axes
+            )
+            items_to_assign = (
+                self._parent.controller.buttons
+                if self.is_button
+                else self._parent.controller.axes
+            )
             self.addItems(items_to_add.values())
             if self.index in items_to_assign:
                 self.setCurrentText(items_to_assign[self.index])
