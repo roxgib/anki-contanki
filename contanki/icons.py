@@ -23,7 +23,6 @@ from aqt.utils import tooltip
 from .controller import Controller
 
 
-
 def get_button_icon(
     controller: Controller | str, button: str, glow: bool = False
 ) -> QPixmap:
@@ -50,7 +49,12 @@ def get_button_icon(
         return join(dirname(abspath(__file__)), "buttons", folder, file)
 
     pixmap = QPixmap(path(controller, button))
-    if pixmap.isNull() and button.split(" ")[-1] in directions:
+    if (
+        pixmap.isNull()
+        and button
+        and button != "Not Assigned"
+        and button.split(" ")[-1] in directions
+    ):
         direction = button.split(" ")[-1]
         button = " ".join(button.split(" ")[:-1])
         pixmap = QPixmap(path(controller, button))
@@ -67,8 +71,8 @@ def get_button_icon(
             painter.drawText(
                 pixmap.rect(), Qt.AlignmentFlag.AlignCenter, button.replace(" ", "\n")
             )
-        tooltip(f"Error: Couldn't load {button} icon for {controller}.")
-        return pixmap
+        if button and button != "Not Assigned":
+            tooltip(f"Error: Couldn't load {button} icon for {controller}.")
 
     if glow:
         gpixmap = QPixmap(path("Other", "glow"))
@@ -80,12 +84,13 @@ def get_button_icon(
 
 class ButtonIcon(QLabel):
     """A label that displays a button icon."""
+
     def __init__(
         self,
         parent: QWidget | None,
         button: str,
         controller: Controller,
-        index: int = None,
+        index: int | None = None,
         is_large=False,
     ) -> None:
         super().__init__(parent)
@@ -114,6 +119,7 @@ class ButtonIcon(QLabel):
                 Qt.TransformationMode.SmoothTransformation,
             )
         )
+
 
 class IconHighlighter:
     """Manages the highlighting of icons."""

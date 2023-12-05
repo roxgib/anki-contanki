@@ -188,8 +188,9 @@ class Contanki(AnkiWebView):
             for i, value in changed:
                 self.icons.set_highlight(i, value)
             for i, axis in enumerate(axes):
-                self.icons.set_highlight(i * 2 + 101, axis > 0.5)
-                self.icons.set_highlight(i * 2 + 100, axis < -0.5)
+                self.icons.set_highlight(i * 2 + 101, axis > 0.5)  # ControlsPage
+                self.icons.set_highlight(i * 2 + 100, axis < -0.5)  # ControlsPage
+                self.icons.set_highlight(i + 200, abs(axis) > 0.5) # ControllerPage
             return
 
         self.update_quick_select(state, buttons, axes)
@@ -353,6 +354,7 @@ class Contanki(AnkiWebView):
         self.len_buttons, self.len_axes = buttons, axes
         self.buttons = [False] * self.len_buttons
         self.axes = [False] * self.len_axes
+        self.controller_id = controller_id
 
         mw.form.menuTools.addAction(self.menu_item)
         self.update_debug_info()
