@@ -1,0 +1,19 @@
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+Type=notify
+User=filetransfer
+Group=filetransfer
+RuntimeDirectory=gunicorn
+WorkingDirectory=/home/filetransfer/contanki
+ExecStart=/home/filetransfer/contanki/venv/bin/gunicorn --bind 127.0.0.1:8002 app:app
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -4,10 +4,12 @@ Contanki's configuration dialog and associated classes.
 
 from __future__ import annotations
 
-import copy, os
+import os
 import json
 from functools import partial
 from typing import Any, Callable, Iterable, Type
+
+import requests
 
 from aqt import QIcon, qconnect
 from aqt.qt import QTableWidget, QTableWidgetItem, QComboBox, QFormLayout, QHeaderView
@@ -872,8 +874,7 @@ class ControllerPage(QWidget):
         self._parent = parent
         self.get_profile = parent.get_profile
         self.setObjectName("controller_page")
-        self.controller = copy.deepcopy(controller)
-        self.controller.parent = controller
+        self.controller = controller.copy()
         layout = QGridLayout(self)
         self.init_top_bar(layout)
         self.fill_grid(layout)
@@ -884,7 +885,7 @@ class ControllerPage(QWidget):
         controller_name = self.controller.name
         if controller_name in DEFAULT_CONTROLLERS:
             controller_name += " (Custom)"
-        self.controller_name = QTextEdit(self.controller.name, self)
+        self.controller_name = QTextEdit(controller_name, self)
         self.controller_name.setFixedHeight(30)
         page_layout.addWidget(self.controller_name, 0, 0, 1, self.GRID_WIDTH - 3)
         self.save_button = Button(self, "Save", self.save)
@@ -933,8 +934,9 @@ class ControllerPage(QWidget):
         layout.addWidget(bottom_label, row, 0, 1, self.GRID_WIDTH)
 
     def save(self):
-        """Save changes, and load them. Used on close."""
+        """Save changes, and load them."""
         self.controller.is_custom = True
+        self.controller.name = self.controller_name.toPlainText()
         if self.controller.name in DEFAULT_CONTROLLERS:
             self.controller.name += " (Custom)"
         with open(dbg(self.path), "w", encoding="utf8") as file:
@@ -945,6 +947,15 @@ class ControllerPage(QWidget):
         with open(os.path.join(user_files_path, "custom_controller_ids"), "w") as file:
             json.dump(custom_controllers, file)
         self._parent._profile.controller = self.controller
+        if askUser("Would you be willing to share your controller configuration with the developer?"):
+            r = requests.post(
+                "https://sambradshaw.dev/api",
+                json={
+                    "controller": self.controller.to_json(),
+                    "controller_id": mw.contanki.controller_id,
+                    "info": mw.contanki.debug_info,
+                },
+            )
         self._parent.reload()
 
     def delete(self):
@@ -958,7 +969,7 @@ class ControllerPage(QWidget):
         return os.path.join(
             user_files_path,
             "custom_controllers",
-            slugify(self.controller_name.toPlainText()) + ".json",
+            slugify(self.controller.name) + ".json",
         )
 
     class ButtonControl(QComboBox):
@@ -983,10 +994,11 @@ class ControllerPage(QWidget):
             else:
                 raise ValueError("Must provide either button or axis")
             self.addItem("Unassigned")
-            items = self._parent.controller.parent.buttons if self.is_button else self._parent.controller.parent.axes
-            self.addItems(items.values())
-            if self.index in items:
-                self.setCurrentText(items[self.index])
+            items_to_add = self._parent.controller.parent.buttons if self.is_button else self._parent.controller.parent.axes
+            items_to_assign = self._parent.controller.buttons if self.is_button else self._parent.controller.axes
+            self.addItems(items_to_add.values())
+            if self.index in items_to_assign:
+                self.setCurrentText(items_to_assign[self.index])
             else:
                 self.setCurrentText("Unassigned")
             for i in range(self.count() - 1):
@@ -1007,7 +1019,7 @@ class ControllerPage(QWidget):
             new_icon = ButtonIcon(
                 self,
                 assignment,
-                self._parent.controller,
+                self._parent.controller.parent,
                 self.index if self.is_button else self.index + 200,
             )
             if assignment == "Unassigned":

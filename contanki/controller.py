@@ -19,7 +19,7 @@ def get_controller_data() -> dict[str, dict]:
         if file.endswith(".json"):
             with open(os.path.join(user_files_path, "custom_controllers", file)) as f:
                 new_controller = int_keys(input_dict=json.load(f))
-                new_controller['is_custom'] = True
+                new_controller["is_custom"] = True
                 controller_data[new_controller["name"]] = new_controller
     return controller_data
 
@@ -58,6 +58,12 @@ class Controller:
         self.supported: bool = data["supported"]
         self.is_custom = "is_custom" in data and data["is_custom"]
         self.parent = Controller(data["parent"]) if self.is_custom else self
+
+    def copy(self) -> Controller:
+        """Returns a copy of the controller."""
+        controller = Controller(self.name)
+        controller.parent = self.parent
+        return controller
 
     def __str__(self) -> str:
         return self.name
