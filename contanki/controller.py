@@ -150,7 +150,10 @@ def identify_controller(
             return controller_name_tuple("8BitDo Pro", buttons)
 
     if (vendor_id, device_id) == ("045e", "02e0") and "Zero" in id_:
-        return controller_name_tuple("8BitDo Zero (X Input)", buttons)
+        if num_axes > 2:
+            return controller_name_tuple("8BitDo Zero (X Input)", buttons)
+        else:
+            return controller_name_tuple("8BitDo Zero (X Input, 2 Axis)", buttons)
 
     # Fetch controller name from controllerIDs.json
     if vendor_id == "2dc8" or not "8bitdo" in id_.lower():
@@ -203,9 +206,15 @@ def identify_controller(
     elif "8bitdo" in id_:
         if "zero" in id_:
             if buttons == 17:
-                device_name = "8BitDo Zero (X Input)"
+                if num_axes > 2:
+                    device_name = "8BitDo Zero (X Input)"
+                else:
+                    device_name = "8BitDo Zero (X Input, 2 Axis)"
             else:
-                device_name = "8BitDo Zero (D Input)"
+                if num_axes > 2:
+                    device_name = "8BitDo Zero (D Input)"
+                else:
+                    device_name = "8BitDo Zero (D Input, 2 Axis)"
         elif "lite" in id_:
             device_name = "8BitDo Lite"
         elif "pro" in id_:

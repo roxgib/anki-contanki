@@ -75,6 +75,9 @@ class Contanki(AnkiWebView):
         self.update_debug_info()
 
         if DEBUG:
+            self.mock_item = QAction("Mock Controller", mw)
+            qconnect(self.mock_item.triggered, lambda: self.eval("mock_controller()"))
+            mw.form.menuTools.addAction(self.mock_item)
             self.setFixedSize(10, 10)
             from .tests import run_tests  # pylint: disable=import-outside-toplevel
 
@@ -333,7 +336,9 @@ class Contanki(AnkiWebView):
             self.config["Detect 8BitDo Controllers"],
         )
         if _controller is None:
-            dbg(f"identify_controller returned None for {controller_id}, {buttons}, {axes}" )
+            dbg(
+                f"identify_controller returned None for {controller_id}, {buttons}, {axes}"
+            )
             return
         else:
             controller = _controller[0] or controller_id
