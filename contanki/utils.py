@@ -18,6 +18,7 @@ addon_path = dirname(abspath(__file__))
 tests_path = join(addon_path, "tests")
 user_files_path = join(addon_path, "user_files")
 user_profile_path = join(user_files_path, "profiles")
+user_controllers_path = join(user_files_path, "profiles")
 default_profile_path = join(addon_path, "profiles")
 controllers_path = join(addon_path, "controllers")
 
