@@ -24,6 +24,7 @@ from ..profile import (
 @test
 def test_get_profile():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
+    assert profile is not None
     assert profile.name == "Standard Gamepad (16 Buttons 4 Axes)"
     assert profile.len_buttons == 16
     assert profile.len_axes == 4
@@ -59,9 +60,11 @@ def test_get_profile_list():
 @test
 def test_delete_profile():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
+    assert profile is not None
     profile.name = "test"
     profile.save()
     profile = get_profile("test")
+    assert profile is not None
     delete_profile("test")
     assert get_profile("test") is None
     profile.save()
@@ -72,6 +75,7 @@ def test_delete_profile():
 @test
 def test_profile_bindings():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
+    assert profile is not None
     assert profile.get("all", 0) == "Enter"
     assert profile.get("deckBrowser", 0) == "Select"
     assert profile.get("all", 50) == ""
@@ -80,6 +84,7 @@ def test_profile_bindings():
 @test
 def test_update_binding():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
+    assert profile is not None
     profile.update_binding("all", 0, "Sync")
     profile.update_binding("deckBrowser", 0, "")
     assert profile.get("all", 0) == "Sync"
@@ -89,6 +94,7 @@ def test_update_binding():
 @test
 def test_save():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
+    assert profile is not None
     profile.update_binding("all", 0, "Sync")
     profile.name = r"Test \/ % :"
     profile.save()
@@ -107,6 +113,7 @@ def test_save():
 @test
 def test_copy_profile():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
+    assert profile is not None
     profile.name = "test"
     profile.save()
     copy_profile(profile, "test2")
@@ -117,6 +124,7 @@ def test_copy_profile():
 @test
 def test_profile_controller():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
+    assert profile is not None
     assert profile.controller == Controller("DualShock 4")
     profile.controller = "Xbox 360"
     assert isinstance(profile.controller, Controller)
@@ -126,6 +134,7 @@ def test_profile_controller():
 @test
 def test_rename_profile():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
+    assert profile is not None
     profile.name = "test"
     profile.save()
     rename_profile("test", "test2")
@@ -144,6 +153,7 @@ def test_find_profile():
     profile = find_profile("DualShock 4", 18, 4)
     assert profile == "DualShock 4"
     profile = get_profile(profile)
+    assert profile is not None
     profile.name = "test"
     profile.save()
     update_assigned_profiles("DualShock 4", "test")
@@ -160,6 +170,7 @@ def test_find_profile():
 @test
 def test_profile_is_valid():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
+    assert profile is not None
     profile.name = "test"
     profile.save()
     assert profile_is_valid("test")

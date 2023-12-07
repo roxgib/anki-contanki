@@ -94,7 +94,7 @@ class QuickSelectMenu:
         self.contanki = contanki
         self.settings.update(settings)
 
-        self.actions: dict[str, list[str]] = self.settings["actions"]
+        self.actions: dict[str, list[str]] = self.settings["actions"]  # type: ignore
         for state in ("review", "deckBrowser", "overview"):
             self.actions[state] = self.actions[state][:8]  # Maximum of 8 actions
             self.buttons[state] = [

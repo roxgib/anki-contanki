@@ -1,7 +1,7 @@
 from typing import Callable
 from traceback import format_list, extract_tb
 import sys
-tests = {}
+tests: dict[str, Callable] = {}
 
 
 def test(_test: Callable) -> Callable:

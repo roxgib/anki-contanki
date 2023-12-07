@@ -118,7 +118,7 @@ class Profile:
 
     def update_binding(self, state: State, button: int, action: str) -> None:
         """Updates the binding for a button or axis."""
-        if state not in State.__args__:
+        if state not in getattr(State, '__args__'):
             raise ValueError(f"State {state} not valid.")
         self.bindings[(state, button)] = action
 
@@ -184,8 +184,7 @@ def get_profile_list(compatibility: str | None = None, defaults: bool = True) ->
     if defaults:
         files += os.listdir(default_profile_path)
     profiles = [get_profile(file) for file in files if profile_is_valid(file)]
-    profiles = [profile.name for profile in profiles if profile is not None]
-    return sorted(profiles)
+    return sorted(profile.name for profile in profiles if profile is not None)
 
 
 def _load_profile(name: str) -> str | None:
@@ -200,6 +199,7 @@ def _load_profile(name: str) -> str | None:
         if exists(path):
             with open(path, "r", encoding="utf8") as file:
                 return file.read()
+    return None
 
 
 def get_profile(name: str) -> Profile | None:
@@ -375,7 +375,7 @@ def profile_is_valid(profile: Profile | dict | str | None) -> bool:
             dbg(f"Profile '{profile['name']}' is missing required key {key}")
             return False
     for state, value in profile["bindings"].items():
-        if state not in State.__args__:
+        if state not in getattr(State, '__args__'):
             dbg(f"Profile '{profile['name']}' has invalid state '{state}'")
             return False
         if not isinstance(value, dict):
@@ -389,6 +389,6 @@ def profile_is_valid(profile: Profile | dict | str | None) -> bool:
     try:
         profile = Profile(profile)
     except Exception as err:
-        dbg(f"Profile '{profile['name']}' returned error: {err}")
+        dbg(f"Profile '{profile}' returned error: {err}")
         return False
     return True

@@ -8,7 +8,6 @@ from typing import Any, Callable
 from functools import partial
 from os.path import dirname, abspath
 
-from aqt import mw
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.qt import (
     QCoreApplication,
@@ -23,10 +22,23 @@ from aqt.qt import QKeyEvent as QKE
 from aqt.utils import current_window, tooltip, supportText
 from anki.decks import DeckId
 
+try:
+    from anki.utils import is_mac  # pylint: disable=import-outside-toplevel
+except ImportError:
+    is_mac = False
+try:
+    from anki.utils import is_win  # pylint: disable=import-outside-toplevel
+except ImportError:
+    is_win = False
+
 from .utils import State, dbg
 
+from aqt import mw as _mw
+
+assert _mw is not None
+mw = _mw
+
 addon_path = dirname(abspath(__file__))
-assert mw is not None
 
 LeftButton = Qt.MouseButton.LeftButton
 RightButton = Qt.MouseButton.RightButton
@@ -70,7 +82,6 @@ def get_state() -> State:
 
     Note that 'question' or 'answer' is returned instead of 'review'.
     """
-    assert mw is not None
     if (focus := current_window()) is None:
         return "NoFocus"
     if (window := focus.objectName()) == "MainWindow":
@@ -113,10 +124,6 @@ def quad_curve(value: float, factor: int = 5) -> float:
 def _get_dark_mode() -> Callable[[], bool]:
     """Gets the current Anki dark mode setting."""
     # pylint: disable=import-outside-toplevel
-    try:
-        from aqt.utils import is_mac, is_win
-    except ImportError:
-        return lambda: False
     if is_win:
         from aqt.theme import get_windows_dark_mode
 
@@ -139,7 +146,6 @@ get_dark_mode = _get_dark_mode()
 
 def get_custom_actions() -> dict[str, partial[None]]:
     """Gets custom actions from the config file."""
-    assert mw is not None
     config = get_config()
     custom_actions = config["Custom Actions"]
     actions = dict()
@@ -164,14 +170,12 @@ def get_custom_actions() -> dict[str, partial[None]]:
 
 def key_press(key: Qt.Key, mod=NoMod) -> None:
     """Simulates a key press and release."""
-    assert mw is not None
     QCoreApplication.sendEvent(mw.app.focusObject(), QKE(QKE.Type.KeyPress, key, mod))
     QCoreApplication.sendEvent(mw.app.focusObject(), QKE(QKE.Type.KeyRelease, key, mod))
 
 
 def select() -> None:
     """Clicks the selected webview UI element"""
-    assert mw is not None
     mw.web.eval("document.activeElement.click()")
 
 
@@ -192,7 +196,6 @@ def scroll_build() -> Callable[[float, float], None]:
     deadzone = config["Stick Deadzone"] / 100
 
     def _scroll(x: float, y: float) -> None:  # pylint: disable=invalid-name
-        assert mw is not None
         if abs(x) + abs(y) < deadzone:
             return
         mw.web.eval(f"window.scrollBy({quad_curve(x*speed)}, {quad_curve(y*speed)})")
@@ -210,9 +213,8 @@ def move_mouse_build() -> Callable[[float, float], None]:
     accel = config["Cursor Acceleration"] / 5
     deadzone = config["Stick Deadzone"] / 100
     multiple_screens = dbg("Multiple screens", len(mw.app.screens()) > 1)
-    
-    def move_mouse(move_x: float, move_y: float) -> None:  # pylint: disable=invalid-name
-        assert mw is not None
+
+    def move_mouse(move_x: float, move_y: float) -> None:
         if abs(move_x) + abs(move_y) < deadzone:
             return
         cursor = mw.cursor()
@@ -225,7 +227,9 @@ def move_mouse_build() -> Callable[[float, float], None]:
             else:
                 return
         else:
-            geom = mw.screen().geometry()
+            main_screen = mw.screen()
+            assert main_screen is not None
+            geom = main_screen.geometry()
 
         x = pos.x() + ((abs(move_x) * speed) ** (accel + 1)) * move_x
         y = pos.y() + ((abs(move_y) * speed) ** (accel + 1)) * move_y
@@ -237,26 +241,26 @@ def move_mouse_build() -> Callable[[float, float], None]:
                     if screen.geometry().contains(QPoint(x, y)):
                         geom = screen.geometry()
                         break
-            x, y = max(x, geom.x()), max(y, geom.y())
-            x, y = min(x, geom.width() + geom.x() - 1), min(y, geom.height() + geom.y() - 1)
+            x = min(max(x, geom.x()), geom.width() + geom.x() - 1)
+            y = min(max(y, geom.y()), geom.height() + geom.y() - 1)
 
         pos.setX(x)
         pos.setY(y)
-        cursor.setPos(pos)  # type: ignore
+        cursor.setPos(pos)
 
     return move_mouse
 
 
 def hide_cursor() -> None:
     """Moves the cursor to the bottom left of the screen."""
-    assert mw is not None
-    size = mw.screen().geometry()
+    screen = mw.screen()
+    assert screen is not None
+    size = screen.geometry()
     mw.cursor().setPos(QPoint(size.width(), size.height()))  # type: ignore
 
 
 def _click(button=LeftButton, mod=NoMod, release=False) -> None:
     """Simulates a mouse click."""
-    assert mw is not None
     pos = mw.cursor().pos()  # type: ignore
     widget = mw.app.widgetAt(pos)  # type: ignore
     if not widget:
@@ -291,7 +295,6 @@ def click_release(button=LeftButton, mod=NoMod) -> None:
 
 def on_enter() -> None:
     """Simulates pressing the enter button."""
-    assert mw is not None
     if mw.state == "deckBrowser" or mw.state == "overview":
         select()
     elif mw.state == "review":
@@ -303,7 +306,6 @@ def on_enter() -> None:
 @for_states(["deckBrowser", "overview", "question", "answer"])
 def forward() -> None:
     """Takes the user from deck browser to overview to review"""
-    assert mw is not None
     if mw.state == "deckBrowser":
         mw.moveToState("overview")
     elif mw.state == "overview":
@@ -313,7 +315,6 @@ def forward() -> None:
 @for_states(["deckBrowser", "overview", "question", "answer"])
 def back() -> None:
     """Takes the user from review to overview to deckBrowser"""
-    assert mw is not None
     if mw.state == "review":
         mw.moveToState("overview")
     else:
@@ -323,10 +324,8 @@ def back() -> None:
 @for_states(["deckBrowser", "overview", "question", "answer"])
 def on_options() -> None:
     """Shows the deck options or main preferences depending on context."""
-    assert mw is not None
 
     def deck_options(did: str) -> None:
-        assert mw is not None
         try:
             display_options_for_deck_id(DeckId(int(did)))
         except Exception:  # pylint: disable=broad-except
@@ -339,18 +338,25 @@ def on_options() -> None:
             "document.activeElement.parentElement.parentElement.id", deck_options
         )
     elif mw.state == "overview":
-        display_options_for_deck_id(mw.col.decks.get_current_id())
+        col = mw.col
+        if col is None:
+            return
+        display_options_for_deck_id(col.decks.get_current_id())
 
 
 @for_states(["deckBrowser", "overview", "question", "answer"])
 def toggle_fullscreen() -> None:
     """Toggles the fullscreen mode."""
-    if (window := current_window()) is not None:
-        window = window.window()
-        if window.isFullScreen():
-            window.showNormal()
-        else:
-            window.showFullScreen()
+    window = current_window()
+    if window is None:
+        return
+    window = window.window()
+    if window is None:
+        return
+    if window.isFullScreen():
+        window.showNormal()
+    else:
+        window.showFullScreen()
 
 
 def undo():
@@ -372,11 +378,6 @@ def redo():
 # FIXME: this is terrible, find a better way
 def change_volume(direction=True):
     """Changes the volume by a small amount. Only works on Mac"""
-    try:
-        from aqt.utils import is_mac  # pylint: disable=import-outside-toplevel
-    except ImportError:
-        return
-
     if is_mac:
         current_volume = re.search(
             r"volume:(\d\d)",
@@ -400,31 +401,28 @@ def change_volume(direction=True):
 
 ### Review
 
+
 def build_cycle_flag() -> Callable:
     """Builds a function that cycles through the configured flags."""
-    assert mw is not None
     config = get_config()
-    flags = config["Flags"]
+    flags: list[int] = config["Flags"]
+    flags.insert(0, 0)
 
     @for_states(["question", "answer"])
-    def _cycle_flag(flags):
+    def _cycle_flag():
         """Cycles through the configured flags."""
-        flag = mw.reviewer.card.flags
-        if flag == 0:
-            mw.reviewer.setFlag(flags[0])
-        elif flag not in flags:
-            mw.reviewer.setFlag(0)
-        elif flag == flags[-1]:
-            mw.reviewer.setFlag(0)
-        else:
-            mw.reviewer.setFlag(flags[flags.index(flag) + 1])
+        card = mw.reviewer.card
+        if card is None:
+            return
+        flag = card.flags
+        new_flag = flags[(flags.index(flag) + 1) % len(flags)] if flag in flags else 0
+        mw.reviewer.setFlag(new_flag)
 
-    return lambda: _cycle_flag(flags)
+    return _cycle_flag
 
 
 def build_previous_card_info() -> Callable[[], None]:
     """Builds a function that returns the previous card's info."""
-    assert mw is not None
     try:
         _previous_card_info = mw.reviewer.on_previous_card_info
     except NameError:
@@ -444,7 +442,6 @@ def _build_deck_list() -> tuple[list[DeckId], list[bool]]:
     """
     Builds a list of deck ids and a list showing whether the decks have due cards.
     """
-    assert mw is not None
 
     def _build_node(node):
         decks = [
@@ -457,7 +454,10 @@ def _build_deck_list() -> tuple[list[DeckId], list[bool]]:
         return decks
 
     decks = list()
-    tree = mw.col.sched.deck_due_tree()
+    col = mw.col
+    if col is None:
+        raise Exception("No collection")
+    tree = col.sched.deck_due_tree()
     assert tree is not None
     for child in tree.children:
         decks.extend(_build_node(child))
@@ -467,14 +467,12 @@ def _build_deck_list() -> tuple[list[DeckId], list[bool]]:
 
 
 def _select_deck(did) -> None:
-    assert mw is not None
     mw.web.eval(
         f"document.getElementById({did}).getElementsByClassName('deck')[0].focus()"
     )
 
 
 def _choose_deck(c_deck_input: DeckId | str, direction: bool, due: bool) -> None:
-    assert mw is not None
     c_deck: DeckId | None = DeckId(int(c_deck_input)) if c_deck_input else None
     decks, dues = _build_deck_list()
     len_decks = len(decks)
@@ -500,14 +498,16 @@ def _choose_deck(c_deck_input: DeckId | str, direction: bool, due: bool) -> None
     if mw.state == "deckBrowser":
         _select_deck(decks[c_deck_index])
     else:
-        mw.col.decks.select(decks[c_deck_index])
+        col = mw.col
+        if col is None:
+            return
+        col.decks.select(decks[c_deck_index])
         mw.moveToState("overview")
 
 
 @for_states(["deckBrowser", "overview"])
 def choose_deck(direction: bool, due: bool = False) -> None:
     """Change the selected deck in either the deck browser or the overview."""
-    assert mw is not None
     mw.web.setFocus()
 
     if mw.state == "deckBrowser":
@@ -516,13 +516,15 @@ def choose_deck(direction: bool, due: bool = False) -> None:
             lambda c_deck: _choose_deck(c_deck, direction, due),
         )
     else:
-        _choose_deck(mw.col.decks.get_current_id(), direction, due)
+        col = mw.col
+        if col is None:
+            return
+        _choose_deck(col.decks.get_current_id(), direction, due)
 
 
 @for_states(["deckBrowser"])
 def collapse_deck() -> None:
     """Collapses the currently selected deck."""
-    assert mw is not None
     mw.web.eval(
         "document.activeElement.parentElement.getElementsByClassName('collapse')[0].click()"  # pylint: disable=line-too-long
     )
@@ -533,7 +535,6 @@ DEBUG_STRING = """See the <a href="https://ankiweb.net/shared/info/1898790263">a
 
 def get_debug_str() -> str:
     """Returns a string with debug information."""
-    assert mw is not None
     result = DEBUG_STRING
     result += supportText().replace("\n", "<br>")
     debug_info = mw.contanki.debug_info  # type: ignore

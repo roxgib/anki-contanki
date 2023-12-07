@@ -32,7 +32,6 @@ from .profile import (
 from .actions import button_actions, release_actions, update_actions
 
 from aqt import mw as _mw
-
 assert _mw is not None
 mw = _mw
 
@@ -47,7 +46,7 @@ class Contanki(AnkiWebView):
 
     connected = False
     config = get_config()
-    overlay = None
+    overlay: ControlsOverlay | None = None
     quick_select = QuickSelectMenu(None, {})
     buttons: list[bool] = []
     axes: list[bool] = []
@@ -122,7 +121,7 @@ class Contanki(AnkiWebView):
     def on_config(self) -> None:
         """Opens the config dialog"""
         if focus := current_window():
-            ContankiConfig(focus, self.profile)
+            ContankiConfig(focus, self, self.profile)
 
     def on_receive_message(
         self, handled: tuple[bool, Any], message: str, _
@@ -190,7 +189,7 @@ class Contanki(AnkiWebView):
             for i, axis in enumerate(axes):
                 self.icons.set_highlight(i * 2 + 101, axis > 0.5)  # ControlsPage
                 self.icons.set_highlight(i * 2 + 100, axis < -0.5)  # ControlsPage
-                self.icons.set_highlight(i + 200, abs(axis) > 0.5) # ControllerPage
+                self.icons.set_highlight(i + 200, abs(axis) > 0.5)  # ControllerPage
             return
 
         self.update_quick_select(state, buttons, axes)
@@ -308,7 +307,7 @@ class Contanki(AnkiWebView):
     def do_axes_actions(self, state: State, axes: list[float]) -> None:
         """Handles actions for axis movement."""
         assert self.profile is not None
-        movements = defaultdict(float)
+        movements: dict[str, float] = defaultdict(float)
         for axis, action in self.profile.axes_bindings.items():
             value = axes[axis]
             if action == "Buttons":

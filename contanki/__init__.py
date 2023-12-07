@@ -1,8 +1,9 @@
 """An add-on for Anki, adding support for controllers and gamepads"""
 
-from aqt import mw as _mw
-assert _mw is not None
-mw = _mw
+from aqt import mw
 from .contanki import Contanki
 
-mw.contanki = Contanki(mw)
+assert mw is not None
+
+instance = Contanki(mw)
+mw.contanki = instance # type: ignore

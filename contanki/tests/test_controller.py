@@ -133,7 +133,9 @@ test_controllers = [
 @test
 def test_identify_controller():
     for test_id, controller in zip(test_ids, test_controllers):
-        assert identify_controller(test_id, 0, 0)[0] == controller
+        result = identify_controller(test_id, 0, 0)
+        assert result is not None
+        assert result[0] == controller
 
 
 @test

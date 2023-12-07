@@ -89,7 +89,7 @@ class ButtonIcon(QLabel):
         self,
         parent: QWidget | None,
         button: str,
-        controller: Controller,
+        controller: Controller | str,
         index: int | None = None,
         is_large=False,
     ) -> None:
@@ -106,15 +106,11 @@ class ButtonIcon(QLabel):
 
     def refresh(self, glow=False):
         """Updates the icon for size and glow."""
-        size = self.height()
-        if glow:
-            pixmap = self._pixmap_glow
-        else:
-            pixmap = self._pixmap
+        pixmap = self._pixmap_glow if glow else self._pixmap
         self.setPixmap(
             pixmap.scaled(
-                size,
-                size,
+                self.height(),
+                self.height(),
                 Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation,
             )

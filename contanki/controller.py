@@ -147,7 +147,7 @@ def get_controller_list() -> list[str]:
     ]
 
 
-def parse_controller_id(controller_id: str) -> tuple[str | None, str | None] | None:
+def parse_controller_id(controller_id: str) -> tuple[str | None, str | None]:
     """Extracts the vendor and device codes from the ID string"""
     vendor_search = re.search(r"Vendor: (\w{4})", controller_id)
     device_search = re.search(r"Product: (\w{4})", controller_id)

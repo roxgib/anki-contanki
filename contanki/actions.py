@@ -10,7 +10,7 @@ from aqt import mw, Qt
 from aqt.utils import tooltip
 
 try:
-    from aqt.utils import is_mac
+    from anki.utils import is_mac
 except ImportError:
     is_mac = False
 
@@ -48,7 +48,7 @@ def check_filter(func: Callable) -> Callable:
     """Wrapper/decorator to check that the current deck is filtered."""
 
     def wrapper(*args, **kwargs):
-        assert mw is not None
+        assert mw is not None and mw.col is not None
         if mw.col.decks.is_filtered(mw.col.decks.get_current_id()):
             func(*args, **kwargs)
         else:

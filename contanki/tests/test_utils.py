@@ -7,12 +7,12 @@ from . import test
 @test
 def test_get_file():
     assert get_file("does_not_exist") is None
-    assert (
-        get_file("controller.js").split("\n")[0]
-        == "let polling, connected_index, indices, ready;"
-    )
-    print(get_file("Joy-Con Left").split("\n")[1])
-    assert get_file("Joy-Con Left").split("\n")[1] == '    "name": "Joy-Con Left",'
+    file = get_file("controller.js")
+    assert file is not None
+    assert file.split("\n")[0] == "let polling, connected_index, indices, ready, mock_index;"
+    file = get_file("Joy-Con Left")
+    assert file is not None
+    assert file.split("\n")[1] == '    "name": "Joy-Con Left",'
 
 
 def test_int_keys():

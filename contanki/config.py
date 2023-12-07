@@ -74,10 +74,11 @@ class ContankiConfig(QDialog):
 
     Allows the user to change the profile, settings, and bindings."""
 
-    def __init__(self, parent: QWidget, profile: Profile | None) -> None:
+    def __init__(self, parent: QWidget, contanki, profile: Profile | None) -> None:
         if profile is None:
             showInfo(
-                "Controller not detected. Connect your controller and press any button to initialise."  # pylint: disable=line-too-long
+                "Controller not detected. "
+                "Connect your controller and press any button to initialise."
             )
             return
         self.loaded = False
@@ -87,6 +88,10 @@ class ContankiConfig(QDialog):
         self.config = get_config()
         self.to_delete: list[str] = list()
         self.profile_hash = hash(profile)
+
+        from .contanki import Contanki
+
+        self.contanki: Contanki = contanki
 
         # Initialise dialog
         super().__init__(parent)
@@ -215,6 +220,10 @@ class Container(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         self.setFixedSize(self.sizeHint())
 
+    def layout(self) -> QLayout:
+        """Returns the layout of the container."""
+        return self._layout
+
     def add_widget(self, widget: QWidget) -> None:
         """Add a widget to the container."""
         self._layout.addWidget(widget)
@@ -296,16 +305,14 @@ class OptionsPage(QWidget):
 
     def update(self):
         """Updates page to reflect user changess, such as the selected controller."""
-        controller_combo = self.profile_bar.controller_selection()
-        self.profile_bar.layout().replaceWidget(
-            self.profile_bar.controller_combo, controller_combo
-        )
-        self.profile_bar.controller_combo = controller_combo
+        self.profile_bar.refresh_controllers()
         self.axis_roles.setup()
         self.quick_select.setup()
 
     class ProfileBar(QWidget):
         """A widget allowing the user to change, rename, or delete profiles."""
+
+        profile: Profile
 
         def __init__(self, parent: ContankiConfig) -> None:
             super().__init__(parent)
@@ -315,7 +322,11 @@ class OptionsPage(QWidget):
             self.to_delete = parent.to_delete
             profiles = get_profile_list(None, False)
             profiles = [p for p in profiles if p not in self.to_delete]
-            self.profiles = [get_profile(name) for name in profiles]
+            self.profiles = [
+                profile
+                for name in profiles
+                if (profile := get_profile(name)) is not None
+            ]
             self.reload = parent.reload
             self._change_profile = parent.change_profile
 
@@ -337,10 +348,17 @@ class OptionsPage(QWidget):
             layout.addWidget(Button(self, "Delete", self.delete_profile))
             layout.addWidget(Button(self, "Import", self.import_profile))
             layout.addWidget(Button(self, "Export", self.export_profile))
-
             layout.addWidget(self.controller_combo)
 
             self.setLayout(layout)
+
+        def refresh_controllers(self) -> None:
+            controller_combo = self.controller_selection()
+            layout = self.layout()
+            if layout is None:
+                return
+            layout.replaceWidget(self.controller_combo, controller_combo)
+            self.controller_combo = controller_combo
 
         def controller_selection(self) -> QComboBox:
             controller_combo = QComboBox(self)
@@ -433,7 +451,11 @@ class OptionsPage(QWidget):
 
         def update_controller(self, controller: str) -> None:
             """Updates the dialog to reflect the chosen controller."""
-            self.profile.controller = controller
+            if isinstance(controller, str):
+                if controller in get_updated_controller_list():
+                    self.profile.controller = Controller(controller)
+            else:
+                dbg(f"Controller {controller} not found.")
             self.reload()
 
         def change_profile(self, index: int) -> None:
@@ -461,10 +483,18 @@ class OptionsPage(QWidget):
             self.table.setColumnWidth(0, 150)
             self.table.setColumnWidth(1, 100)
             self.table.setHorizontalHeaderLabels(["Custom Action", "Shortcut"])
-            self.table.horizontalHeader().setSectionResizeMode(
-                0, QHeaderView.ResizeMode.Stretch
-            )
-            self.table.verticalHeader().hide()
+            hheader = self.table.horizontalHeader()
+            if hheader is None:
+                raise RuntimeError(
+                    "Couldn't get horizontal table header for custom actions widget"
+                )
+            hheader.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+            vheader = self.table.verticalHeader()
+            if vheader is None:
+                raise RuntimeError(
+                    "Couldn't get vertical table header for custom actions widget"
+                )
+            vheader.hide()
             self.key_edits = list()
             for row, (action, key_sequence) in enumerate(actions.items()):
                 self.table.setItem(row, 0, QTableWidgetItem(action, 0))
@@ -512,8 +542,13 @@ class OptionsPage(QWidget):
             """Return the custom action name and key sequence at a given row."""
             if row > (num_rows := self.table.rowCount()):
                 raise IndexError(f"Index {row} given but table has {num_rows} rows")
+            item = self.table.item(row, 0)
+            if item is None:
+                raise RuntimeError(
+                    f"Couldn't get item at row {row} in custom actions widget"
+                )
             return (
-                self.table.item(row, 0).text(),
+                item.text(),
                 self.key_edits[row].keySequence().toString(),
             )
 
@@ -521,9 +556,15 @@ class OptionsPage(QWidget):
             """Return the custom action names as a list."""
             if not self.table.rowCount():
                 return []
-            return [
-                self.table.item(row, 0).text() for row in range(self.table.rowCount())
-            ]
+            result = []
+            for row in range(self.table.rowCount()):
+                item = self.table.item(row, 0)
+                if item is None:
+                    raise RuntimeError(
+                        f"Couldn't get item at row {row} in custom actions widget"
+                    )
+                result.append(item.text())
+            return result
 
         def get_keys(self) -> list[str]:
             """Return the custom action key sequences as a list."""
@@ -693,10 +734,9 @@ class OptionsPage(QWidget):
 class ControlsPage(QTabWidget):
     """A widget allowing the user to modify the bindings."""
 
-    style_sheet = """
-    QTabWidget::pane { border: 0px; } 
-    """
-    # QComboBox::dropdown { margin: auto; }
+    style_sheet = "QTabWidget::pane { border: 0px; }"
+    tabs: dict[str, ControlsPage.ControlsTab | ControlsPage.QuickSelectActions] = dict()
+    combos: dict[State, dict[int, QComboBox]] = dict()
 
     def __init__(self, parent: ContankiConfig) -> None:
         super().__init__(parent)
@@ -707,8 +747,6 @@ class ControlsPage(QTabWidget):
         self.get_custom_actions = parent.get_custom_actions
         self.setObjectName("controls_page")
         self.setTabPosition(QTabWidget.TabPosition.South)
-        self.tabs: dict[str, self.ControlsTab] = dict()
-        self.combos: dict[State, dict[int, QComboBox]] = dict()
         self.update_tabs()
 
     def update_inheritance(self):
@@ -901,7 +939,7 @@ class ControllerPage(QWidget):
     def fill_grid(self, layout: QGridLayout):
         row = 1
         col = 0
-        for button in range(mw.contanki.len_buttons):
+        for button in range(self._parent.contanki.len_buttons):
             if col == self.GRID_WIDTH:
                 col = 0
                 row += 1
@@ -913,7 +951,7 @@ class ControllerPage(QWidget):
             col += 1
             layout.addWidget(self.ButtonControl(self, icon, button=button), row, col)
             col += 1
-        for axis in range(mw.contanki.len_axes):
+        for axis in range(self._parent.contanki.len_axes):
             if col == self.GRID_WIDTH:
                 col = 0
                 row += 1
@@ -952,8 +990,8 @@ class ControllerPage(QWidget):
                 "https://sambradshaw.dev/api",
                 json={
                     "controller": self.controller.to_json(),
-                    "controller_id": mw.contanki.controller_id,
-                    "info": mw.contanki.debug_info,
+                    "controller_id": self._parent.contanki.controller_id,
+                    "info": self._parent.contanki.debug_info,
                 },
             )
         self._parent.reload()
@@ -1033,7 +1071,7 @@ class ControllerPage(QWidget):
             if assignment == "Not Assigned":
                 assignment = ""
             if assignment and self.is_button:
-                    self._parent.controller.buttons[self.index] = assignment
+                self._parent.controller.buttons[self.index] = assignment
             elif assignment:
                 self._parent.controller.axes[self.index] = assignment
             elif self.is_button and self.index in self._parent.controller.buttons:
