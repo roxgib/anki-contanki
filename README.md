@@ -58,6 +58,9 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 19
+Tentative fix for 8BitDo D-Pad issues
+
 ### Beta 18
 This beta adds a new tab to the config allowing users to fix issues with their controller mappings. It should be considered very much a beta feature and has not yet been extensively tested.
 
