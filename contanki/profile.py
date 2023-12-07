@@ -30,6 +30,16 @@ from .controller import Controller, get_updated_controller_list
 class Profile:
     """Stores control bindings and handles calling functions for them."""
 
+    states: list[State] = [
+        "deckBrowser",
+        "overview",
+        "review",
+        "question",
+        "answer",
+        "dialog",
+        "config",
+    ]
+
     def __init__(self, profile: Profile | dict):
         if isinstance(profile, Profile):
             profile = int_keys(profile.to_dict())
@@ -38,7 +48,7 @@ class Profile:
             self.bindings: dict[tuple[State, int], str] = defaultdict(str)
             for state, state_dict in int_keys(bindings).items():
                 for button, action in state_dict.items():
-                    if action and 'inherit' not in action.lower():
+                    if action and "inherit" not in action.lower():
                         self.bindings[(state, button)] = action
         else:
             self.bindings = bindings
@@ -92,18 +102,9 @@ class Profile:
         self.update_binding(state, button, action)
 
     def get_inherited_bindings(self) -> dict[str, dict[int, str]]:
-        """Returns a dictionary of bindings with inherited actions added."""
-        states: list[State] = [
-            "deckBrowser",
-            "overview",
-            "review",
-            "question",
-            "answer",
-            "dialog",
-            "config",
-        ]
+        """Returns a dictionary of bindings with inherited actions and duplicated buttons added."""
         bindings: dict[str, dict[int, str]] = defaultdict(dict)
-        for state in states:
+        for state in self.states:
             for button in range(self.len_buttons):
                 bindings[state][button] = self.bindings[("all", button)]
                 if state in ("question", "answer"):
@@ -118,7 +119,7 @@ class Profile:
 
     def update_binding(self, state: State, button: int, action: str) -> None:
         """Updates the binding for a button or axis."""
-        if state not in getattr(State, '__args__'):
+        if state not in getattr(State, "__args__"):
             raise ValueError(f"State {state} not valid.")
         self.bindings[(state, button)] = action
 
@@ -178,7 +179,9 @@ class Profile:
         return Profile(self.to_dict())
 
 
-def get_profile_list(compatibility: str | None = None, defaults: bool = True) -> list[str]:
+def get_profile_list(
+    compatibility: str | None = None, defaults: bool = True
+) -> list[str]:
     """Returns a list of all profiles."""
     files = os.listdir(user_profile_path)
     if defaults:
@@ -375,7 +378,7 @@ def profile_is_valid(profile: Profile | dict | str | None) -> bool:
             dbg(f"Profile '{profile['name']}' is missing required key {key}")
             return False
     for state, value in profile["bindings"].items():
-        if state not in getattr(State, '__args__'):
+        if state not in getattr(State, "__args__"):
             dbg(f"Profile '{profile['name']}' has invalid state '{state}'")
             return False
         if not isinstance(value, dict):

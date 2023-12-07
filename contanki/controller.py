@@ -72,9 +72,17 @@ class Controller:
         return f"<Controller: {self.name}>"
 
     def __getitem__(self, index: int) -> str:
-        return self.buttons[index]
+        if index < 100:
+            return self.buttons[index]
+        elif index < 200:
+            return self.axis_buttons[index - 100]
+        else:
+            return self.axes[index - 200]
+
 
     def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, str):
+            return self.name == __o
         return isinstance(__o, Controller) and self.name == __o.name
 
     def axis(self, index: int) -> str:
@@ -88,6 +96,18 @@ class Controller:
     def button(self, index: int) -> str:
         """Get the name of a button"""
         return self.buttons[index]
+
+    def get_duplicated_buttons(self, index: int) -> list[int]:
+        """Get the indicies of buttons that are duplicated on the controller."""
+        buttons = []
+        button_name = self[index]
+        for i, button in self.buttons.items():
+            if button == button_name:
+                buttons.append(i)
+        for i, button in self.axis_buttons.items():
+            if button == button_name:
+                buttons.append(i + 100)
+        return buttons
 
     # FIXME: Needs to handle axis dpads
     def get_dpad_buttons(self) -> tuple[int, int, int, int] | None:

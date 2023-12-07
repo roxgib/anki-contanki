@@ -36,26 +36,23 @@
         "all": {
             "0": "Enter",
             "4": "Undo",
+            "5": "Toggle Quick Select",
             "8": "Options",
             "9": "Sync",
             "10": "Select",
             "11": "Click",
-            "104": "Back",
-            "105": "Forward",
-            "5": "Toggle Quick Select",
-            "106": "",
-            "107": ""
+            "12": "",
+            "13": "",
+            "14": "Back",
+            "15": "Forward"
         },
         "review": {
             "0": "Enter",
             "8": "Card Info",
+            "12": "Bury Card",
             "13": "Replay Audio",
             "14": "Flag",
-            "15": "Mark Note",
-            "104": "",
-            "105": "Flag",
-            "106": "Bury Card",
-            "107": "Replay Audio"
+            "15": "Mark Note"
         },
         "question": {
             "0": "Flip Card",
@@ -72,11 +69,7 @@
             "11": "",
             "12": "",
             "13": "",
-            "14": "",
-            "104": "",
-            "105": "",
-            "106": "",
-            "107": ""
+            "15": ""
         },
         "answer": {
             "0": "Good",
@@ -94,10 +87,7 @@
             "12": "",
             "13": "",
             "14": "",
-            "104": "",
-            "105": "",
-            "106": "",
-            "107": ""
+            "15": ""
         },
         "deckBrowser": {
             "0": "Select",
@@ -107,11 +97,7 @@
             "12": "Previous Deck",
             "13": "Next Deck",
             "14": "Previous Due Deck",
-            "11": "Next Due Deck",
-            "104": "",
-            "105": "",
-            "106": "Previous Deck",
-            "107": "Next Deck"
+            "11": "Next Due Deck"
         },
         "overview": {
             "0": "Select",
@@ -121,11 +107,7 @@
             "12": "Previous Deck",
             "13": "Next Deck",
             "14": "Previous Due Deck",
-            "11": "Next Due Deck",
-            "104": "",
-            "105": "",
-            "106": "Previous Deck",
-            "107": "Next Deck"
+            "11": "Next Due Deck"
         },
         "dialog": {
             "0": "Select",
@@ -137,11 +119,7 @@
             "1": "",
             "2": "",
             "3": "",
-            "5": "Focus Main Window",
-            "104": "Down",
-            "105": "Up",
-            "106": "Select Previous",
-            "107": "Select Next"
+            "5": "Focus Main Window"
         },
         "NoFocus": {
             "0": "Focus Main Window"

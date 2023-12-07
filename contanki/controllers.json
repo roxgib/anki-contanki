@@ -1,712 +1,708 @@
 {
-    "DualShock 3": {
-        "name": "DualShock 3",
-        "buttons": {
-            "0": "Cross",
-            "1": "Circle",
-            "2": "Square",
-            "3": "Triangle",
-            "4": "Left Shoulder",
-            "5": "Right Shoulder",
-            "6": "Left Trigger",
-            "7": "Right Trigger",
-            "8": "Select",
-            "9": "Start",
-            "10": "Left Stick Click",
-            "11": "Right Stick Click",
-            "12": "D-Pad Up",
-            "13": "D-Pad Down",
-            "14": "D-Pad Left",
-            "15": "D-Pad Right",
-            "16": "PS"
-        },
-        "axis_buttons": {
-            "0": "Left Stick Left",
-            "1": "Left Stick Right",
-            "2": "Left Stick Up",
-            "3": "Left Stick Down",
-            "4": "Right Stick Left",
-            "5": "Right Stick Right",
-            "6": "Right Stick Up",
-            "7": "Right Stick Down"
-        },
-        "axes": {
-            "0": "Left Stick Horizontal",
-            "1": "Left Stick Vertical",
-            "2": "Right Stick Horizontal",
-            "3": "Right Stick Vertical"
-        },
-        "num_buttons": 17,
-        "num_axes": 4,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    },
-    "DualShock 4": {
-        "name": "DualShock 4",
-        "buttons": {
-            "0": "Cross",
-            "1": "Circle",
-            "2": "Square",
-            "3": "Triangle",
-            "4": "Left Shoulder",
-            "5": "Right Shoulder",
-            "6": "Left Trigger",
-            "7": "Right Trigger",
-            "8": "Share",
-            "9": "Options",
-            "10": "Left Stick Click",
-            "11": "Right Stick Click",
-            "12": "D-Pad Up",
-            "13": "D-Pad Down",
-            "14": "D-Pad Left",
-            "15": "D-Pad Right",
-            "16": "PS",
-            "17": "Pad"
-        },
-        "axis_buttons": {
-            "0": "Left Stick Left",
-            "1": "Left Stick Right",
-            "2": "Left Stick Up",
-            "3": "Left Stick Down",
-            "4": "Right Stick Left",
-            "5": "Right Stick Right",
-            "6": "Right Stick Up",
-            "7": "Right Stick Down"
-        },
-        "axes": {
-            "0": "Left Stick Horizontal",
-            "1": "Left Stick Vertical",
-            "2": "Right Stick Horizontal",
-            "3": "Right Stick Vertical"
-        },
-        "num_buttons": 18,
-        "num_axes": 4,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    },
-    "DualSense": {
-        "name": "DualSense",
-        "buttons": {
-            "0": "Cross",
-            "1": "Circle",
-            "2": "Square",
-            "3": "Triangle",
-            "4": "Left Shoulder",
-            "5": "Right Shoulder",
-            "6": "Left Trigger",
-            "7": "Right Trigger",
-            "8": "Share",
-            "9": "Options",
-            "10": "Left Stick Click",
-            "11": "Right Stick Click",
-            "12": "D-Pad Up",
-            "13": "D-Pad Down",
-            "14": "D-Pad Left",
-            "15": "D-Pad Right",
-            "16": "PS",
-            "17": "Pad"
-        },
-        "axis_buttons": {
-            "0": "Left Stick Left",
-            "1": "Left Stick Right",
-            "2": "Left Stick Up",
-            "3": "Left Stick Down",
-            "4": "Right Stick Left",
-            "5": "Right Stick Right",
-            "6": "Right Stick Up",
-            "7": "Right Stick Down"
-        },
-        "axes": {
-            "0": "Left Stick Horizontal",
-            "1": "Left Stick Vertical",
-            "2": "Right Stick Horizontal",
-            "3": "Right Stick Vertical"
-        },
-        "num_buttons": 18,
-        "num_axes": 4,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    },
-    "Xbox One": {
-        "name": "Xbox One",
-        "buttons": {
-            "0": "A",
-            "1": "B",
-            "2": "X",
-            "3": "Y",
-            "4": "Left Shoulder",
-            "5": "Right Shoulder",
-            "6": "Left Trigger",
-            "7": "Right Trigger",
-            "8": "View",
-            "9": "Menu",
-            "10": "Left Stick Click",
-            "11": "Right Stick Click",
-            "12": "D-Pad Up",
-            "13": "D-Pad Down",
-            "14": "D-Pad Left",
-            "15": "D-Pad Right",
-            "16": "Xbox"
-        },
-        "axis_buttons": {
-            "0": "Left Stick Left",
-            "1": "Left Stick Right",
-            "2": "Left Stick Up",
-            "3": "Left Stick Down",
-            "4": "Right Stick Left",
-            "5": "Right Stick Right",
-            "6": "Right Stick Up",
-            "7": "Right Stick Down"
-        },
-        "axes": {
-            "0": "Left Stick Horizontal",
-            "1": "Left Stick Vertical",
-            "2": "Right Stick Horizontal",
-            "3": "Right Stick Vertical"
-        },
-        "num_buttons": 17,
-        "num_axes": 4,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    },
-    "Xbox Series": {
-        "name": "Xbox Series",
-        "buttons": {
-            "0": "A",
-            "1": "B",
-            "2": "X",
-            "3": "Y",
-            "4": "Left Shoulder",
-            "5": "Right Shoulder",
-            "6": "Left Trigger",
-            "7": "Right Trigger",
-            "8": "View",
-            "9": "Menu",
-            "10": "Left Stick Click",
-            "11": "Right Stick Click",
-            "12": "D-Pad Up",
-            "13": "D-Pad Down",
-            "14": "D-Pad Left",
-            "15": "D-Pad Right",
-            "16": "Xbox",
-            "17": "Share"
-        },
-        "axis_buttons": {
-            "0": "Left Stick Left",
-            "1": "Left Stick Right",
-            "2": "Left Stick Up",
-            "3": "Left Stick Down",
-            "4": "Right Stick Left",
-            "5": "Right Stick Right",
-            "6": "Right Stick Up",
-            "7": "Right Stick Down"
-        },
-        "axes": {
-            "0": "Left Stick Horizontal",
-            "1": "Left Stick Vertical",
-            "2": "Right Stick Horizontal",
-            "3": "Right Stick Vertical"
-        },
-        "num_buttons": 18,
-        "num_axes": 4,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    },
-    "Xbox 360": {
-        "name": "Xbox 360",
-        "buttons": {
-            "0": "A",
-            "1": "B",
-            "2": "X",
-            "3": "Y",
-            "4": "Left Shoulder",
-            "5": "Right Shoulder",
-            "6": "Left Trigger",
-            "7": "Right Trigger",
-            "8": "Back",
-            "9": "Start",
-            "10": "Left Stick Click",
-            "11": "Right Stick Click",
-            "12": "D-Pad Up",
-            "13": "D-Pad Down",
-            "14": "D-Pad Left",
-            "15": "D-Pad Right",
-            "16": "Xbox"
-        },
-        "axis_buttons": {
-            "0": "Left Stick Left",
-            "1": "Left Stick Right",
-            "2": "Left Stick Up",
-            "3": "Left Stick Down",
-            "4": "Right Stick Left",
-            "5": "Right Stick Right",
-            "6": "Right Stick Up",
-            "7": "Right Stick Down"
-        },
-        "axes": {
-            "0": "Left Stick Horizontal",
-            "1": "Left Stick Vertical",
-            "2": "Right Stick Horizontal",
-            "3": "Right Stick Vertical"
-        },
-        "num_buttons": 17,
-        "num_axes": 4,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    },
-    "Switch Pro": {
-        "name": "Switch Pro",
-        "buttons": {
-            "0": "B",
-            "1": "A",
-            "2": "Y",
-            "3": "X",
-            "4": "Left Shoulder",
-            "5": "Right Shoulder",
-            "6": "Left Trigger",
-            "7": "Right Trigger",
-            "8": "Minus",
-            "9": "Plus",
-            "10": "Left Stick Click",
-            "11": "Right Stick Click",
-            "12": "D-Pad Up",
-            "13": "D-Pad Down",
-            "14": "D-Pad Left",
-            "15": "D-Pad Right",
-            "16": "Home",
-            "17": "Square"
-        },
-        "axis_buttons": {
-            "0": "Left Stick Left",
-            "1": "Left Stick Right",
-            "2": "Left Stick Up",
-            "3": "Left Stick Down",
-            "4": "Right Stick Left",
-            "5": "Right Stick Right",
-            "6": "Right Stick Up",
-            "7": "Right Stick Down"
-        },
-        "axes": {
-            "0": "Left Stick Horizontal",
-            "1": "Left Stick Vertical",
-            "2": "Right Stick Horizontal",
-            "3": "Right Stick Vertical"
-        },
-        "num_buttons": 18,
-        "num_axes": 4,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    },
-    "Steam Controller": {
-        "name": "Steam Controller",
-        "buttons": {
-            "0": "A",
-            "1": "B",
-            "2": "X",
-            "3": "Y",
-            "4": "Left Shoulder",
-            "5": "Right Shoulder",
-            "6": "Left Trigger",
-            "7": "Right Trigger",
-            "8": "Back",
-            "9": "Start",
-            "10": "Stick Click",
-            "11": "Right Track",
-            "12": "Left Track Up",
-            "13": "Left Track Down",
-            "14": "Left Track Left",
-            "15": "Left Track Right",
-            "16": "Left Grip",
-            "17": "Right Grip",
-            "18": "Right Track Up",
-            "19": "Right Track Down",
-            "20": "Right Track Left",
-            "21": "Right Track Right",
-            "22": "Steam"
-        },
-        "axis_buttons": {
-            "0": "Stick Left",
-            "1": "Stick Right",
-            "2": "Stick Up",
-            "3": "Stick Down"
-        },
-        "axes": {
-            "0": "Stick Horizontal",
-            "1": "Stick Vertical"
-        },
-        "num_buttons": 23,
-        "num_axes": 2,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    },
-    "Joy-Con Right": {
-        "name": "Joy-Con Right",
-        "buttons": {
-            "0": "A",
-            "1": "X",
-            "2": "B",
-            "3": "Y",
-            "4": "SL",
-            "5": "SR",
-            "7": "ZR",
-            "8": "R",
-            "9": "Plus",
-            "10": "Stick Click",
-            "16": "Home"
-        },
-        "axis_buttons": {
-            "0": "Stick Up",
-            "1": "Stick Down",
-            "2": "Stick Left",
-            "3": "Stick Right"
-        },
-        "axes": {
-            "0": "Stick Horizontal",
-            "1": "Stick Vertical"
-        },
-        "num_buttons": 9,
-        "num_axes": 2,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": false
-    },
-    "Joy-Con Left": {
-        "name": "Joy-Con Left",
-        "buttons": {
-            "0": "Down",
-            "1": "Right",
-            "2": "Left",
-            "3": "Up",
-            "4": "SL",
-            "5": "SR",
-            "6": "ZL",
-            "8": "L",
-            "9": "Minus",
-            "10": "Stick Click",
-            "16": "Capture"
-        },
-        "axis_buttons": {
-            "0": "Stick Up",
-            "1": "Stick Down",
-            "2": "Stick Left",
-            "3": "Stick Right"
-        },
-        "axes": {
-            "0": "Stick Horizontal",
-            "1": "Stick Vertical"
-        },
-        "num_buttons": 9,
-        "num_axes": 2,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": false
-    },
-    "Joy-Con": {
-        "name": "Joy-Con",
-        "buttons": {
-            "0": "B",
-            "1": "A",
-            "2": "Y",
-            "3": "X",
-            "4": "L",
-            "5": "R",
-            "6": "ZL",
-            "7": "ZR",
-            "8": "Minus",
-            "9": "Plus",
-            "10": "Left Stick Click",
-            "11": "Right Stick Click",
-            "12": "Up",
-            "13": "Down",
-            "14": "Left",
-            "15": "Right",
-            "16": "Home",
-            "17": "Capture"
-        },
-        "axis_buttons": {
-            "0": "Left Stick Left",
-            "1": "Left Stick Right",
-            "2": "Left Stick Up",
-            "3": "Left Stick Down",
-            "4": "Right Stick Left",
-            "5": "Right Stick Right",
-            "6": "Right Stick Up",
-            "7": "Right Stick Down"
-        },
-        "axes": {
-            "0": "Left Stick Horizontal",
-            "1": "Left Stick Vertical",
-            "2": "Right Stick Horizontal",
-            "3": "Right Stick Vertical"
-        },
-        "num_buttons": 18,
-        "num_axes": 4,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    },
-    "Super Nintendo": {
-        "name": "Super Nintendo",
-        "buttons": {
-            "0": "X",
-            "1": "A",
-            "2": "B",
-            "3": "Y",
-            "4": "Left Shoulder",
-            "5": "Right Shoulder",
-            "8": "Select",
-            "9": "Start"
-        },
-        "axis_buttons": {
-            "0": "D-Pad Up",
-            "1": "D-Pad Down",
-            "2": "D-Pad Left",
-            "3": "D-Pad Right"
-        },
-        "axes": {
-            "0": "D-Pad Horizontal",
-            "1": "D-Pad Vertical"
-        },
-        "num_buttons": 8,
-        "num_axes": 2,
-        "has_stick": false,
-        "supported": true,
-        "has_dpad": true
-    },
-    "Steam Deck": {
-        "name": "Steam Deck",
-        "buttons": {
-            "0": "A",
-            "1": "B",
-            "2": "X",
-            "3": "Y",
-            "4": "Left Shoulder",
-            "5": "Right Shoulder",
-            "6": "Left Trigger",
-            "7": "Right Trigger",
-            "8": "View",
-            "9": "Menu",
-            "10": "Left Stick",
-            "11": "Right Stick",
-            "12": "D-Pad Up",
-            "13": "D-Pad Down",
-            "14": "D-Pad Left",
-            "15": "D-Pad Right",
-            "16": "Steam"
-        },
-        "axis_buttons": {
-            "0": "Left Stick Left",
-            "1": "Left Stick Right",
-            "2": "Left Stick Up",
-            "3": "Left Stick Down",
-            "4": "Right Stick Left",
-            "5": "Right Stick Right",
-            "6": "Right Stick Up",
-            "7": "Right Stick Down"
-        },
-        "axes": {
-            "0": "Left Stick Horizontal",
-            "1": "Left Stick Vertical",
-            "2": "Right Stick Horizontal",
-            "3": "Right Stick Vertical"
-        },
-        "num_buttons": 17,
-        "num_axes": 4,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    },
-    "8BitDo Zero (X Input)": {
-        "name": "8BitDo Zero (X Input)",
-        "buttons": {
-            "0": "B",
-            "1": "A",
-            "2": "Y",
-            "3": "X",
-            "4": "Left Shoulder",
-            "5": "Right Shoulder",
-            "8": "Select",
-            "9": "Start"
-        },
-        "axis_buttons": {
-            "4": "D-Pad Left",
-            "5": "D-Pad Right",
-            "6": "D-Pad Up",
-            "7": "D-Pad Down"
-        },
-        "axes": {
-            "2": "D-Pad Horizontal",
-            "3": "D-Pad Vertical"
-        },
-        "num_buttons": 8,
-        "num_axes": 4,
-        "has_stick": false,
-        "supported": true,
-        "has_dpad": true
-    },
-    "8BitDo Zero (D Input)": {
-        "name": "8BitDo Zero (D Input)",
-        "buttons": {
-            "0": "A",
-            "1": "B",
-            "3": "X",
-            "4": "Y",
-            "6": "Left Shoulder",
-            "7": "Right Shoulder",
-            "10": "Select",
-            "11": "Start"
-        },
-        "axis_buttons": {
-            "4": "D-Pad Left",
-            "5": "D-Pad Right",
-            "10": "D-Pad Up",
-            "11": "D-Pad Down"
-        },
-        "axes": {
-            "2": "D-Pad Horizontal",
-            "5": "D-Pad Vertical"
-        },
-        "num_buttons": 8,
-        "num_axes": 6,
-        "has_stick": false,
-        "supported": true,
-        "has_dpad": true
-    },
-    "8BitDo Lite": {
-        "name": "8BitDo Lite",
-        "buttons": {
-            "0": "A",
-            "1": "B",
-            "2": "X",
-            "3": "Y",
-            "4": "L2",
-            "5": "R2",
-            "6": "L1",
-            "7": "R1",
-            "8": "Minus",
-            "9": "Plus",
-            "10": "Star",
-            "11": "Home",
-            "12": "Up Arrow",
-            "13": "Down Arrow",
-            "14": "Left Arrow",
-            "15": "Right Arrow"
-        },
-        "axis_buttons": {
-            "0": "Left D-Pad Left",
-            "1": "Left D-Pad Right",
-            "2": "Left D-Pad Up",
-            "3": "Left D-Pad Down",
-            "4": "Right D-Pad Left",
-            "5": "Right D-Pad Right",
-            "6": "Right D-Pad Up",
-            "7": "Right D-Pad Down"
-        },
-        "axes": {
-            "0": "Left D-Pad Horizontal",
-            "1": "Left D-Pad Vertical",
-            "2": "Right D-Pad Horizontal",
-            "3": "Right D-Pad Vertical"
-        },
-        "num_buttons": 16,
-        "num_axes": 4,
-        "has_stick": false,
-        "supported": true,
-        "has_dpad": true
-    },
-    "8BitDo Pro": {
-        "name": "8BitDo Pro",
-        "buttons": {
-            "0": "B",
-            "1": "A",
-            "2": "Y",
-            "3": "X",
-            "4": "L1",
-            "5": "R1",
-            "6": "L2",
-            "7": "R2",
-            "8": "Select",
-            "9": "Start",
-            "10": "Left Stick Click",
-            "11": "Right Stick Click",
-            "12": "D-Pad Up",
-            "13": "D-Pad Down",
-            "14": "D-Pad Left",
-            "15": "D-Pad Right",
-            "16": "Home"
-        },
-        "axis_buttons": {
-            "0": "Left Stick Left",
-            "1": "Left Stick Right",
-            "2": "Left Stick Up",
-            "3": "Left Stick Down",
-            "4": "Right Stick Left",
-            "5": "Right Stick Right",
-            "6": "Right Stick Up",
-            "7": "Right Stick Down"
-        },
-        "axes": {
-            "0": "Left Stick Horizontal",
-            "1": "Left Stick Vertical",
-            "2": "Right Stick Horizontal",
-            "3": "Right Stick Vertical"
-        },
-        "num_buttons": 17,
-        "num_axes": 4,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    },
-    "8BitDo Ultimate": {
-        "name": "8BitDo Ultimate",
-        "buttons": {
-            "0": "B",
-            "1": "A",
-            "2": "Y",
-            "3": "X",
-            "4": "L1",
-            "5": "R1",
-            "6": "L2",
-            "7": "R2",
-            "8": "Minus",
-            "9": "Plus",
-            "10": "Left Stick Click",
-            "11": "Right Stick Click",
-            "12": "D-Pad Up",
-            "13": "D-Pad Down",
-            "14": "D-Pad Left",
-            "15": "D-Pad Right",
-            "16": "Home",
-            "17": "Star"
-        },
-        "axis_buttons": {
-            "0": "Left Stick Left",
-            "1": "Left Stick Right",
-            "2": "Left Stick Up",
-            "3": "Left Stick Down",
-            "4": "Right Stick Left",
-            "5": "Right Stick Right",
-            "6": "Right Stick Up",
-            "7": "Right Stick Down"
-        },
-        "axes": {
-            "0": "Left Stick Horizontal",
-            "1": "Left Stick Vertical",
-            "2": "Right Stick Horizontal",
-            "3": "Right Stick Vertical"
-        },
-        "num_buttons": 18,
-        "num_axes": 4,
-        "has_stick": true,
-        "supported": true,
-        "has_dpad": true
-    }
+   "DualShock 3": {
+      "name": "DualShock 3",
+      "buttons": {
+         "0": "Cross",
+         "1": "Circle",
+         "2": "Square",
+         "3": "Triangle",
+         "4": "Left Shoulder",
+         "5": "Right Shoulder",
+         "6": "Left Trigger",
+         "7": "Right Trigger",
+         "8": "Select",
+         "9": "Start",
+         "10": "Left Stick Click",
+         "11": "Right Stick Click",
+         "12": "D-Pad Up",
+         "13": "D-Pad Down",
+         "14": "D-Pad Left",
+         "15": "D-Pad Right",
+         "16": "PS"
+      },
+      "axis_buttons": {
+         "0": "Left Stick Left",
+         "1": "Left Stick Right",
+         "2": "Left Stick Up",
+         "3": "Left Stick Down",
+         "4": "Right Stick Left",
+         "5": "Right Stick Right",
+         "6": "Right Stick Up",
+         "7": "Right Stick Down"
+      },
+      "axes": {
+         "0": "Left Stick Horizontal",
+         "1": "Left Stick Vertical",
+         "2": "Right Stick Horizontal",
+         "3": "Right Stick Vertical"
+      },
+      "num_buttons": 17,
+      "num_axes": 4,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   },
+   "DualShock 4": {
+      "name": "DualShock 4",
+      "buttons": {
+         "0": "Cross",
+         "1": "Circle",
+         "2": "Square",
+         "3": "Triangle",
+         "4": "Left Shoulder",
+         "5": "Right Shoulder",
+         "6": "Left Trigger",
+         "7": "Right Trigger",
+         "8": "Share",
+         "9": "Options",
+         "10": "Left Stick Click",
+         "11": "Right Stick Click",
+         "12": "D-Pad Up",
+         "13": "D-Pad Down",
+         "14": "D-Pad Left",
+         "15": "D-Pad Right",
+         "16": "PS",
+         "17": "Pad"
+      },
+      "axis_buttons": {
+         "0": "Left Stick Left",
+         "1": "Left Stick Right",
+         "2": "Left Stick Up",
+         "3": "Left Stick Down",
+         "4": "Right Stick Left",
+         "5": "Right Stick Right",
+         "6": "Right Stick Up",
+         "7": "Right Stick Down"
+      },
+      "axes": {
+         "0": "Left Stick Horizontal",
+         "1": "Left Stick Vertical",
+         "2": "Right Stick Horizontal",
+         "3": "Right Stick Vertical"
+      },
+      "num_buttons": 18,
+      "num_axes": 4,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   },
+   "DualSense": {
+      "name": "DualSense",
+      "buttons": {
+         "0": "Cross",
+         "1": "Circle",
+         "2": "Square",
+         "3": "Triangle",
+         "4": "Left Shoulder",
+         "5": "Right Shoulder",
+         "6": "Left Trigger",
+         "7": "Right Trigger",
+         "8": "Share",
+         "9": "Options",
+         "10": "Left Stick Click",
+         "11": "Right Stick Click",
+         "12": "D-Pad Up",
+         "13": "D-Pad Down",
+         "14": "D-Pad Left",
+         "15": "D-Pad Right",
+         "16": "PS",
+         "17": "Pad"
+      },
+      "axis_buttons": {
+         "0": "Left Stick Left",
+         "1": "Left Stick Right",
+         "2": "Left Stick Up",
+         "3": "Left Stick Down",
+         "4": "Right Stick Left",
+         "5": "Right Stick Right",
+         "6": "Right Stick Up",
+         "7": "Right Stick Down"
+      },
+      "axes": {
+         "0": "Left Stick Horizontal",
+         "1": "Left Stick Vertical",
+         "2": "Right Stick Horizontal",
+         "3": "Right Stick Vertical"
+      },
+      "num_buttons": 18,
+      "num_axes": 4,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   },
+   "Xbox One": {
+      "name": "Xbox One",
+      "buttons": {
+         "0": "A",
+         "1": "B",
+         "2": "X",
+         "3": "Y",
+         "4": "Left Shoulder",
+         "5": "Right Shoulder",
+         "6": "Left Trigger",
+         "7": "Right Trigger",
+         "8": "View",
+         "9": "Menu",
+         "10": "Left Stick Click",
+         "11": "Right Stick Click",
+         "12": "D-Pad Up",
+         "13": "D-Pad Down",
+         "14": "D-Pad Left",
+         "15": "D-Pad Right",
+         "16": "Xbox"
+      },
+      "axis_buttons": {
+         "0": "Left Stick Left",
+         "1": "Left Stick Right",
+         "2": "Left Stick Up",
+         "3": "Left Stick Down",
+         "4": "Right Stick Left",
+         "5": "Right Stick Right",
+         "6": "Right Stick Up",
+         "7": "Right Stick Down"
+      },
+      "axes": {
+         "0": "Left Stick Horizontal",
+         "1": "Left Stick Vertical",
+         "2": "Right Stick Horizontal",
+         "3": "Right Stick Vertical"
+      },
+      "num_buttons": 17,
+      "num_axes": 4,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   },
+   "Xbox Series": {
+      "name": "Xbox Series",
+      "buttons": {
+         "0": "A",
+         "1": "B",
+         "2": "X",
+         "3": "Y",
+         "4": "Left Shoulder",
+         "5": "Right Shoulder",
+         "6": "Left Trigger",
+         "7": "Right Trigger",
+         "8": "View",
+         "9": "Menu",
+         "10": "Left Stick Click",
+         "11": "Right Stick Click",
+         "12": "D-Pad Up",
+         "13": "D-Pad Down",
+         "14": "D-Pad Left",
+         "15": "D-Pad Right",
+         "16": "Xbox",
+         "17": "Share"
+      },
+      "axis_buttons": {
+         "0": "Left Stick Left",
+         "1": "Left Stick Right",
+         "2": "Left Stick Up",
+         "3": "Left Stick Down",
+         "4": "Right Stick Left",
+         "5": "Right Stick Right",
+         "6": "Right Stick Up",
+         "7": "Right Stick Down"
+      },
+      "axes": {
+         "0": "Left Stick Horizontal",
+         "1": "Left Stick Vertical",
+         "2": "Right Stick Horizontal",
+         "3": "Right Stick Vertical"
+      },
+      "num_buttons": 18,
+      "num_axes": 4,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   },
+   "Xbox 360": {
+      "name": "Xbox 360",
+      "buttons": {
+         "0": "A",
+         "1": "B",
+         "2": "X",
+         "3": "Y",
+         "4": "Left Shoulder",
+         "5": "Right Shoulder",
+         "6": "Left Trigger",
+         "7": "Right Trigger",
+         "8": "Back",
+         "9": "Start",
+         "10": "Left Stick Click",
+         "11": "Right Stick Click",
+         "12": "D-Pad Up",
+         "13": "D-Pad Down",
+         "14": "D-Pad Left",
+         "15": "D-Pad Right",
+         "16": "Xbox"
+      },
+      "axis_buttons": {
+         "0": "Left Stick Left",
+         "1": "Left Stick Right",
+         "2": "Left Stick Up",
+         "3": "Left Stick Down",
+         "4": "Right Stick Left",
+         "5": "Right Stick Right",
+         "6": "Right Stick Up",
+         "7": "Right Stick Down"
+      },
+      "axes": {
+         "0": "Left Stick Horizontal",
+         "1": "Left Stick Vertical",
+         "2": "Right Stick Horizontal",
+         "3": "Right Stick Vertical"
+      },
+      "num_buttons": 17,
+      "num_axes": 4,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   },
+   "Switch Pro": {
+      "name": "Switch Pro",
+      "buttons": {
+         "0": "B",
+         "1": "A",
+         "2": "Y",
+         "3": "X",
+         "4": "Left Shoulder",
+         "5": "Right Shoulder",
+         "6": "Left Trigger",
+         "7": "Right Trigger",
+         "8": "Minus",
+         "9": "Plus",
+         "10": "Left Stick Click",
+         "11": "Right Stick Click",
+         "12": "D-Pad Up",
+         "13": "D-Pad Down",
+         "14": "D-Pad Left",
+         "15": "D-Pad Right",
+         "16": "Home",
+         "17": "Square"
+      },
+      "axis_buttons": {
+         "0": "Left Stick Left",
+         "1": "Left Stick Right",
+         "2": "Left Stick Up",
+         "3": "Left Stick Down",
+         "4": "Right Stick Left",
+         "5": "Right Stick Right",
+         "6": "Right Stick Up",
+         "7": "Right Stick Down"
+      },
+      "axes": {
+         "0": "Left Stick Horizontal",
+         "1": "Left Stick Vertical",
+         "2": "Right Stick Horizontal",
+         "3": "Right Stick Vertical"
+      },
+      "num_buttons": 18,
+      "num_axes": 4,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   },
+   "Steam Controller": {
+      "name": "Steam Controller",
+      "buttons": {
+         "0": "A",
+         "1": "B",
+         "2": "X",
+         "3": "Y",
+         "4": "Left Shoulder",
+         "5": "Right Shoulder",
+         "6": "Left Trigger",
+         "7": "Right Trigger",
+         "8": "Back",
+         "9": "Start",
+         "10": "Stick Click",
+         "11": "Right Track",
+         "12": "Left Track Up",
+         "13": "Left Track Down",
+         "14": "Left Track Left",
+         "15": "Left Track Right",
+         "16": "Left Grip",
+         "17": "Right Grip",
+         "18": "Right Track Up",
+         "19": "Right Track Down",
+         "20": "Right Track Left",
+         "21": "Right Track Right",
+         "22": "Steam"
+      },
+      "axis_buttons": {
+         "0": "Stick Left",
+         "1": "Stick Right",
+         "2": "Stick Up",
+         "3": "Stick Down"
+      },
+      "axes": {
+         "0": "Stick Horizontal",
+         "1": "Stick Vertical"
+      },
+      "num_buttons": 23,
+      "num_axes": 2,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   },
+   "Joy-Con Right": {
+      "name": "Joy-Con Right",
+      "buttons": {
+         "0": "A",
+         "1": "X",
+         "2": "B",
+         "3": "Y",
+         "4": "SL",
+         "5": "SR",
+         "7": "ZR",
+         "8": "R",
+         "9": "Plus",
+         "10": "Stick Click",
+         "16": "Home"
+      },
+      "axis_buttons": {
+         "0": "Stick Up",
+         "1": "Stick Down",
+         "2": "Stick Left",
+         "3": "Stick Right"
+      },
+      "axes": {
+         "0": "Stick Horizontal",
+         "1": "Stick Vertical"
+      },
+      "num_buttons": 9,
+      "num_axes": 2,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": false
+   },
+   "Joy-Con Left": {
+      "name": "Joy-Con Left",
+      "buttons": {
+         "0": "Down",
+         "1": "Right",
+         "2": "Left",
+         "3": "Up",
+         "4": "SL",
+         "5": "SR",
+         "6": "ZL",
+         "8": "L",
+         "9": "Minus",
+         "10": "Stick Click",
+         "16": "Capture"
+      },
+      "axis_buttons": {
+         "0": "Stick Up",
+         "1": "Stick Down",
+         "2": "Stick Left",
+         "3": "Stick Right"
+      },
+      "axes": {
+         "0": "Stick Horizontal",
+         "1": "Stick Vertical"
+      },
+      "num_buttons": 9,
+      "num_axes": 2,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": false
+   },
+   "Joy-Con": {
+      "name": "Joy-Con",
+      "buttons": {
+         "0": "B",
+         "1": "A",
+         "2": "Y",
+         "3": "X",
+         "4": "L",
+         "5": "R",
+         "6": "ZL",
+         "7": "ZR",
+         "8": "Minus",
+         "9": "Plus",
+         "10": "Left Stick Click",
+         "11": "Right Stick Click",
+         "12": "Up",
+         "13": "Down",
+         "14": "Left",
+         "15": "Right",
+         "16": "Home",
+         "17": "Capture"
+      },
+      "axis_buttons": {
+         "0": "Left Stick Left",
+         "1": "Left Stick Right",
+         "2": "Left Stick Up",
+         "3": "Left Stick Down",
+         "4": "Right Stick Left",
+         "5": "Right Stick Right",
+         "6": "Right Stick Up",
+         "7": "Right Stick Down"
+      },
+      "axes": {
+         "0": "Left Stick Horizontal",
+         "1": "Left Stick Vertical",
+         "2": "Right Stick Horizontal",
+         "3": "Right Stick Vertical"
+      },
+      "num_buttons": 18,
+      "num_axes": 4,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   },
+   "Super Nintendo": {
+      "name": "Super Nintendo",
+      "buttons": {
+         "0": "X",
+         "1": "A",
+         "2": "B",
+         "3": "Y",
+         "4": "Left Shoulder",
+         "5": "Right Shoulder",
+         "8": "Select",
+         "9": "Start"
+      },
+      "axis_buttons": {
+         "0": "D-Pad Up",
+         "1": "D-Pad Down",
+         "2": "D-Pad Left",
+         "3": "D-Pad Right"
+      },
+      "axes": {
+         "0": "D-Pad Horizontal",
+         "1": "D-Pad Vertical"
+      },
+      "num_buttons": 8,
+      "num_axes": 2,
+      "has_stick": false,
+      "supported": true,
+      "has_dpad": true
+   },
+   "Steam Deck": {
+      "name": "Steam Deck",
+      "buttons": {
+         "0": "A",
+         "1": "B",
+         "2": "X",
+         "3": "Y",
+         "4": "Left Shoulder",
+         "5": "Right Shoulder",
+         "6": "Left Trigger",
+         "7": "Right Trigger",
+         "8": "View",
+         "9": "Menu",
+         "10": "Left Stick",
+         "11": "Right Stick",
+         "12": "D-Pad Up",
+         "13": "D-Pad Down",
+         "14": "D-Pad Left",
+         "15": "D-Pad Right",
+         "16": "Steam"
+      },
+      "axis_buttons": {
+         "0": "Left Stick Left",
+         "1": "Left Stick Right",
+         "2": "Left Stick Up",
+         "3": "Left Stick Down",
+         "4": "Right Stick Left",
+         "5": "Right Stick Right",
+         "6": "Right Stick Up",
+         "7": "Right Stick Down"
+      },
+      "axes": {
+         "0": "Left Stick Horizontal",
+         "1": "Left Stick Vertical",
+         "2": "Right Stick Horizontal",
+         "3": "Right Stick Vertical"
+      },
+      "num_buttons": 17,
+      "num_axes": 4,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   },
+   "8BitDo Zero (X Input)": {
+      "name": "8BitDo Zero (X Input)",
+      "buttons": {
+         "0": "B",
+         "1": "A",
+         "2": "Y",
+         "3": "X",
+         "4": "Left Shoulder",
+         "5": "Right Shoulder",
+         "8": "Select",
+         "9": "Start",
+         "12": "D-Pad Up",
+         "13": "D-Pad Down",
+         "14": "D-Pad Left",
+         "15": "D-Pad Right"
+      },
+      "axis_buttons": {},
+      "axes": {},
+      "num_buttons": 15,
+      "num_axes": 4,
+      "has_stick": false,
+      "supported": true,
+      "has_dpad": true
+   },
+   "8BitDo Zero (D Input)": {
+      "name": "8BitDo Zero (D Input)",
+      "buttons": {
+         "0": "A",
+         "1": "B",
+         "3": "X",
+         "4": "Y",
+         "6": "Left Shoulder",
+         "7": "Right Shoulder",
+         "10": "Select",
+         "11": "Start"
+      },
+      "axis_buttons": {
+         "0": "D-Pad Left",
+         "1": "D-Pad Right",
+         "2": "D-Pad Up",
+         "3": "D-Pad Down"
+      },
+      "axes": {
+         "0": "D-Pad Horizontal",
+         "1": "D-Pad Vertical"
+      },
+      "num_buttons": 8,
+      "num_axes": 6,
+      "has_stick": false,
+      "supported": true,
+      "has_dpad": true
+   },
+   "8BitDo Lite": {
+      "name": "8BitDo Lite",
+      "buttons": {
+         "0": "A",
+         "1": "B",
+         "2": "X",
+         "3": "Y",
+         "4": "L2",
+         "5": "R2",
+         "6": "L1",
+         "7": "R1",
+         "8": "Minus",
+         "9": "Plus",
+         "10": "Star",
+         "11": "Home",
+         "12": "Up Arrow",
+         "13": "Down Arrow",
+         "14": "Left Arrow",
+         "15": "Right Arrow"
+      },
+      "axis_buttons": {
+         "0": "Left D-Pad Left",
+         "1": "Left D-Pad Right",
+         "2": "Left D-Pad Up",
+         "3": "Left D-Pad Down",
+         "4": "Right D-Pad Left",
+         "5": "Right D-Pad Right",
+         "6": "Right D-Pad Up",
+         "7": "Right D-Pad Down"
+      },
+      "axes": {
+         "0": "Left D-Pad Horizontal",
+         "1": "Left D-Pad Vertical",
+         "2": "Right D-Pad Horizontal",
+         "3": "Right D-Pad Vertical"
+      },
+      "num_buttons": 16,
+      "num_axes": 4,
+      "has_stick": false,
+      "supported": true,
+      "has_dpad": true
+   },
+   "8BitDo Pro": {
+      "name": "8BitDo Pro",
+      "buttons": {
+         "0": "B",
+         "1": "A",
+         "2": "Y",
+         "3": "X",
+         "4": "L1",
+         "5": "R1",
+         "6": "L2",
+         "7": "R2",
+         "8": "Select",
+         "9": "Start",
+         "10": "Left Stick Click",
+         "11": "Right Stick Click",
+         "12": "D-Pad Up",
+         "13": "D-Pad Down",
+         "14": "D-Pad Left",
+         "15": "D-Pad Right",
+         "16": "Home"
+      },
+      "axis_buttons": {
+         "0": "Left Stick Left",
+         "1": "Left Stick Right",
+         "2": "Left Stick Up",
+         "3": "Left Stick Down",
+         "4": "Right Stick Left",
+         "5": "Right Stick Right",
+         "6": "Right Stick Up",
+         "7": "Right Stick Down"
+      },
+      "axes": {
+         "0": "Left Stick Horizontal",
+         "1": "Left Stick Vertical",
+         "2": "Right Stick Horizontal",
+         "3": "Right Stick Vertical"
+      },
+      "num_buttons": 17,
+      "num_axes": 4,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   },
+   "8BitDo Ultimate": {
+      "name": "8BitDo Ultimate",
+      "buttons": {
+         "0": "B",
+         "1": "A",
+         "2": "Y",
+         "3": "X",
+         "4": "L1",
+         "5": "R1",
+         "6": "L2",
+         "7": "R2",
+         "8": "Minus",
+         "9": "Plus",
+         "10": "Left Stick Click",
+         "11": "Right Stick Click",
+         "12": "D-Pad Up",
+         "13": "D-Pad Down",
+         "14": "D-Pad Left",
+         "15": "D-Pad Right",
+         "16": "Home",
+         "17": "Star"
+      },
+      "axis_buttons": {
+         "0": "Left Stick Left",
+         "1": "Left Stick Right",
+         "2": "Left Stick Up",
+         "3": "Left Stick Down",
+         "4": "Right Stick Left",
+         "5": "Right Stick Right",
+         "6": "Right Stick Up",
+         "7": "Right Stick Down"
+      },
+      "axes": {
+         "0": "Left Stick Horizontal",
+         "1": "Left Stick Vertical",
+         "2": "Right Stick Horizontal",
+         "3": "Right Stick Vertical"
+      },
+      "num_buttons": 18,
+      "num_axes": 4,
+      "has_stick": true,
+      "supported": true,
+      "has_dpad": true
+   }
 }

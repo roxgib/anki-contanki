@@ -32,6 +32,7 @@ from .profile import (
 from .actions import button_actions, release_actions, update_actions
 
 from aqt import mw as _mw
+
 assert _mw is not None
 mw = _mw
 
@@ -180,16 +181,42 @@ class Contanki(AnkiWebView):
         while len(self.buttons) < len(buttons):
             self.buttons.append(buttons[len(self.buttons)])
 
+        assert self.profile is not None
+        if (
+            self.profile.controller.parent == "8BitDo Zero (X Input)"
+            and any(axes)
+            and not any(buttons[12:16])
+        ):
+            buttons[12] = axes[1] < -0.5 or axes[3] < -0.5
+            buttons[13] = axes[1] > 0.5 or axes[3] > 0.5
+            buttons[14] = axes[0] < -0.5 or axes[2] < -0.5
+            buttons[15] = axes[0] > 0.5 or axes[2] > 0.5
+
+        if (
+            self.profile.controller.parent == "8BitDo Zero (D Input)"
+            and any(axes)
+            and len(axes) > 5
+        ):
+            axes[0] = axes[0] or axes[2]
+            axes[1] = axes[1] or axes[5]
+
         changed = [(i, v) for i, v in enumerate(buttons) if v != self.buttons[i]]
         self.buttons = buttons
 
         if state == "config":
+            for i, value in enumerate(axes):
+                pressed = abs(value) > 0.5
+                if pressed != self.axes[i]:
+                    changed.append((i + 200, pressed))
+                    if pressed:
+                        changed.append((i * 2 + 100 + (value > 0), pressed))
+                        changed.append((i * 2 + 100 + (value < 0), not pressed))
+                    else:
+                        changed.append((i * 2 + 100, pressed))
+                        changed.append((i * 2 + 101, pressed))
+                    self.axes[i] = pressed
             for i, value in changed:
                 self.icons.set_highlight(i, value)
-            for i, axis in enumerate(axes):
-                self.icons.set_highlight(i * 2 + 101, axis > 0.5)  # ControlsPage
-                self.icons.set_highlight(i * 2 + 100, axis < -0.5)  # ControlsPage
-                self.icons.set_highlight(i + 200, abs(axis) > 0.5)  # ControllerPage
             return
 
         self.update_quick_select(state, buttons, axes)
@@ -297,7 +324,7 @@ class Contanki(AnkiWebView):
         action = self.profile.get(state, button)
         if action == "Show Quick Select":
             self.hide_quick_select()
-        elif (action := self.profile.get(state, button)) in release_actions:
+        elif action in release_actions:
             try:
                 release_actions[action]()
             except Exception as err:  # pylint: disable=broad-except
