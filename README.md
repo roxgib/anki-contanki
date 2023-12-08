@@ -58,6 +58,9 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 20
+Fixes buttons not flashing for some users when pressed in config dialog 
+
 ### Beta 19
 Tentative fix for 8BitDo D-Pad issues
 
