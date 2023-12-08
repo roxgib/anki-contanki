@@ -8,5 +8,5 @@ from . import test
 def test_can_get_all_button_icons():
     for controller in get_controller_list():
         for button in Controller(controller).buttons.values():
-            get_button_icon(controller, button)
-            ButtonIcon(None, button, controller)
+            get_button_icon(Controller(controller), button)
+            ButtonIcon(None, button, Controller(controller))

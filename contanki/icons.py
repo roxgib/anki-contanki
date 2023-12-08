@@ -5,10 +5,8 @@ from os.path import dirname, abspath, join
 from weakref import WeakSet
 
 from aqt import mw
-from aqt import (
-    QComboBox,
+from aqt.qt import (
     QFont,
-    QHBoxLayout,
     QLabel,
     QSizePolicy,
     QWidget,
@@ -16,69 +14,59 @@ from aqt import (
     QPixmap,
     QPainter,
     QColor,
-    QIcon,
+    QGraphicsColorizeEffect,
 )
 from aqt.utils import tooltip
 
 from .controller import Controller
 
 
-def get_button_icon(
-    controller: Controller | str, button: str, glow: bool = False
-) -> QPixmap:
+directions = [
+    "Left",
+    "Right",
+    "Up",
+    "Down",
+    "Horizontal",
+    "Vertical",
+    "Diagonal",
+    "UpLeft",
+    "UpRight",
+    "DownLeft",
+    "DownRight",
+    "HorizontalVertical",
+]
+
+
+def icon_path(folder, file):
+    return join(dirname(abspath(__file__)), "buttons", folder, file)
+
+
+def get_button_icon(controller: Controller, button: str) -> QPixmap:
     """Fetches the icon for a button, and applies glow effect."""
-    controller = str(controller)
-    if "(" in controller:
-        controller = controller.split(" (")[0]
-    directions = [
-        "Left",
-        "Right",
-        "Up",
-        "Down",
-        "Horizontal",
-        "Vertical",
-        "Diagonal",
-        "UpLeft",
-        "UpRight",
-        "DownLeft",
-        "DownRight",
-        "HorizontalVertical",
-    ]
-
-    def path(folder, file):
-        return join(dirname(abspath(__file__)), "buttons", folder, file)
-
-    pixmap = QPixmap(path(controller, button))
-    if (
-        pixmap.isNull()
-        and button
-        and button != "Not Assigned"
-        and button.split(" ")[-1] in directions
-    ):
-        direction = button.split(" ")[-1]
-        button = " ".join(button.split(" ")[:-1])
-        pixmap = QPixmap(path(controller, button))
-        if not pixmap.isNull():
-            dpixmap = QPixmap(path("Arrows", direction))
-            with QPainter(pixmap) as painter:
-                painter.drawPixmap(pixmap.rect(), dpixmap, dpixmap.rect())
-    if pixmap.isNull():
-        pixmap = QPixmap(100, 100)
-        # not sure how or why, but the last icon will still be there, so we clear it
-        pixmap.fill(QColor(255, 255, 255, 255))
-        with QPainter(pixmap) as painter:
+    controller_name = str(controller.parent)
+    if "(" in controller_name:
+        controller_name = controller_name.split(" (")[0]
+    pixmap = QPixmap(icon_path("Other", "background.png"))
+    with QPainter(pixmap) as painter:
+        if not (icon := QPixmap(icon_path(controller_name, button))).isNull():
+            painter.drawPixmap(pixmap.rect(), icon, icon.rect())
+        elif (
+            button
+            and button != "Not Assigned"
+            and (direction := button.split(" ")[-1]) in directions
+            and (button := " ".join(button.split(" ")[:-1]))
+            and not (icon := QPixmap(icon_path(controller_name, button))).isNull()
+            and not (dpixmap := QPixmap(icon_path("Arrows", direction))).isNull()
+        ):
+            painter.drawPixmap(pixmap.rect(), icon, icon.rect())
+            painter.drawPixmap(pixmap.rect(), dpixmap, dpixmap.rect())
+        else:
             painter.setFont(QFont("Arial", 20))
             painter.drawText(
                 pixmap.rect(), Qt.AlignmentFlag.AlignCenter, button.replace(" ", "\n")
             )
-        if button and button != "Not Assigned":
-            tooltip(f"Error: Couldn't load {button} icon for {controller}.")
-
-    if glow:
-        gpixmap = QPixmap(path("Other", "glow"))
-        with QPainter(pixmap) as painter:
-            painter.drawPixmap(pixmap.rect(), gpixmap, gpixmap.rect())
-
+            if button and button != "Not Assigned":
+                tooltip(f"Error: Couldn't load {button} icon for {controller_name}.")
     return pixmap
 
 
@@ -89,7 +77,7 @@ class ButtonIcon(QLabel):
         self,
         parent: QWidget | None,
         button: str,
-        controller: Controller | str,
+        controller: Controller,
         index: int | None = None,
         is_large=False,
     ) -> None:
@@ -99,16 +87,21 @@ class ButtonIcon(QLabel):
         self.setMaximumHeight(120 if is_large else 60)
         self.setContentsMargins(0, 0, 0, 0)
         self._pixmap = get_button_icon(controller, button)
-        self._pixmap_glow = get_button_icon(controller, button, glow=True)
         if index is not None:
             IconHighlighter.register_icon(index, self)
-        self.refresh()
+        self.colorize_effect = QGraphicsColorizeEffect()
+        self.colorize_effect.setColor(QColor(255, 255, 255, 128))
+        self.setGraphicsEffect(self.colorize_effect)
+        self.glow(False)
+        self.resizeEvent(None)
 
-    def refresh(self, glow=False):
+    def glow(self, glow=False):
         """Updates the icon for size and glow."""
-        pixmap = self._pixmap_glow if glow else self._pixmap
+        self.colorize_effect.setEnabled(glow)
+
+    def resizeEvent(self, event):
         self.setPixmap(
-            pixmap.scaled(
+            self._pixmap.scaled(
                 self.height(),
                 self.height(),
                 Qt.AspectRatioMode.KeepAspectRatio,
@@ -131,4 +124,4 @@ class IconHighlighter:
         """Sets the highlight for an icon."""
         if index in self.icons:
             for icon in self.icons[index]:
-                icon.refresh(highlight)
+                icon.glow(highlight)

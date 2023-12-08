@@ -95,11 +95,12 @@ function mock_controller() {
       return;
    }
    bridgeCommand(`contanki::on_connect::10::4::mock_controller`);
-   polling = setInterval(mock_poll, 20);
+   mock_index = 0;
+   polling = setInterval(mock_poll, 50);
 }
 
 function mock_poll() {
-   if ((mock_index = 100)) {
+   if (mock_index > 80) {
       mock_index = 0;
    }
    if (mock_index < 20) {

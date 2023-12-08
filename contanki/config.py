@@ -1082,4 +1082,3 @@ class ControllerPage(QWidget):
             new_icon.setFixedHeight(60)
             self.icon.deleteLater()
             self.icon = new_icon
-            self.icon.refresh()

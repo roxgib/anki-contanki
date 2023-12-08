@@ -159,6 +159,5 @@ class OverlayItem(QWidget):
             if self.width() - 300 < len(text) * 8:
                 text = text.replace(" ", "\n")
             self.action.setText(text)
-            self.icon.refresh()
             self.update()
             self.show()
