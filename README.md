@@ -58,6 +58,9 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 21
+Fix missing custom_controllers folder
+
 ### Beta 20
 Fixes buttons not flashing for some users when pressed in config dialog 
 
