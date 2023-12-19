@@ -829,7 +829,7 @@ class ControlsPage(QTabWidget):
                 layout.addWidget(icon, row, col)
                 col += 1
                 combo = QComboBox()
-                combo.addItems(STATE_ACTIONS[state] + parent.custom_actions)
+                combo.addItems(sorted(STATE_ACTIONS[state]) + parent.custom_actions)
                 combo.setCurrentText(parent.get_profile().bindings[(state, index)])
                 combo.setMaximumWidth(170)
                 combo.setFixedHeight(30)
