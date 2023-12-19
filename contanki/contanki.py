@@ -29,7 +29,7 @@ from .profile import (
     get_profile,
     find_profile,
 )
-from .actions import button_actions, release_actions, update_actions
+from .actions import button_actions, release_actions, update_actions, SCROLL_FACTOR
 
 from aqt import mw as _mw
 
@@ -61,6 +61,8 @@ class Contanki(AnkiWebView):
     if _script is None:
         raise FileNotFoundError("controller.js not found")
     script = _script
+    scroll_up = False
+    scroll_down = False
 
     def __init__(self, parent):
         super().__init__(parent=parent)
@@ -230,6 +232,11 @@ class Contanki(AnkiWebView):
         assert self.overlay is not None
         if self.config["Overlays Always On"]:
             self.overlay.appear(state)
+
+        if self.scroll_up:
+            scroll(0, -SCROLL_FACTOR/100)
+        elif self.scroll_down:
+            scroll(0, SCROLL_FACTOR/100)
 
     @if_connected
     def update_quick_select(
@@ -455,3 +462,10 @@ class Contanki(AnkiWebView):
                 con.split("%") for con in controllers.split("%%%") if con
             ]
         dbg(self.debug_info)
+
+    def smooth_scroll(self, direction: bool, scroll: bool):
+        """Smoothly scrolls the page"""
+        if direction:
+            self.scroll_up = scroll
+        else:
+            self.scroll_down = scroll
