@@ -363,10 +363,10 @@
          "16": "Home"
       },
       "axis_buttons": {
-         "0": "Stick Up",
-         "1": "Stick Down",
-         "2": "Stick Left",
-         "3": "Stick Right"
+         "0": "Stick Left",
+         "1": "Stick Right",
+         "2": "Stick Up",
+         "3": "Stick Down"
       },
       "axes": {
          "0": "Stick Horizontal",
@@ -394,10 +394,10 @@
          "16": "Capture"
       },
       "axis_buttons": {
-         "0": "Stick Up",
-         "1": "Stick Down",
-         "2": "Stick Left",
-         "3": "Stick Right"
+         "0": "Stick Left",
+         "1": "Stick Right",
+         "2": "Stick Up",
+         "3": "Stick Down"
       },
       "axes": {
          "0": "Stick Horizontal",
