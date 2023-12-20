@@ -60,9 +60,15 @@ class ControlsOverlay:
         right_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         left_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
+        controller = self.profile.controller
         self.controls: dict[int, OverlayItem] = dict()
-        buttons = list(self.profile.controller.buttons.items())
-        axes = [(i + 100, b) for i, b in self.profile.controller.axis_buttons.items()]
+        buttons = list(controller.buttons.items())
+        axes = [
+            (i + 100, b)
+            for i, b in controller.axis_buttons.items()
+            if self.profile.axes_bindings[i // 2] == "Buttons"
+        ]
+
         for index, button in sorted(
             buttons + axes,
             key=lambda inputs: BUTTON_ORDER.index(inputs[1]),
@@ -71,6 +77,7 @@ class ControlsOverlay:
             self.controls[index] = OverlayItem(
                 index, self.profile, on_left, config["Large Overlays"]
             )
+
             layout = left_layout if on_left else right_layout
             layout.addWidget(self.controls[index])
 
