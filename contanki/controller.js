@@ -33,10 +33,9 @@ function on_controller_connect() {
       bridgeCommand(
          "contanki::message::No controllers detected. Please reconnect your controller and try again."
       );
+   } else if (indices.length > 1) {
+      bridgeCommand(register);
    } else {
-      if (indices.length > 1) {
-         bridgeCommand(register);
-      }
       connect_controller(indices[0]);
    }
 }
@@ -52,11 +51,10 @@ function connect_controller(i) {
    }
    bridgeCommand(`contanki::on_connect::${con.buttons.length}::${con.axes.length}::${con.id}`);
    connected_index = i;
-   polling = setInterval(poll, 50);
+   setTimeout(() => (polling = setInterval(poll, 50)), 500);
 }
 
 function on_controller_disconnect(event) {
-   bridgeCommand(`contanki::on_disconnect::arg`);
    window.clearInterval(polling);
    connected_index = null;
    let controllers = window.navigator.getGamepads();
@@ -70,7 +68,7 @@ function on_controller_disconnect(event) {
 
 function poll() {
    if (connected_index == null) {
-      on_controller_disconnect();
+      on_controller_disconnect("connected_index == null");
       return;
    }
 
@@ -78,11 +76,11 @@ function poll() {
 
    try {
       if (!con.connected) {
-         on_controller_disconnect();
+         on_controller_disconnect("!con.connected");
          return;
       }
    } catch (err) {
-      on_controller_disconnect();
+      on_controller_disconnect(err);
       return;
    }
 

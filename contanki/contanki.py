@@ -358,6 +358,7 @@ class Contanki(AnkiWebView):
 
     def on_connect(self, buttons: str | int, axes: str | int, *con: str) -> None:
         """Called when a controller connects through the JavaScript interface"""
+        dbg("on_connect", [buttons, axes, con])
         self.reset_controller()
         controller_id = "::".join(con)
         buttons, axes = int(buttons), int(axes)
@@ -394,9 +395,10 @@ class Contanki(AnkiWebView):
         self.connected = True
         tooltip(f"{controller} Connected")
 
-    def on_disconnect(self, *_) -> None:
+    def on_disconnect(self, err, *_) -> None:
         """Called when a controller is disconnected through the JavaScript interface"""
         assert mw is not None
+        dbg(f"Disconnected: {err}")
         if self.controllers is not None:
             for controller in self.controllers:
                 mw.form.menuTools.removeAction(controller)
@@ -422,9 +424,11 @@ class Contanki(AnkiWebView):
         When multiple controllers are detected, this function adds them to the menu.
         """
         assert mw is not None
+        dbg("register_controllers", controllers)
         for controller_action in self.controllers:
             mw.form.menuTools.removeAction(controller_action)
         self.controllers.clear()
+        to_connect = None
         for i, controller in enumerate(controllers):
             id_, buttons, axes, *_ = controller.split("%%%")
             con = identify_controller(
@@ -432,19 +436,24 @@ class Contanki(AnkiWebView):
             )
             if con is None:
                 continue
+            if to_connect is None:
+                to_connect = i
             self.controllers.append(QAction(con[0], mw))
             qconnect(self.controllers[-1].triggered, partial(self.change_controller, i))
-        if len(self.controllers) <= 1:
-            return
-        for controller in self.controllers:
-            mw.form.menuTools.addAction(controller)
-        tooltip(
-            f"{len(self.controllers)} controllers detected - select from the Tools menu."
-        )
+        if len(self.controllers) > 1:
+            for controller in self.controllers:
+                mw.form.menuTools.addAction(controller)
+            tooltip(
+                f"{len(self.controllers)} controllers detected - select from the Tools menu."
+            )
+        if to_connect is not None:
+            self.change_controller(to_connect, None)
+        else:
+            dbg("register_controllers called but no valid controllers found")
 
-    @if_connected
     def change_controller(self, index: int, _) -> None:
         """Calls JavaScript to change the controller"""
+        dbg(f"Changing controller to {index}")
         self._evalWithCallback(
             f"connect_controller(indices[{index}]);", None  # type: ignore
         )
