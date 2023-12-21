@@ -704,5 +704,41 @@
       "has_stick": true,
       "supported": true,
       "has_dpad": true
+   },
+   "8BitDo Micro": {
+      "name": "8BitDo Micro",
+      "buttons": {
+         "0": "A",
+         "1": "B",
+         "2": "X",
+         "3": "Y",
+         "4": "L2",
+         "5": "R2",
+         "6": "L1",
+         "7": "R1",
+         "8": "Minus",
+         "9": "Plus",
+         "10": "Star",
+         "11": "Home",
+         "12": "Up D-Pad",
+         "13": "Down D-Pad",
+         "14": "Left D-Pad",
+         "15": "Right D-Pad"
+      },
+      "axis_buttons": {
+         "0": "D-Pad Left",
+         "1": "D-Pad Right",
+         "2": "D-Pad Up",
+         "3": "D-Pad Down"
+      },
+      "axes": {
+         "0": "D-Pad Horizontal",
+         "1": "D-Pad Vertical"
+      },
+      "num_buttons": 16,
+      "num_axes": 2,
+      "has_stick": false,
+      "supported": true,
+      "has_dpad": true
    }
 }
