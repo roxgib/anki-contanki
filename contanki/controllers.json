@@ -710,20 +710,15 @@
       "buttons": {
          "0": "A",
          "1": "B",
-         "2": "X",
-         "3": "Y",
-         "4": "L2",
-         "5": "R2",
+         "3": "X",
+         "4": "Y",
          "6": "L1",
          "7": "R1",
-         "8": "Minus",
-         "9": "Plus",
-         "10": "Star",
-         "11": "Home",
-         "12": "Up D-Pad",
-         "13": "Down D-Pad",
-         "14": "Left D-Pad",
-         "15": "Right D-Pad"
+         "8": "L2",
+         "9": "R2",
+         "10": "Minus",
+         "11": "Plus",
+         "12": "Home"
       },
       "axis_buttons": {
          "0": "D-Pad Left",
@@ -735,10 +730,10 @@
          "0": "D-Pad Horizontal",
          "1": "D-Pad Vertical"
       },
-      "num_buttons": 16,
-      "num_axes": 2,
+      "num_buttons": 20,
+      "num_axes": 10,
       "has_stick": false,
-      "supported": true,
-      "has_dpad": true
+      "has_dpad": true,
+      "supported": true
    }
 }

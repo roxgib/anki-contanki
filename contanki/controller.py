@@ -79,7 +79,6 @@ class Controller:
         else:
             return self.axes[index - 200]
 
-
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, str):
             return self.name == __o
@@ -193,8 +192,11 @@ def identify_controller(
     device_name = id_
     vendor_id, device_id = parse_controller_id(id_)
 
-    # Joy-Cons present twice, only recognise the correct one
-    if id_ == "Joy-Con (L/R) (STANDARD GAMEPAD)":
+    # Joy-Cons and Micro present twice, only recognise the correct one
+    if id_ in (
+        "Joy-Con (L/R) (STANDARD GAMEPAD)",
+        "8BitDo Micro gamepad (STANDARD GAMEPAD)",
+    ):
         return None
 
     # Identify 8BitDo controllers pretending to be something else
@@ -275,6 +277,8 @@ def identify_controller(
             device_name = "8BitDo Lite"
         elif "pro" in id_:
             device_name = "8BitDo Pro"
+        elif "micro" in id_:
+            device_name = "8BitDo Micro"
     elif "ps3" in id_:
         device_name = "DualShock 3"
     elif "ps4" in id_:

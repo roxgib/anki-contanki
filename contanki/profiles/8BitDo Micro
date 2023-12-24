@@ -1,0 +1,187 @@
+{
+    "name": "8BitDo Micro",
+    "size": [
+       20,
+       2
+    ],
+    "controller": "8BitDo Micro",
+    "quick_select": {
+       "actions": {
+          "deckBrowser": [
+             "Quit",
+             "Hide Cursor",
+             "Redo"
+          ],
+          "overview": [
+             "Quit",
+             "Hide Cursor",
+             "Redo"
+          ],
+          "review": [
+             "Suspend Card",
+             "Suspend Note",
+             "Bury Note",
+             "Bury Card",
+             "Delete Note",
+             "Hide Cursor",
+             "Quit",
+             "Mark Note"
+          ]
+       },
+       "Select with Stick": true,
+       "Select with D-Pad": true,
+       "Do Action on Release": true,
+       "Do Action on Stick Press": false,
+       "Do Action on Stick Flick": false
+    },
+    "bindings": {
+       "all": {
+          "0": "Enter",
+          "4": "",
+          "7": "Toggle Quick Select",
+          "9": "Fullscreen",
+          "10": "",
+          "11": "",
+          "17": "Sync",
+          "100": "Back",
+          "101": "Forward",
+          "5": "Redo",
+          "8": "Undo",
+          "102": "Scroll Up",
+          "103": "Scroll Down",
+          "1": "Enter",
+          "3": "",
+          "6": "",
+          "12": "Sync"
+       },
+       "review": {
+          "0": "",
+          "8": "",
+          "13": "Replay Audio",
+          "14": "Flag",
+          "15": "Mark Note",
+          "12": "",
+          "1": "",
+          "3": "",
+          "4": "",
+          "6": "",
+          "7": "",
+          "9": "",
+          "10": "Redo",
+          "11": "Card Info",
+          "100": "",
+          "101": "Flag",
+          "102": "Bury Note",
+          "103": "Replay Audio"
+       },
+       "question": {
+          "0": "Flip Card",
+          "1": "Flip Card",
+          "3": "",
+          "4": "",
+          "6": "",
+          "7": "",
+          "8": "",
+          "9": "",
+          "10": "",
+          "11": "",
+          "12": "",
+          "100": "",
+          "101": "",
+          "102": "",
+          "103": ""
+       },
+       "answer": {
+          "0": "Good",
+          "1": "Again",
+          "2": "Hard",
+          "3": "Easy",
+          "4": "Hard",
+          "6": "",
+          "7": "",
+          "8": "",
+          "9": "",
+          "10": "",
+          "11": "",
+          "12": "",
+          "100": "",
+          "101": "",
+          "102": "",
+          "103": ""
+       },
+       "deckBrowser": {
+          "0": "Select",
+          "1": "Select",
+          "2": "Open Browser",
+          "3": "Open Statistics",
+          "12": "",
+          "13": "Next Deck",
+          "14": "Previous Due Deck",
+          "15": "Next Due Deck",
+          "4": "Expand/Collapse",
+          "6": "",
+          "7": "",
+          "8": "",
+          "9": "",
+          "10": "",
+          "11": "",
+          "100": "",
+          "101": "",
+          "102": "Previous Deck",
+          "103": "Next Deck"
+       },
+       "overview": {
+          "0": "Select",
+          "1": "Select",
+          "2": "Empty",
+          "3": "Empty",
+          "12": "",
+          "13": "Next Deck",
+          "14": "Previous Due Deck",
+          "15": "Next Due Deck",
+          "4": "Rebuild",
+          "6": "",
+          "7": "",
+          "8": "",
+          "9": "",
+          "10": "",
+          "11": "",
+          "100": "",
+          "101": "",
+          "102": "",
+          "103": ""
+       },
+       "dialog": {
+          "0": "Select",
+          "4": "Escape",
+          "12": "Select Previous",
+          "13": "Select Next",
+          "14": "Down",
+          "15": "Up",
+          "3": "Enter",
+          "6": "Escape",
+          "100": "Down by 10",
+          "101": "Up by 10",
+          "1": "",
+          "7": "",
+          "8": "",
+          "9": "",
+          "10": "",
+          "11": "",
+          "102": "",
+          "103": ""
+       },
+       "NoFocus": {
+          "0": "Focus Main Window"
+       }
+    },
+    "axes_bindings": {
+       "0": "Buttons",
+       "1": "Buttons"
+    },
+    "invert_axis": {
+       "0": false,
+       "1": false
+    }
+ }
+ 
