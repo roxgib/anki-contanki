@@ -202,6 +202,8 @@ class Contanki(AnkiWebView):
             axes[0] = axes[0] or axes[2]
             axes[1] = axes[1] or axes[5]
 
+        self.update_quick_select(state, buttons, axes)
+        
         changed = [(i, v) for i, v in enumerate(buttons) if v != self.buttons[i]]
         self.buttons = buttons
 
@@ -220,8 +222,6 @@ class Contanki(AnkiWebView):
             for i, value in changed:
                 self.icons.set_highlight(i, value)
             return
-
-        self.update_quick_select(state, buttons, axes)
 
         for i, value in changed:
             self.do_action(state, i, not value)
