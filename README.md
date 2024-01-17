@@ -58,6 +58,12 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 22
+ - Add support for 8BitDo Micro.
+ - Fix Joy Con axes and connection bugs
+ - Sort actions alphabetically
+ - Add support for smooth button scrolling
+
 ### Beta 21
 Fix missing custom_controllers folder
 
