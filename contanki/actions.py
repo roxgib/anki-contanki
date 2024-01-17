@@ -172,10 +172,10 @@ def update_actions():
     button_actions["Flag"] = build_cycle_flag()
     button_actions["Scroll Up"] = partial(scroll_build(), 0, -SCROLL_FACTOR)
     button_actions["Scroll Down"] = partial(scroll_build(), 0, SCROLL_FACTOR)
-    button_actions["Scroll Up Smooth"] = partial(mw.contanki.smooth_scroll, True, True)
-    button_actions["Scroll Down Smooth"] = partial(mw.contanki.smooth_scroll, False, True)
-    release_actions["Scroll Up Smooth"] = partial(mw.contanki.smooth_scroll, True, False)
-    release_actions["Scroll Down Smooth"] = partial(mw.contanki.smooth_scroll, False, False)
+    button_actions["Scroll Up Smooth"] = partial(_contanki.smooth_scroll, True, True)  # type: ignore
+    button_actions["Scroll Down Smooth"] = partial(_contanki.smooth_scroll, False, True)  # type: ignore
+    release_actions["Scroll Up Smooth"] = partial(_contanki.smooth_scroll, True, False)  # type: ignore
+    release_actions["Scroll Down Smooth"] = partial(_contanki.smooth_scroll, False, False)  # type: ignore
 
 COMMON_ACTIONS = [
     "Undo",             "Redo",             "Hide Cursor",      "Sync",

@@ -159,7 +159,7 @@ def get_custom_actions() -> dict[str, partial[None]]:
             key = keys[0]  # type: ignore
             modifier = NoMod
 
-        func = partial(key_press, key, modifier)
+        func = partial(key_press, key, modifier)  # type: ignore
         actions[action] = func
 
     return actions

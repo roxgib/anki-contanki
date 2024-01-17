@@ -15,5 +15,4 @@ if not os.path.exists(user_profile_path):
 if not os.path.exists(user_controllers_path):
     os.mkdir(user_controllers_path)
 
-instance = Contanki(mw)
-mw.contanki = instance # type: ignore
+mw.contanki = Contanki(mw) # type: ignore
