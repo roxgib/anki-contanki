@@ -299,7 +299,7 @@ class OptionsPage(QWidget):
                 options[key] = option.isChecked()
             elif isinstance(self.config[key], int):
                 options[key] = option.value()
-        options["Custom Actions"] = self.custom_actions.get()
+        options["Custom Actions"] = {k: v for k, v in self.custom_actions.get().items() if v}
         options["Flags"] = self.flags.get()
         return options
 
@@ -914,6 +914,7 @@ class ControllerPage(QWidget):
         self.setObjectName("controller_page")
         self.controller = controller.copy()
         layout = QGridLayout(self)
+        # layout.setSpacing(15)
         self.init_top_bar(layout)
         self.fill_grid(layout)
         self.setLayout(layout)
