@@ -59,7 +59,9 @@
             "0b13": "Xbox Series",
             "0b22": "Xbox Series",
             "02e0": "Xbox 360",
-            "07e8": "invalid"
+            "09e8": "invalid",
+            "09af": "invalid",
+            "09a6": "invalid"
         },
         "0955": {
             "7214": "NVIDIA Controller",

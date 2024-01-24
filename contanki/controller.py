@@ -186,7 +186,10 @@ def identify_controller(
     num_axes: int | str,
     ebd: bool = False,
 ) -> tuple[str, str] | None:
-    """Identifies a controller based on the ID name and number of buttons and axes."""
+    """
+    Identifies a controller based on the ID name and number of buttons and axes. Returns
+    a best guess if the controller doesn't match, or None for an invalid controller.
+    """
     dbg(id_)
     buttons, num_axes = int(buttons), int(num_axes)
     device_name = id_
