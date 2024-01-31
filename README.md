@@ -58,6 +58,11 @@ Add-on compatibility
 
 ## Development log
 
+### Beta 23
+ - Handle Switch Pro 'ghost' controllers
+ - Fix crash if empty custom action exists
+ - Fix D-pad not working in quick select
+
 ### Beta 22
  - Add support for 8BitDo Micro.
  - Fix Joy Con axes and connection bugs
