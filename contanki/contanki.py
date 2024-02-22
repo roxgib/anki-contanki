@@ -342,8 +342,10 @@ class Contanki(AnkiWebView):
         """Handles actions for axis movement."""
         assert self.profile is not None
         movements: dict[str, float] = defaultdict(float)
-        for axis, action in self.profile.axes_bindings.items():
-            value = axes[axis]
+        for axis, value in enumerate(axes):
+            if axis not in self.profile.axes_bindings.items():
+                continue
+            action = self.profile.axes_bindings[axis]
             if action == "Buttons":
                 if abs(value) > 0.5 and not self.axes[axis]:
                     self.do_action(state, axis * 2 + (value > 0) + 100)
