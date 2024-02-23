@@ -543,3 +543,8 @@ def get_debug_str() -> str:
     for con_id, num_buttons, num_axes in debug_info:
         result += f"{con_id}<br>Buttons: {num_buttons}<br>Axes: {num_axes}<br><br>"
     return result
+
+
+def toggle_image_occlusion_masks() -> None:
+    """Toggles the image occlusion masks."""
+    mw.web.eval("toggle()")

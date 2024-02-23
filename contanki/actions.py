@@ -38,6 +38,7 @@ from .funcs import (
     Ctrl,
     Shift,
     RightButton,
+    toggle_image_occlusion_masks,
 )
 
 assert mw is not None
@@ -143,9 +144,10 @@ button_actions: dict[str, Callable[[], Any]] = {
     "Audio +5s":                mw.reviewer.on_seek_forward,
     "Audio -5s":                mw.reviewer.on_seek_backward,
     "Replay Audio":             mw.reviewer.replayAudio,
-    "Edit Note":                mw.onEditCurrent,                           # Not Tested
+    "Edit Note":                mw.onEditCurrent,
     "Flip Card":                mw.reviewer.onEnterKey,
-    "Set Due Date":             mw.reviewer.on_set_due,
+    "Set Due Date":             mw.reviewer.on_set_due,                     # Not Tested
+    "Toggle IO Masks":          toggle_image_occlusion_masks,                
 }
 
 release_actions: dict[str, Callable[[], Any]] = {
@@ -200,7 +202,7 @@ REVIEW_ACTIONS = [
     "Bury Card",        "Bury Note",        "Suspend Card",     "Suspend Note",
     "Replay Audio",     "Pause Audio",      "Audio -5s",        "Audio +5s",
     "Record Voice",     "Replay Voice",     "Edit Note",        "Set Due Date",
-    "Card Info",        "Previous Card Info",
+    "Card Info",        "Previous Card Info",                   "Toggle IO Masks",
 ]
 
 STATE_ACTIONS = {
