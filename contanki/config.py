@@ -11,7 +11,7 @@ from typing import Any, Callable, Iterable, Type
 
 import requests
 
-from aqt import QIcon, qconnect
+from aqt import QIcon, QScrollArea, qconnect
 from aqt.qt import QTableWidget, QTableWidgetItem, QComboBox, QFormLayout, QHeaderView
 from aqt.qt import (
     QDialog,
@@ -97,8 +97,6 @@ class ContankiConfig(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Contanki Options")
         self.setObjectName("Contanki Options")
-        self.setFixedWidth(800)
-        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         layout = QVBoxLayout(self)
         layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
         layout.setAlignment(Alignment.AlignTop)
@@ -130,6 +128,9 @@ class ContankiConfig(QDialog):
 
         # Open
         self.setLayout(layout)
+        self.setFixedWidth(800)
+        self.setMaximumHeight(800)
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
         self.resize(self.sizeHint())
         self.loaded = True
         self.show()
@@ -299,7 +300,9 @@ class OptionsPage(QWidget):
                 options[key] = option.isChecked()
             elif isinstance(self.config[key], int):
                 options[key] = option.value()
-        options["Custom Actions"] = {k: v for k, v in self.custom_actions.get().items() if v}
+        options["Custom Actions"] = {
+            k: v for k, v in self.custom_actions.get().items() if v
+        }
         options["Flags"] = self.flags.get()
         return options
 
@@ -914,7 +917,6 @@ class ControllerPage(QWidget):
         self.setObjectName("controller_page")
         self.controller = controller.copy()
         layout = QGridLayout(self)
-        # layout.setSpacing(15)
         self.init_top_bar(layout)
         self.fill_grid(layout)
         self.setLayout(layout)
@@ -937,32 +939,35 @@ class ControllerPage(QWidget):
         widget.setLayout(layout)
         page_layout.addWidget(widget, 0, self.GRID_WIDTH - 3, 1, 3)
 
+    def get_icon(self, index) -> ButtonIcon:
+        icon = ButtonIcon(
+            self,
+            self.controller.buttons[index],
+            self.controller,
+            index,
+        )
+        icon.setMaximumHeight(self.icon_size)
+        return icon
+
     def fill_grid(self, layout: QGridLayout):
+        contanki = self._parent.contanki
         row = 1
         col = 0
-        for button in range(self._parent.contanki.len_buttons):
+        self.icon_size = 60 if contanki.len_buttons + contanki.len_axes < 22 else 40
+        for button in range(contanki.len_buttons):
             if col == self.GRID_WIDTH:
                 col = 0
                 row += 1
-            icon = ButtonIcon(
-                self, self.controller.buttons[button], self.controller, button
-            )
-            icon.setFixedHeight(60)
+            icon = self.get_icon(button)
             layout.addWidget(icon, row, col)
             col += 1
             layout.addWidget(self.ButtonControl(self, icon, button=button), row, col)
             col += 1
-        for axis in range(self._parent.contanki.len_axes):
+        for axis in range(contanki.len_axes):
             if col == self.GRID_WIDTH:
                 col = 0
                 row += 1
-            icon = ButtonIcon(
-                self,
-                self.controller.buttons[axis],
-                self.controller,
-                axis + 200,
-            )
-            icon.setFixedHeight(60)
+            icon = self.get_icon(axis + 200)
             layout.addWidget(icon, row, col)
             col += 1
             layout.addWidget(self.ButtonControl(self, icon, axis=axis), row, col)
@@ -1063,12 +1068,6 @@ class ControllerPage(QWidget):
             if layout is None:
                 return
             assignment = self.currentText()
-            new_icon = ButtonIcon(
-                self,
-                assignment,
-                self._parent.controller.parent,
-                self.index if self.is_button else self.index + 200,
-            )
             if assignment == "Not Assigned":
                 assignment = ""
             if assignment and self.is_button:
@@ -1079,7 +1078,9 @@ class ControllerPage(QWidget):
                 del self._parent.controller.buttons[self.index]
             elif self.index in self._parent.controller.axes:
                 del self._parent.controller.axes[self.index]
+            new_icon = self._parent.get_icon(
+                self.index if self.is_button else self.index + 200
+            )
             layout.replaceWidget(self.icon, new_icon)
-            new_icon.setFixedHeight(60)
             self.icon.deleteLater()
             self.icon = new_icon
