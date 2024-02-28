@@ -664,23 +664,19 @@
    "8BitDo Lite 2": {
       "name": "8BitDo Lite 2",
       "buttons": {
-         "0": "B",
-         "1": "A",
-         "2": "Y",
+         "0": "A",
+         "1": "B",
          "3": "X",
-         "4": "L1",
-         "5": "R1",
-         "6": "L2",
-         "7": "R2",
-         "8": "Select",
-         "9": "Start",
-         "10": "Left Stick Click",
-         "11": "Right Stick Click",
-         "12": "D-Pad Up",
-         "13": "D-Pad Down",
-         "14": "D-Pad Left",
-         "15": "D-Pad Right",
-         "16": "Home"
+         "4": "Y",
+         "6": "L",
+         "7": "R",
+         "8": "L2",
+         "9": "R2",
+         "10": "Minus",
+         "11": "Plus",
+         "12": "Home",
+         "13": "Left Stick Click",
+         "14": "Right Stick Click"
       },
       "axis_buttons": {
          "0": "Left Stick Left",
@@ -689,17 +685,17 @@
          "3": "Left Stick Down",
          "4": "Right Stick Left",
          "5": "Right Stick Right",
-         "6": "Right Stick Up",
-         "7": "Right Stick Down"
+         "10": "Right Stick Up",
+         "11": "Right Stick Down"
       },
       "axes": {
          "0": "Left Stick Horizontal",
          "1": "Left Stick Vertical",
          "2": "Right Stick Horizontal",
-         "3": "Right Stick Vertical"
+         "5": "Right Stick Vertical"
       },
-      "num_buttons": 17,
-      "num_axes": 4,
+      "num_buttons": 16,
+      "num_axes": 10,
       "has_stick": true,
       "supported": true,
       "has_dpad": true
