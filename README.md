@@ -58,6 +58,9 @@ Add-on compatibility
 
 ## Development log
 
+### Version 1.0.1
+ - Fix crash due to missing buttons
+
 ### Version 1.0
  - Add support for 8BitDo Lite 2
  - Add action to toggle Image Occlusion masks
