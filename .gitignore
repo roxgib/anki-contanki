@@ -13,6 +13,10 @@ contanki/.DS_Store
 deploy.sh
 tested_controllers
 publish.py
+contanki/.DS_Store
+deploy_api.sh
+controller-reports/*
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -143,5 +147,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-contanki/.DS_Store
-deploy_api.sh
