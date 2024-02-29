@@ -69,10 +69,13 @@ class ControlsOverlay:
             if self.profile.axes_bindings[i // 2] == "Buttons"
         ]
 
-        for index, button in sorted(
-            buttons + axes,
-            key=lambda inputs: BUTTON_ORDER.index(inputs[1]),
-        ):
+        inputs = buttons + axes
+        for input in inputs:
+            if input[1] not in BUTTON_ORDER:
+                BUTTON_ORDER.append(input[1])
+        inputs.sort(key=lambda inputs: BUTTON_ORDER.index(inputs[1]))
+
+        for index, button in inputs:
             on_left = not get_left_right_centre(button)
             self.controls[index] = OverlayItem(
                 index, self.profile, on_left, config["Large Overlays"]
