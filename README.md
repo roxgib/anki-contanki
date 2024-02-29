@@ -58,6 +58,13 @@ Add-on compatibility
 
 ## Development log
 
+### Version 1.0
+ - Add support for 8BitDo Lite 2
+ - Add action to toggle Image Occlusion masks
+ - Limit height of config dialog
+ - Fix crash when controller doesn't present enough axes
+ - Arbitrarily decided to move out of beta!
+
 ### Beta 23
  - Handle Switch Pro 'ghost' controllers
  - Fix crash if empty custom action exists
