@@ -58,6 +58,9 @@ Add-on compatibility
 
 ## Development log
 
+### Version 1.0.2
+ - Fix axes actions not triggering
+
 ### Version 1.0.1
  - Fix crash due to missing buttons
 
