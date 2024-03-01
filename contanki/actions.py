@@ -39,6 +39,9 @@ from .funcs import (
     Shift,
     RightButton,
     toggle_image_occlusion_masks,
+    zoom_in,
+    zoom_out,
+    reset_zoom,
 )
 
 assert mw is not None
@@ -103,6 +106,9 @@ button_actions: dict[str, Callable[[], Any]] = {
     "Scroll Up":                partial(scroll_build(), 0, -SCROLL_FACTOR),
     "Scroll Down":              partial(scroll_build(), 0, SCROLL_FACTOR),
     "Options":                  on_options,
+    "Zoom In":                  zoom_in,
+    "Zoom Out":                 zoom_out,
+    "Reset Zoom":               reset_zoom,                            
 
     # Deck Browser
     "Next Deck":                partial(choose_deck, True),

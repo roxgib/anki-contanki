@@ -548,3 +548,15 @@ def get_debug_str() -> str:
 def toggle_image_occlusion_masks() -> None:
     """Toggles the image occlusion masks."""
     mw.web.eval("toggle()")
+
+
+def zoom_in() -> None:
+    """Zooms in the page."""
+    mw.web.setZoomFactor(mw.web.zoomFactor() + 0.1)
+
+def zoom_out() -> None:
+    """Zooms out the page."""
+    mw.web.setZoomFactor(mw.web.zoomFactor() - 0.1)
+
+def reset_zoom() -> None:
+    mw.web.setZoomFactor(1)
