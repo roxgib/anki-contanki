@@ -103,7 +103,7 @@ function mock_poll() {
    }
    if (mock_index < 20) {
       bridgeCommand(
-         `contanki::poll::true,false,false,false,false,false,false,false,false,false::0,0,0,0`
+         `contanki::poll::true,false,false,false,false,false,false,false,false,false::0.5,0,0,0`
       );
    } else {
       bridgeCommand(
