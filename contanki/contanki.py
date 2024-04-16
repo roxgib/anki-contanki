@@ -173,16 +173,51 @@ class Contanki(AnkiWebView):
         if state == "NoFocus":
             return
 
-        buttons = [button == "true" for button in input_buttons.split(",")]
-        axes = [float(axis) for axis in input_axes.split(",")]
+        buttons, axes = self.parse_controller_inputs(input_buttons, input_axes)
 
         if not buttons:
             self.on_error("No buttons")
             return
 
+        if self.quick_select.is_shown:
+            self.update_quick_select(state, buttons, axes)
+            return
+
+        changed = [(i, v) for i, v in enumerate(buttons) if v != self.buttons[i]]
+        self.buttons = buttons
+
+        if state == "config":
+            self.handle_poll_in_config(axes, changed)
+            return
+
+        for i, value in changed:
+            self.do_action(state, i, not value)
+
+        if any(axes) and not self.quick_select.is_shown:
+            self.do_axes_actions(state, axes)
+
+        assert self.overlay is not None
+        if self.config["Overlays Always On"]:
+            self.overlay.appear(state)
+
+        if self.scroll_up:
+            scroll(0, -SCROLL_FACTOR / 100)
+        elif self.scroll_down:
+            scroll(0, SCROLL_FACTOR / 100)
+
+    def parse_controller_inputs(
+        self, input_buttons: str, input_axes: str
+    ) -> tuple[list[bool], list[float]]:
+        """Parses the controller inputs"""
+        buttons = [button == "true" for button in input_buttons.split(",")]
+        axes = [float(axis) for axis in input_axes.split(",")]
         while len(self.buttons) < len(buttons):
             self.buttons.append(buttons[len(self.buttons)])
+        self.controller_specific_fixes(buttons, axes)
+        return buttons, axes
 
+    def controller_specific_fixes(self, buttons: list[bool], axes: list[float]):
+        """Fixes for specific controllers"""
         assert self.profile is not None
         if (
             self.profile.controller.parent == "8BitDo Zero (X Input)"
@@ -202,41 +237,23 @@ class Contanki(AnkiWebView):
             axes[0] = axes[0] or axes[2]
             axes[1] = axes[1] or axes[5]
 
-        self.update_quick_select(state, buttons, axes)
-        
-        changed = [(i, v) for i, v in enumerate(buttons) if v != self.buttons[i]]
-        self.buttons = buttons
-
-        if state == "config":
-            for i, value in enumerate(axes):
-                pressed = abs(value) > 0.5
-                if pressed != self.axes[i]:
-                    changed.append((i + 200, pressed))
-                    if pressed:
-                        changed.append((i * 2 + 100 + (value > 0), pressed))
-                        changed.append((i * 2 + 100 + (value < 0), not pressed))
-                    else:
-                        changed.append((i * 2 + 100, pressed))
-                        changed.append((i * 2 + 101, pressed))
-                    self.axes[i] = pressed
-            for i, value in changed:
-                self.icons.set_highlight(i, value)
-            return
-
+    def handle_poll_in_config(
+        self, axes: list[float], changed: list[tuple[int, bool]]
+    ) -> None:
+        """Handles the polling of the controller when in the config dialog"""
+        for i, value in enumerate(axes):
+            pressed = abs(value) > 0.5
+            if pressed != self.axes[i]:
+                changed.append((i + 200, pressed))
+                if pressed:
+                    changed.append((i * 2 + 100 + (value > 0), pressed))
+                    changed.append((i * 2 + 100 + (value < 0), not pressed))
+                else:
+                    changed.append((i * 2 + 100, pressed))
+                    changed.append((i * 2 + 101, pressed))
+                self.axes[i] = pressed
         for i, value in changed:
-            self.do_action(state, i, not value)
-
-        if any(axes) and not self.quick_select.is_shown:
-            self.do_axes_actions(state, axes)
-
-        assert self.overlay is not None
-        if self.config["Overlays Always On"]:
-            self.overlay.appear(state)
-
-        if self.scroll_up:
-            scroll(0, -SCROLL_FACTOR/100)
-        elif self.scroll_down:
-            scroll(0, SCROLL_FACTOR/100)
+            self.icons.set_highlight(i, value)
 
     @if_connected
     def update_quick_select(
