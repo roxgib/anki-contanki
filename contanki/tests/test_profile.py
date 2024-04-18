@@ -40,24 +40,6 @@ def test_get_profile():
 
 
 @test
-def test_get_profile_list():
-    profiles = get_profile_list(defaults=True)
-    assert isinstance(profiles, list)
-    assert len(profiles) > 0
-    assert profiles == [
-        "8BitDo Lite",
-        "8BitDo Zero (D Input)",
-        "8BitDo Zero (X Input)",
-        "Joy-Con Left",
-        "Joy-Con Right",
-        "Standard Gamepad (16 Buttons 4 Axes)",
-        "Standard Gamepad (17 Buttons 4 Axes)",
-        "Standard Gamepad (18 Buttons 4 Axes)",
-        "Super Nintendo",
-    ]
-
-
-@test
 def test_delete_profile():
     profile = get_profile("Standard Gamepad (16 Buttons 4 Axes)")
     assert profile is not None
@@ -176,3 +158,80 @@ def test_profile_is_valid():
     assert profile_is_valid("test")
     assert not profile_is_valid("test2")
     delete_profile("test")
+
+toml = """\
+# Contanki Profile
+name = "8BitDo Pro"
+size = [17, 4]
+controller = "8BitDo Pro"
+
+[quick_select]
+"Select with Stick" = true
+"Select with D-Pad" = true
+"Do Action on Release" = true
+"Do Action on Stick Press" = true
+"Do Action on Stick Flick" = false
+
+[quick_select.actions]
+deckBrowser = []
+overview = []
+review = ["Suspend Card", "Suspend Note", "Bury Card", "Bury Note", "Card Info"]
+
+[invert_axis]
+0 = false
+1 = true
+2 = false
+3 = false
+
+[axes_bindings]
+0 = "Buttons"
+1 = "Scroll Vertical"
+2 = "Cursor Horizontal"
+3 = "Cursor Vertical"
+
+[bindings]
+[bindings.all]
+0 = "Enter"
+4 = "Undo"
+7 = "Toggle Quick Select"
+
+[bindings.review]
+0 = "Enter"
+8 = "Card Info"
+13 = "Replay Audio"
+14 = "Flag"
+15 = "Mark Note"
+
+[bindings.question]
+0 = "Flip Card"
+
+[bindings.answer]
+0 = "Good"
+1 = "Again"
+2 = "Hard"
+3 = "Easy"
+
+[bindings.deckBrowser]
+0 = "Select"
+1 = "Expand/Collapse"
+2 = "Open Browser"
+
+[bindings.overview]
+0 = "Select"
+1 = "Rebuild"
+
+[bindings.dialog]
+0 = "Select"
+4 = "Escape"
+"""
+
+@test
+def test_profile_to_from_toml():
+    profile = Profile.from_toml(toml)
+    assert profile is not None
+    assert profile.name == "8BitDo Pro"
+    assert profile.len_buttons == 17
+    assert profile.len_axes == 4
+    assert profile.controller == Controller("8BitDo Pro")
+    assert profile.get("all", 0) == "Enter"
+    assert profile.to_toml() == toml

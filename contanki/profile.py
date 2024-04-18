@@ -12,8 +12,12 @@ from copy import deepcopy
 import os
 from os.path import join, exists
 import json
+import stat
 from typing import Any
 import shutil
+import toml
+import tomlkit
+import tomlkit.exceptions
 
 from .utils import (
     State,
@@ -61,9 +65,11 @@ class Profile:
         self.bindings[("NoFocus", 0)] = "Focus Main Window"
         self.invert_axis: dict[int, bool] = defaultdict(
             bool,
-            profile["invert_axis"]
-            if "invert_axis" in profile
-            else {i: False for i in self.axes_bindings},
+            (
+                profile["invert_axis"]
+                if "invert_axis" in profile
+                else {i: False for i in self.axes_bindings}
+            ),
         )
 
     def __repr__(self) -> str:
@@ -146,7 +152,7 @@ class Profile:
 
     def to_json(self) -> str:
         """Returns the profile as a JSON string."""
-        return json.dumps(self.to_dict())
+        return json.dumps(self.to_dict(), indent=4)
 
     @staticmethod
     def from_json(json_str: str) -> Profile | None:
@@ -162,6 +168,53 @@ class Profile:
             return None
         return Profile(profile)
 
+    def to_toml(self) -> str:
+        """Returns the profile as a TOML string."""
+        result = tomlkit.document()
+        result.add(tomlkit.comment("Contanki Profile"))
+        result.add("name", tomlkit.item(self.name))
+        result.add("size", tomlkit.item(self.size))
+        result.add("controller", tomlkit.item(self.controller.name))
+
+        def add_table(table: str, data: dict[Any, Any]) -> None:
+            _table = tomlkit.table()
+            for key, value in data.items():
+                _table.add(str(key), value)
+            result.add(table, _table)
+
+        add_table("quick_select", self.quick_select)
+        add_table("invert_axis", self.invert_axis)
+        add_table("axes_bindings", self.axes_bindings)
+
+        _bindings = {}
+        for (state, button), action in self.bindings.items():
+            if state == "NoFocus":
+                continue
+            if state not in _bindings:
+                _bindings[state] = tomlkit.table()
+            if action:
+                _bindings[state][str(button)] = action
+        bindings = tomlkit.table()
+        for state, state_table in _bindings.items():
+            bindings.add(state, state_table)
+        result.add("bindings", bindings)
+        return result.as_string()
+
+    @staticmethod
+    def from_toml(toml_str: str) -> Profile | None:
+        """Loads the profile from a TOML string."""
+        try:
+            toml = tomlkit.loads(toml_str)
+        except tomlkit.exceptions.ParseError as err:
+            dbg(f"Profile '{toml_str}' is not valid TOML")
+            dbg(err)
+            return None
+        profile_dict = int_keys(toml.unwrap())
+        if not profile_is_valid(profile_dict):
+            dbg(f"Profile '{profile_dict}' is not valid")
+            return None
+        return Profile(profile_dict)
+
     def __hash__(self) -> int:
         return hash(str(self.to_dict()))
 
@@ -172,7 +225,7 @@ class Profile:
         """Saves the profile to a file."""
         path = os.path.join(user_profile_path, slugify(self.name))
         with open(dbg(path), "w", encoding="utf8") as file:
-            json.dump(self.to_dict(), file)
+            json.dump(self.to_dict(), file, indent=4)
 
     def copy(self):
         """Returns a deep copy of the profile."""
