@@ -9,8 +9,7 @@
     "Overlays Always On": false,
     "Overlays in Quick Select": true,
     "Detect 8BitDo Controllers": false,
-
-    "Custom Actions": {
+    "Default Custom Actions": {
         "AwesomeTTS": "Ctrl+T"
     }
 }

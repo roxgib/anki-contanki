@@ -283,7 +283,7 @@ class OptionsPage(QWidget):
         centre_column.addWidget(self.flags, alignment=Alignment.AlignTop)
 
         # Custom Actions
-        self.custom_actions = self.CustomActions(parent, self.config["Custom Actions"])
+        self.custom_actions = self.CustomActions(parent)
 
         layout.addLayout(left_column, 1, 0, alignment=Alignment.AlignTop)
         layout.addLayout(centre_column, 1, 1, alignment=Alignment.AlignTop)
@@ -300,15 +300,13 @@ class OptionsPage(QWidget):
                 options[key] = option.isChecked()
             elif isinstance(self.config[key], int):
                 options[key] = option.value()
-        options["Custom Actions"] = {
-            k: v for k, v in self.custom_actions.get().items() if v
-        }
         options["Flags"] = self.flags.get()
         return options
 
     def update(self):
         """Updates page to reflect user changess, such as the selected controller."""
         self.profile_bar.refresh_controllers()
+        self.custom_actions.refresh_actions()
         self.axis_roles.setup()
         self.quick_select.setup()
 
@@ -474,7 +472,7 @@ class OptionsPage(QWidget):
     class CustomActions(QWidget):
         """A widget allowing the user to modify custom actions."""
 
-        def __init__(self, parent: ContankiConfig, actions: dict[str, str]) -> None:
+        def __init__(self, parent: ContankiConfig) -> None:
             super().__init__(parent)
             layout = QGridLayout()
             self.get_profile = parent.get_profile
@@ -482,7 +480,8 @@ class OptionsPage(QWidget):
             self.reload = parent.reload
 
             # Table
-            self.table = QTableWidget(len(actions), 2, parent)
+            self.table = QTableWidget(parent)
+            self.table.setColumnCount(2)
             self.table.setColumnWidth(0, 150)
             self.table.setColumnWidth(1, 100)
             self.table.setHorizontalHeaderLabels(["Custom Action", "Shortcut"])
@@ -498,14 +497,11 @@ class OptionsPage(QWidget):
                     "Couldn't get vertical table header for custom actions widget"
                 )
             vheader.hide()
-            self.key_edits = list()
-            for row, (action, key_sequence) in enumerate(actions.items()):
-                self.table.setItem(row, 0, QTableWidgetItem(action, 0))
-                key_edit = QKeySequenceEdit(QKeySequence(key_sequence))
-                self.key_edits.append(key_edit)
-                self.table.setCellWidget(row, 1, key_edit)
+            self.key_edits = []
+            self.refresh_actions()
+
             layout.addWidget(self.table, 0, 0, 1, 2)
-            qconnect(self.table.cellChanged, self.update_config)
+            qconnect(self.table.cellChanged, self.update_profile)
 
             # Buttons
             add_button = Button(self, "Add", self.add_row)
@@ -514,6 +510,19 @@ class OptionsPage(QWidget):
             layout.addWidget(delete_button, 1, 1)
 
             self.setLayout(layout)
+
+        def refresh_actions(self) -> None:
+            actions = self.get_profile().custom_actions or self.config["Default Custom Actions"]
+            self.table.blockSignals(True)
+            self.table.clear()
+            self.table.setRowCount(len(actions))
+            self.key_edits = []
+            for row, (action, key_sequence) in enumerate(actions.items()):
+                self.table.setItem(row, 0, QTableWidgetItem(action, 0))
+                key_edit = QKeySequenceEdit(QKeySequence(key_sequence))
+                self.key_edits.append(key_edit)
+                self.table.setCellWidget(row, 1, key_edit)
+            self.table.blockSignals(False)
 
         def add_row(self):
             """Add a row for a new custom action."""
@@ -527,7 +536,7 @@ class OptionsPage(QWidget):
             self.table.setItem(current_row, 0, QTableWidgetItem("New Action", 0))
             self.table.setCellWidget(current_row, 1, key_edit)
             self.table.setCurrentCell(current_row, 0)
-            self.update_config()
+            self.update_profile()
 
         def remove_row(self):
             """Remove the selected row, or the last one."""
@@ -539,7 +548,7 @@ class OptionsPage(QWidget):
             else:
                 self.key_edits.pop()
                 self.table.removeRow(self.table.rowCount() - 1)
-            self.update_config()
+            self.update_profile()
 
         def get_row(self, row: int) -> tuple[str, str]:
             """Return the custom action name and key sequence at a given row."""
@@ -584,9 +593,11 @@ class OptionsPage(QWidget):
                 return {}
             return {k: v for k, v in zip(self.get_actions(), self.get_keys())}
 
-        def update_config(self) -> None:
+        def update_profile(self) -> None:
             """Update the profile with the custom actions."""
-            self.config["Custom Actions"] = self.get()
+            profile = self.get_profile()
+            profile.custom_actions = self.get()
+            profile.save()
             self.reload()
 
     class FlagsSelector(QGroupBox):

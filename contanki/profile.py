@@ -62,6 +62,7 @@ class Profile:
         self.len_buttons, self.len_axes = self.size
         self.controller = profile["controller"]
         self.axes_bindings: dict[int, str] = defaultdict(str, profile["axes_bindings"])
+        self.custom_actions: dict[str, str] = profile.get("custom_actions", {})
         self.bindings[("NoFocus", 0)] = "Focus Main Window"
         self.invert_axis: dict[int, bool] = defaultdict(
             bool,
@@ -148,6 +149,7 @@ class Profile:
             "bindings": deepcopy(bindings),
             "axes_bindings": deepcopy(self.axes_bindings),
             "invert_axis": deepcopy(self.invert_axis),
+            "custom_actions": deepcopy(self.custom_actions),
         }
 
     def to_json(self) -> str:
@@ -185,6 +187,7 @@ class Profile:
         add_table("quick_select", self.quick_select)
         add_table("invert_axis", self.invert_axis)
         add_table("axes_bindings", self.axes_bindings)
+        add_table("custom_actions", self.custom_actions)
 
         _bindings = {}
         for (state, button), action in self.bindings.items():
