@@ -62,7 +62,7 @@ def get_config() -> dict:
         "Overlays Always On": False,
         "Overlays in Quick Select": True,
         "Detect 8BitDo Controllers": False,
-        "Custom Actions": {},
+        "Default Custom Actions": {},
     }
 
     loaded_config = mw.addonManager.getConfig(__name__)
@@ -143,26 +143,18 @@ def _get_dark_mode() -> Callable[[], bool]:
 
 get_dark_mode = _get_dark_mode()
 
-
-def get_custom_actions() -> dict[str, partial[None]]:
-    """Gets custom actions from the config file."""
-    config = get_config()
-    custom_actions = config["Custom Actions"]
-    actions = dict()
+def callback_for_key_sequence(sequence: str) -> Callable:
+    """Get the key_press() callback for the given key sequence."""
     # FIXME: Improve sanitisation
-    for action, sequence in custom_actions.items():
-        keys = QKeySequence(sequence)
-        try:
-            key = keys[0].key()
-            modifier = keys[0].keyboardModifiers()
-        except Exception:  # pylint: disable=broad-except
-            key = keys[0]  # type: ignore
-            modifier = NoMod
+    keys = QKeySequence(sequence)
+    try:
+        key = keys[0].key()
+        modifier = keys[0].keyboardModifiers()
+    except Exception:  # pylint: disable=broad-except
+        key = keys[0]  # type: ignore
+        modifier = NoMod
 
-        func = partial(key_press, key, modifier)  # type: ignore
-        actions[action] = func
-
-    return actions
+    return partial(key_press, key, modifier)  # type: ignore
 
 
 # Common
